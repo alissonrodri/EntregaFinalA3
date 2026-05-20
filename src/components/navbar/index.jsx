@@ -151,7 +151,8 @@ function Navbar() {
                 {getInitials(user?.nome)}
               </span>
               
-              <div className={`user-dropdown ${isMenuOpen ? 'active' : ''}`} id="user-dropdown">
+              {isMenuOpen && (
+                <div className={`user-dropdown ${isMenuOpen ? 'active' : ''}`} id="user-dropdown">
                 <div className="dropdown-header">
                   <p className="user-name">{user?.nome || 'Usuário'}</p>
                   {isAdmin && <p className="user-role">{user?.perfil}</p>}
@@ -164,6 +165,9 @@ function Navbar() {
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item logout-btn" onClick={handleLogout}>Finalizar sessão</button>
               </div>
+
+              )}
+              
             </div>
           </>
         ) : (

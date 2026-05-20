@@ -6,6 +6,10 @@
     --text-main: #e8eaf0; /*Texto principal da página*/
     --text-muted: #9194a6; /*Informações secundárias, ex: descrições*/
     --border: #2a2d3a; /*Cor de borda*/
+
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh
 }
 
 :root[data-theme="light"] {
@@ -29,11 +33,19 @@ body, .navbar, .category-card, .banner-home, .footer-container, .search-bar, .us
 
 html, body {
     width: 100%;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
     overflow-x: hidden; /*Evita scroll horizontal*/
     background-color: var(--bg-dark);
     color: var(--text-main);
     font-family: 'Ubuntu', sans-serif;
     -webkit-font-smoothing: alialiased;
+}
+
+main {
+    flex: 1;
+    width: 100%;
 }
 
 @media (max-width: 768px) {

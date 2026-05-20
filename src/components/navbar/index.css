@@ -8,7 +8,9 @@
     padding: 0 10px;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    left: 0;
+    width: 100%;
+    z-index: 1001;
 }
 
 .navbar-container {
@@ -184,6 +186,10 @@
     position: relative;
 }
 
+#avatar-btn {
+    position: relative; 
+}
+
 .user-dropdown {
     position: absolute; 
     top: 55px; 
@@ -194,15 +200,9 @@
     width: 220px; 
     padding: 10px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-
-    display: none; 
-    flex-direction: column; 
-    
-    z-index: 1001;
-}
-
-.user-dropdown.active { 
     display: flex; 
+    flex-direction: column; 
+    z-index: 1001;
 }
 
 .dropdown-header { 
