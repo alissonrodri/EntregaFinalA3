@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './index.css';
 import iconCLT from '../../assets/img/icon_clt.png'; // Verifique se o caminho do ícone está correto
+import api from '../../services/api';
 
 function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -10,9 +11,25 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
-  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const menuRef = useRef(null);
   const navigate = useNavigate();
+
+  const handleSearchSubmit = () => {
+    if (searchTerm.trim().length > 0) {
+      setIsSearchOpen(false);
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit();
+    }
+  };
 
   // Tema do site
   const toggleTheme = () => {
@@ -106,10 +123,64 @@ function Navbar() {
         </Link>
       
         {/* Barra de Pesquisa */}
-        <div className="search-bar">
-          <input type="text" placeholder="Buscar jogos..." />
-          <span className="search-icon">🔎</span>
-        </div>
+        <div className="search-bar" style={{ position: 'relative' }}>
+  <input 
+    type="text" 
+    placeholder="Buscar jogos..." 
+    value={searchTerm}
+    onKeyDown={handleKeyDown}
+    onChange={(e) => {
+      const value = e.target.value;
+      setSearchTerm(value);
+
+      // Só busca na API se o usuário digitar pelo menos 2 caracteres
+      if (value.trim().length >= 2) {
+        api.get('/public/jogos')
+          .then((response) => {
+            const filtrados = response.data.filter(jogo => 
+              jogo.nome.toLowerCase().includes(value.toLowerCase())
+            );
+            setSearchResults(filtrados.slice(0, 5)); // Mostra no máximo 5 sugestões rápidas
+            setIsSearchOpen(true);
+          })
+          .catch((err) => console.error("Erro na busca rápida:", err));
+      } else {
+        setIsSearchOpen(false);
+      }
+    }}
+    onBlur={() => {
+      // Pequeno timeout para dar tempo do clique no link do menu funcionar antes dele sumir
+      setTimeout(() => setIsSearchOpen(false), 200);
+    }}
+    onFocus={() => {
+      if (searchTerm.trim().length >= 2) setIsSearchOpen(true);
+    }}
+  />
+  <span className="search-icon" style={{ cursor: 'pointer' }}>🔎</span>
+
+  {/* Menu Flutuante de Sugestões Rápidas */}
+  {isSearchOpen && searchResults.length > 0 && (
+    <div className="search-dropdown">
+      {searchResults.map((jogo) => (
+        <Link 
+          key={jogo.id} 
+          to={`/game/${jogo.id}`} // Rota futura para página do jogo
+          className="search-dropdown-item"
+          onClick={() => {
+            setSearchTerm('');
+            setIsSearchOpen(false);
+          }}
+        >
+          <span className="search-item-icon">🎮</span>
+          <div className="search-item-info">
+            <p className="search-item-name">{jogo.nome}</p>
+            <p className="search-item-category">{jogo.categoria}</p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )}
+</div>
 
         {/* Links Principais de Navegação */}
         <div className={`navbar-menu ${isMobileMenuOpen ? 'active' : ''}`}>
