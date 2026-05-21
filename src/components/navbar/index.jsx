@@ -21,10 +21,9 @@ function Navbar() {
   const navigate = useNavigate();
 
   const handleSearchSubmit = () => {
-    if (searchTerm.trim().length > 0) {
       setIsSearchOpen(false);
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-    }
+    
   };
 
   const handleKeyDown = (e) => {

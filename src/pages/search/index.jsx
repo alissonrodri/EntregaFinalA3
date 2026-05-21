@@ -6,51 +6,59 @@ import './index.css';
 function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-  
   const [exactResults, setExactResults] = useState([]);
   const [recommendedGames, setRecommendedGames] = useState([]);
-  const [loading, setLoading] = useState(!!query);
-  
+  const [loading, setLoading] = useState(true);
+  const [isLimitedResult, setIsLimitedResult] = useState(false);
 
   useEffect(() => {
-    if (!query) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 0);
-      return;
-    }
+    
+    setTimeout(() => {
+      setLoading(true);
+    }, 0);
 
     api.get('/public/jogos')
       .then((response) => {
         const allGames = response.data;
 
-        // 1. Filtra os jogos pelo termo buscado
-        const filtrados = allGames.filter(jogo => 
-          jogo.nome.toLowerCase().includes(query.toLowerCase())
-        );
-        setExactResults(filtrados);
-
-        // 2. Busca jogos relacionados
-        if (filtrados.length > 0) {
-          const jogoPrincipal = filtrados[0];
+        // SE A BUSCA ESTIVER VAZIA: Pega 10 aleatórios
+        if (!query) {
+          setIsLimitedResult(true);
           
-          const categoriaAlvo = jogoPrincipal.categoria 
-            ? String(jogoPrincipal.categoria).trim().toLowerCase() 
-            : "";
+          const shuffledGames = [...allGames].sort(() => 0.5 - Math.random());
+          setExactResults(shuffledGames.slice(0, 10));
+          setRecommendedGames([]); 
+        } 
+        // SE A BUSCA TIVER TEXTO: Faz a filtragem normal
+        else {
+          setIsLimitedResult(false);
+          
+          const filtrados = allGames.filter(jogo => 
+            jogo.nome.toLowerCase().includes(query.toLowerCase())
+          );
+          setExactResults(filtrados);
 
-          const recomendados = allGames.filter(jogo => {
-            const categoriaAtual = jogo.categoria 
-              ? String(jogo.categoria).trim().toLowerCase() 
+          if (filtrados.length > 0) {
+            const jogoPrincipal = filtrados[0];
+            
+            const categoriaAlvo = jogoPrincipal.categoria 
+              ? String(jogoPrincipal.categoria).trim().toLowerCase() 
               : "";
-              
-            const isJaBuscado = filtrados.some(f => f.nome === jogo.nome);
 
-            return (categoriaAtual === categoriaAlvo) && !isJaBuscado;
-          });
+            const recomendados = allGames.filter(jogo => {
+              const categoriaAtual = jogo.categoria 
+                ? String(jogo.categoria).trim().toLowerCase() 
+                : "";
+                
+              const isJaBuscado = filtrados.some(f => f.nome === jogo.nome);
 
-          setRecommendedGames(recomendados.slice(0, 4));
-        } else {
-          setRecommendedGames([]);
+              return (categoriaAtual === categoriaAlvo) && !isJaBuscado;
+            });
+
+            setRecommendedGames(recomendados.slice(0, 4));
+          } else {
+            setRecommendedGames([]);
+          }
         }
 
         setLoading(false);
@@ -61,11 +69,9 @@ function SearchPage() {
       });
   }, [query]);
 
-  
   const handleAddToCart = (gameId) => {
     console.log(`Jogo ${gameId} adicionado ao carrinho.`);
   };
-
 
   const handleAddToWishlist = (gameId) => {
     console.log(`Jogo ${gameId} adicionado à lista de desejos.`);
@@ -82,9 +88,19 @@ function SearchPage() {
 
   return (
     <div className="search-page-container">
+      
       <header className="search-page-header">
-        <h1>Resultados para: <span>"{query}"</span></h1>
-        <p>{exactResults.length} {exactResults.length === 1 ? 'jogo encontrado' : 'jogos encontrados'}</p>
+        {isLimitedResult ? (
+          <>
+            <h1>Explorando o Catálogo</h1>
+            <p><strong>Resultado limitado:</strong> Use a barra de pesquisa para buscar um título específico.</p>
+          </>
+        ) : (
+          <>
+            <h1>Resultados para: <span>"{query}"</span></h1>
+            <p>{exactResults.length} {exactResults.length === 1 ? 'jogo encontrado' : 'jogos encontrados'}</p>
+          </>
+        )}
       </header>
 
       <section className="results-section">
@@ -102,17 +118,14 @@ function SearchPage() {
                   <div className="game-row-side-info">
                     <span className="game-row-price">R$ {formatPrice(jogo.preco)}</span>
                     <div className="game-row-actions">
-                      {/* Botão 1: Adicionar ao Carrinho */}
                       <button className="btn-row-add-cart" onClick={() => handleAddToCart(jogo.id)}>
                         Adicionar ao carrinho
                       </button>
                       
-                      {/* Botão 2: Lista de Desejos */}
                       <button className="btn-row-wishlist" onClick={() => handleAddToWishlist(jogo.id)} title="Lista de Desejos">
                         ♡
                       </button>
 
-                      {/* Botão 3: Ver Detalhes */}
                       <Link to={`/game/${jogo.id}`} className="btn-row-details">
                         Ver detalhes
                       </Link>
