@@ -1,16 +1,20 @@
 import { BrowserRouter, Routes, Route, useLocation} from 'react-router-dom';
 import Navbar from "./components/navbar"
+import Footer from "./components/footer"
 import Home from "./pages/home"
 import SignIn from './pages/signIn';
 import SignUp from './pages/signUp';
+import SearchPage from './pages/search'
 
 
 function AppRoutes(){
   const location = useLocation();
 
   const rotasSemNavbar = ['/signin', '/signup'];
+  const rotasSemFooter = ['/signin', '/signup'];
 
   const rotasComNavbar = !rotasSemNavbar.includes(location.pathname);
+  const rotasComFooter = !rotasSemFooter.includes(location.pathname);
 
   return(
     <>
@@ -22,8 +26,13 @@ function AppRoutes(){
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/search" element={<SearchPage />} />
         </Routes>
       </main>
+
+      {rotasComFooter && <Footer />}
+
+
     </>
   );
 }

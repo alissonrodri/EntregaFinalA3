@@ -11,6 +11,8 @@ function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+ 
+  //barra de busca
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -123,15 +125,14 @@ function Navbar() {
         </Link>
       
         {/* Barra de Pesquisa */}
-        <div className="search-bar" style={{ position: 'relative' }}>
-  <input 
-    type="text" 
-    placeholder="Buscar jogos..." 
-    value={searchTerm}
-    onKeyDown={handleKeyDown}
-    onChange={(e) => {
-      const value = e.target.value;
-      setSearchTerm(value);
+        <div className="search-bar">
+
+        <input type="text" placeholder="Buscar jogos..." 
+        value={searchTerm}
+          onKeyDown={handleKeyDown}
+          onChange={(e) => {
+          const value = e.target.value;
+          setSearchTerm(value);
 
       // Só busca na API se o usuário digitar pelo menos 2 caracteres
       if (value.trim().length >= 2) {
@@ -156,7 +157,9 @@ function Navbar() {
       if (searchTerm.trim().length >= 2) setIsSearchOpen(true);
     }}
   />
-  <span className="search-icon" style={{ cursor: 'pointer' }}>🔎</span>
+  
+  {/* AQUI ESTÁ A CORREÇÃO: Adicionado o onClick={handleSearchSubmit} no ícone da lupa */}
+  <span className="search-icon" onClick={handleSearchSubmit}>🔎</span>
 
   {/* Menu Flutuante de Sugestões Rápidas */}
   {isSearchOpen && searchResults.length > 0 && (
