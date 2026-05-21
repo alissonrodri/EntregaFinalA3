@@ -126,7 +126,7 @@ function SearchPage() {
                         ♡
                       </button>
 
-                      <Link to={`/game/${jogo.id}`} className="btn-row-details">
+                      <Link to={`/game/${jogo.nome}`} className="btn-row-details">
                         Ver detalhes
                       </Link>
                     </div>

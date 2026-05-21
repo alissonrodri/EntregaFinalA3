@@ -103,6 +103,9 @@
     background: transparent;
     border: 1px solid var(--border);
     color: var(--text-main);
+    text-decoration: none;
+    text-align: center;
+    font-size: 0.8rem;
     padding: 12px 20px;
     border-radius: 8px;
     cursor: pointer;

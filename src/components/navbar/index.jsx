@@ -166,7 +166,7 @@ function Navbar() {
       {searchResults.map((jogo) => (
         <Link 
           key={jogo.id} 
-          to={`/game/${jogo.id}`} // Rota futura para página do jogo
+          to={`/game/${jogo.nome}`} // Rota futura para página do jogo
           className="search-dropdown-item"
           onClick={() => {
             setSearchTerm('');

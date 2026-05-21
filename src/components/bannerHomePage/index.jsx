@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../services/api'; 
 import './index.css';
 
 function Banner() {
+
   const [games, setGames] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,8 @@ function Banner() {
           <div className="banner-btns">
             <button className="btn-cart">Adicionar ao carrinho</button>
             <button className="btn-wishlist">♡ Lista de desejos</button>
-            <button className="btn-details">Ver detalhes</button>
+            <Link to={`/game/${currentGame.nome}`} className="btn-details">Ver detalhes</Link>
+         
           </div>
         </div>
 

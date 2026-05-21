@@ -5,6 +5,7 @@ import Home from "./pages/home"
 import SignIn from './pages/signIn';
 import SignUp from './pages/signUp';
 import SearchPage from './pages/search'
+import GamePage from './pages/gamepage'
 
 
 function AppRoutes(){
@@ -27,6 +28,7 @@ function AppRoutes(){
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/game/:id" element={<GamePage />} />
         </Routes>
       </main>
 
