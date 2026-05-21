@@ -126,14 +126,19 @@
 .btn-row-add-cart {
     background-color: var(--contrast);
     color: var(--bg-dark);
-    border: none;
-    padding: 12px 25px;
+    border: 1px solid transparent; 
+    padding: 0 25px;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.3s ease;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px; 
+    box-sizing: border-box;
 }
 
 .btn-row-add-cart:hover {
@@ -146,13 +151,18 @@
     background: transparent;
     border: 1px solid var(--border);
     color: var(--text-main);
-    padding: 12px 20px; 
+    padding: 0 20px; 
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 1.1rem; 
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    box-sizing: border-box;
 }
 
 .btn-row-wishlist:hover {
@@ -166,7 +176,7 @@
     background: transparent;
     border: 1px solid var(--border);
     color: var(--text-main);
-    padding: 12px 20px; 
+    padding: 0 20px; 
     border-radius: 8px;
     text-decoration: none;
     font-size: 0.9rem;
@@ -176,6 +186,8 @@
     justify-content: center;
     transition: all 0.3s ease;
     white-space: nowrap;
+    height: 44px; 
+    box-sizing: border-box;
 }
 
 .btn-row-details:hover {
