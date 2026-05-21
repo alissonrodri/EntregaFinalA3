@@ -11,7 +11,7 @@ function GamePage() {
   const [similarGames, setSimilarGames] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados interativos da página
+
   const [activeMedia, setActiveMedia] = useState(0);
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
