@@ -1,24 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../../services/api'; // Importando a nossa instância do Axios
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import './index.css';
 
 function SearchInClass() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-
     api.get('/public/jogos')
       .then((response) => {
-        // No Axios, a resposta do servidor vem direto em response.data
         const data = response.data;
-        
-        // Lógica para não deixar repetir categoria
+
         const uniqueCategories = [];
         const seen = new Set();
 
-        // Mapeamento de ícones para os cards
         const iconMap = {
           'RPG': '🐲',
           'Ação': '⚔️',
@@ -55,6 +52,11 @@ function SearchInClass() {
       });
   }, []);
 
+  // Redireciona para /categorias já com o filtro aplicado via query param
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/categorias?categoria=${encodeURIComponent(categoryName)}`);
+  };
+
   if (loading) {
     return <div className='category-loading'>Mapeando categorias...</div>;
   }
@@ -65,12 +67,21 @@ function SearchInClass() {
         <div className='header-left'>
           <h2 className='category-title'>Explorar por categoria</h2>
         </div>
+        {/* "Ver todas" leva para /categorias sem filtro */}
         <Link to="/categorias" className='view-all'>Ver todas &rarr;</Link>
       </div>
 
       <div className='category-grid'>
         {categories.map((cat, index) => (
-          <div key={index} className='category-card'>
+          <div
+            key={index}
+            className='category-card'
+            onClick={() => handleCategoryClick(cat.name)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => e.key === 'Enter' && handleCategoryClick(cat.name)}
+            aria-label={`Filtrar por ${cat.name}`}
+          >
             <div className='category-icon'>{cat.icon}</div>
             <h3 className='category-name'>{cat.name}</h3>
             <span className='category-count'>{cat.count}</span>

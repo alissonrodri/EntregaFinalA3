@@ -157,7 +157,7 @@ function SearchPage() {
                     <span className="thumb-category">{jogo.categoria?.trim()}</span>
                     <span className="thumb-price">R$ {formatPrice(jogo.preco)}</span>
                   </div>
-                  <Link to={`/search?q=${encodeURIComponent(jogo.nome)}`} className="btn-thumb-view">Ver detalhes</Link>
+                  <Link to={`/game/${jogo.nome}`} className="btn-thumb-view">Ver detalhes</Link>
                 </div>
               </div>
             ))}
