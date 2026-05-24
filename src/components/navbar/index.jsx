@@ -133,8 +133,8 @@ function Navbar() {
           const value = e.target.value;
           setSearchTerm(value);
 
-      // Só busca na API se o usuário digitar pelo menos 2 caracteres
-      if (value.trim().length >= 2) {
+      
+      if (value.trim().length >= 1) {
         api.get('/public/jogos')
           .then((response) => {
             const filtrados = response.data.filter(jogo => 
