@@ -29,7 +29,7 @@ function GamePage() {
     idle:      { text: "Adicionar ao carrinho", disabled: false, className: "" },
     success:   { text: "Adicionado! ✓",         disabled: true,  className: "btn-success" },
     duplicate: { text: "Já adicionado",          disabled: true,  className: "btn-added" },
-    already:   { text: "Já adicionado",          disabled: true,  className: "btn-added" },
+    already:   { text: "No carrinho",          disabled: true,  className: "btn-added" },
   };
 
   const wishConfig = {

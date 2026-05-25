@@ -130,7 +130,9 @@ function CartPage() {
                   <div className="item-img-placeholder">🎮</div>
 
                   <div className="item-details">
-                    <h3 className="item-name">{item.nome}</h3>
+                     <Link to={`/game/${encodeURIComponent(item.nome)}`} className="item-name-link">
+                      <h3 className="item-name">{item.nome}</h3>
+                    </Link>
                     <span className="item-category">{item.categoria}</span>
                     <p className="item-meta">{item.descricao}</p>
                   </div>
