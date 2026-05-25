@@ -39,7 +39,12 @@ function GamePage() {
   };
 
   useEffect(() => {
-    setTimeout(() => { setLoading(true); }, 0);
+    
+    setTimeout(() => { 
+      setLoading(true); 
+      setWishState('idle');
+      setBtnState('idle');
+    }, 0);
     window.scrollTo(0, 0);
 
     api.get('/public/jogos')
