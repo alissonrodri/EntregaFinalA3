@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-function WishlistPage() {
+function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addedItems, setAddedItems] = useState({});
@@ -184,4 +184,4 @@ function WishlistPage() {
   );
 }
 
-export default WishlistPage;
+export default Wishlist;
