@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './index.css';
-import iconCLT from '../../assets/img/icon_clt.png'; // Verifique se o caminho do ícone está correto
+import iconCLT from '../../assets/img/icon_clt.png'; 
 import api from '../../services/api';
 
 function Navbar() {
@@ -12,10 +12,12 @@ function Navbar() {
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
  
-  //barra de busca
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // NOVO ESTADO: Controla o número da bolinha vermelha do carrinho
+  const [cartCount, setCartCount] = useState(parseInt(localStorage.getItem('cartCount')) || 0);
 
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -23,7 +25,6 @@ function Navbar() {
   const handleSearchSubmit = () => {
       setIsSearchOpen(false);
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-    
   };
 
   const handleKeyDown = (e) => {
@@ -31,8 +32,7 @@ function Navbar() {
       handleSearchSubmit();
     }
   };
-
-  // Tema do site
+  
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
@@ -43,6 +43,7 @@ function Navbar() {
   function handleLogout() {
     localStorage.removeItem('token');
     localStorage.removeItem('cartCount');
+    setCartCount(0); // Zera o contador visualmente
     setIsLoggedIn(false);
     setUser(null);
     setIsAdmin(false);
@@ -50,7 +51,7 @@ function Navbar() {
     navigate('/');
   }
 
-  // Retorna as iniciais do usuário logado para o avatar visual (provisório)
+  // Retorna as iniciais do usuário logado para o avatar visual
   const getInitials = (fullName) => {
     if (!fullName) return "??";
     const parts = fullName.trim().split(' ');
@@ -59,6 +60,27 @@ function Navbar() {
     }
     return parts[0].substring(0, 2).toUpperCase();
   };
+
+  
+  const fetchCartCount = useCallback(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      api.get('/carrinho/ativo', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then((res) => {
+        if (res.data.message === 'Carrinho vazio.' || !res.data.carrinho) {
+          setCartCount(0);
+          localStorage.setItem('cartCount', 0);
+        } else {
+          const count = res.data.carrinho.itens ? res.data.carrinho.itens.length : 0;
+          setCartCount(count);
+          localStorage.setItem('cartCount', count);
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar quantidade do carrinho:", err));
+    }
+  }, []);
 
   // Processa o token JWT para recuperar os dados do usuário logado
   const processToken = useCallback((token) => {
@@ -73,18 +95,14 @@ function Navbar() {
       console.error("Erro ao ler o token", error);
       handleLogout();
     }
-  }, []); // ignorar "erro"
+  }, []);
 
-  // Monitora o estado inicial de autenticação e o tema visual
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
     if (token && !isLoggedIn) {
-
         setTimeout(() =>{
             processToken(token);
         }, 0);
-      
     }
 
     if (theme === 'light') {
@@ -94,7 +112,19 @@ function Navbar() {
     }
   }, [processToken, theme, isLoggedIn]);
 
-  // Fecha o menu suspenso do perfil ao clicar em qualquer área fora dele
+  
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchCartCount();
+    }
+  }, [isLoggedIn, fetchCartCount]);
+
+  
+  useEffect(() => {
+    window.addEventListener('cartUpdated', fetchCartCount);
+    return () => window.removeEventListener('cartUpdated', fetchCartCount);
+  }, [fetchCartCount]);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -108,7 +138,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        {/* Ícone de Menu Hamburguer para telas Mobile */}
+      
         <div 
           className="mobile-menu-icon" 
           id="mobile-menu-btn"
@@ -116,75 +146,67 @@ function Navbar() {
         >
           {isMobileMenuOpen ? '✖' : '☰'}
         </div>
-       
-        {/* Logotipo Oficial */}
+    
         <Link to="/" className="navbar-logo" onClick={() => setIsMobileMenuOpen(false)}>
           <img src={iconCLT} alt="Ícone CLT Gaming" />
           <span>CLT</span> Gaming
         </Link>
       
-        {/* Barra de Pesquisa */}
         <div className="search-bar">
+          <input type="text" placeholder="Buscar jogos..." 
+            value={searchTerm}
+            onKeyDown={handleKeyDown}
+            onChange={(e) => {
+            const value = e.target.value;
+            setSearchTerm(value);
 
-        <input type="text" placeholder="Buscar jogos..." 
-        value={searchTerm}
-          onKeyDown={handleKeyDown}
-          onChange={(e) => {
-          const value = e.target.value;
-          setSearchTerm(value);
-
-      
-      if (value.trim().length >= 1) {
-        api.get('/public/jogos')
-          .then((response) => {
-            const filtrados = response.data.filter(jogo => 
-              jogo.nome.toLowerCase().includes(value.toLowerCase())
-            );
-            setSearchResults(filtrados.slice(0, 5)); // Mostra no máximo 5 sugestões rápidas
-            setIsSearchOpen(true);
-          })
-          .catch((err) => console.error("Erro na busca rápida:", err));
-      } else {
-        setIsSearchOpen(false);
-      }
-    }}
-    onBlur={() => {
-      // Pequeno timeout para dar tempo do clique no link do menu funcionar antes dele sumir
-      setTimeout(() => setIsSearchOpen(false), 200);
-    }}
-    onFocus={() => {
-      if (searchTerm.trim().length >= 2) setIsSearchOpen(true);
-    }}
-  />
-  
-  {/* AQUI ESTÁ A CORREÇÃO: Adicionado o onClick={handleSearchSubmit} no ícone da lupa */}
-  <span className="search-icon" onClick={handleSearchSubmit}>🔎</span>
-
-  {/* Menu Flutuante de Sugestões Rápidas */}
-  {isSearchOpen && searchResults.length > 0 && (
-    <div className="search-dropdown">
-      {searchResults.map((jogo) => (
-        <Link 
-          key={jogo.id} 
-          to={`/game/${jogo.nome}`} // Rota futura para página do jogo
-          className="search-dropdown-item"
-          onClick={() => {
-            setSearchTerm('');
-            setIsSearchOpen(false);
+            if (value.trim().length >= 1) {
+              api.get('/public/jogos')
+                .then((response) => {
+                  const filtrados = response.data.filter(jogo => 
+                    jogo.nome.toLowerCase().includes(value.toLowerCase())
+                  );
+                  setSearchResults(filtrados.slice(0, 5)); 
+                  setIsSearchOpen(true);
+                })
+                .catch((err) => console.error("Erro na busca rápida:", err));
+            } else {
+              setIsSearchOpen(false);
+            }
           }}
-        >
-          <span className="search-item-icon">🎮</span>
-          <div className="search-item-info">
-            <p className="search-item-name">{jogo.nome}</p>
-            <p className="search-item-category">{jogo.categoria}</p>
-          </div>
-        </Link>
-      ))}
-    </div>
-  )}
-</div>
+          onBlur={() => {
+            setTimeout(() => setIsSearchOpen(false), 200);
+          }}
+          onFocus={() => {
+            if (searchTerm.trim().length >= 2) setIsSearchOpen(true);
+          }}
+        />
+        
+        <span className="search-icon" onClick={handleSearchSubmit}>🔎</span>
 
-        {/* Links Principais de Navegação */}
+        {isSearchOpen && searchResults.length > 0 && (
+          <div className="search-dropdown">
+            {searchResults.map((jogo) => (
+              <Link 
+                key={jogo.id} 
+                to={`/game/${encodeURIComponent(jogo.nome)}`} 
+                className="search-dropdown-item"
+                onClick={() => {
+                  setSearchTerm('');
+                  setIsSearchOpen(false);
+                }}
+              >
+                <span className="search-item-icon">🎮</span>
+                <div className="search-item-info">
+                  <p className="search-item-name">{jogo.nome}</p>
+                  <p className="search-item-category">{jogo.categoria}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
         <div className={`navbar-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           <Link to="/" className="navbar-item active" onClick={() => setIsMobileMenuOpen(false)}>Loja</Link>
           <Link to="/library" className="navbar-item" onClick={() => setIsMobileMenuOpen(false)}>Biblioteca</Link>
@@ -192,33 +214,29 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Seção lateral direita da navbar */}
       <div className="navbar-actions">
-        {/* Botão de Alternância de Tema */}
+        
         <div className="action-icon" onClick={toggleTheme} title="Alternar Tema">
           {theme === 'light' ? '🌙' : '☀️'}
         </div>
 
         {isLoggedIn ? (
           <>
-            {/* Exibe o botão de Painel Administrativo caso o perfil possua a permissão */}
             {isAdmin && (
               <Link to="/admin" className="navbar-item admin">Painel ADM</Link>
             )}
 
-            {/* Ícone de Notificações */}
             <div className="action-icon notification" id="nav-notification">
               🔔 <span className="badge-notification">0</span>
             </div>
 
-            {/* Link direcionado para o Carrinho de Compras */}
+           
             <Link to="/cart" className="cart-btn">
               <div className="action-icon cart" id="nav-cart">
-                🛒 <span className="badge-cart">{localStorage.getItem('cartCount') || 0}</span>
+                🛒 <span className="badge-cart">{cartCount}</span>
               </div>
             </Link>
 
-            {/* Menu de Perfil do Usuário */}
             <div className="user-profile" ref={menuRef}>
               <span className="user-avatar" id="avatar-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 {getInitials(user?.nome)}
@@ -238,13 +256,10 @@ function Navbar() {
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item logout-btn" onClick={handleLogout}>Finalizar sessão</button>
               </div>
-
               )}
-              
             </div>
           </>
         ) : (
-          /* Estado Visual Deslogado */
           <>
             <Link to="/signup" className="btn-signup">Criar conta</Link>
             <Link to="/login" className="btn-login">Entrar</Link>

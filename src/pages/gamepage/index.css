@@ -163,6 +163,22 @@
     transition: all 0.2s ease;
 }
 
+.btn-cart.btn-added {
+    background-color: #ff4d4d;
+    color: white;
+    border-color: #ff4d4d;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.btn-cart.btn-success {
+    background-color: #2ecc71;
+    color: white;
+    border-color: #2ecc71;
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
 .btn-primary {
     background-color: var(--contrast);
     color: var(--bg-dark);

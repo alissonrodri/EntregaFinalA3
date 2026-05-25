@@ -7,7 +7,7 @@ const api = axios.create({
 
 // Adição de token no localstorage do navegador caso necessite na req
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('@CLTGaming:token');
+  const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
