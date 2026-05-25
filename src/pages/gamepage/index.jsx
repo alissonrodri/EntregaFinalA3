@@ -12,6 +12,7 @@ function GamePage() {
   const [similarGames, setSimilarGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [btnState, setBtnState] = useState('idle');
+  const [wishState, setWishState] = useState('idle'); 
 
   const [activeMedia, setActiveMedia] = useState(0);
   const [userRating, setUserRating] = useState(0);
@@ -29,6 +30,12 @@ function GamePage() {
     success:   { text: "Adicionado! ✓",         disabled: true,  className: "btn-success" },
     duplicate: { text: "Já adicionado",          disabled: true,  className: "btn-added" },
     already:   { text: "Já adicionado",          disabled: true,  className: "btn-added" },
+  };
+
+  const wishConfig = {
+    idle:    { text: "♡ Lista de desejos",  className: "" },
+    added:   { text: "♥ Na lista de desejos", className: "btn-wish-added" },
+    already: { text: "♥ Na lista de desejos", className: "btn-wish-added" },
   };
 
   useEffect(() => {
@@ -60,7 +67,17 @@ function GamePage() {
                 });
                 const itens = cartRes.data.carrinho?.itens || [];
                 if (itens.some(i => i.fkJogo === gameWithId.id)) {
+                 
                   setBtnState('already');
+                }
+
+               
+                const wishRes = await api.get('/lista-desejo', {
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+                const wishGames = Array.isArray(wishRes.data) ? wishRes.data : [];
+                if (wishGames.some(g => g.id === gameWithId.id)) {
+                  setWishState('already');
                 }
               }
             } catch (err) {
@@ -121,7 +138,7 @@ function GamePage() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-     
+   
       setBtnState('success');
       window.dispatchEvent(new Event('cartUpdated'));
 
@@ -129,7 +146,7 @@ function GamePage() {
 
     } catch (error) {
       if (error.response?.status === 400) {
-        
+       
         setBtnState('duplicate');
         setTimeout(() => setBtnState('idle'), 2000);
       } else {
@@ -138,12 +155,101 @@ function GamePage() {
     }
   };
 
-  const handleBuy = () => {
+const handleBuy = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/signin');
-    } else {
+      return;
+    }
+
+    
+    if (btnState === 'already' || btnState === 'success') {
       navigate('/cart');
+      return;
+    }
+
+    let finalGameId = game?.id;
+
+    if (!finalGameId) {
+      try {
+        const authRes = await api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } });
+        const jogosList = Array.isArray(authRes.data) ? authRes.data : (authRes.data.jogos || []);
+        const match = jogosList.find(g => g.nome === game.nome);
+        if (match && match.id) {
+          finalGameId = match.id;
+          setGame(prev => ({ ...prev, id: finalGameId }));
+        } else {
+          alert("Não foi possível localizar o identificador único deste jogo.");
+          return;
+        }
+      } catch (err) {
+        alert(`Erro ao buscar o jogo: ${err.response?.status || err.message}`);
+        return;
+      }
+    }
+
+    try {
+      await api.post('/carrinho/add',
+        { jogoId: finalGameId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      window.dispatchEvent(new Event('cartUpdated'));
+    } catch (error) {
+     
+      if (error.response?.status !== 400) {
+        alert("Erro ao adicionar ao carrinho. Tente novamente.");
+        return;
+      }
+    }
+
+    navigate('/cart');
+  };
+
+  const handleWishlist = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) { navigate('/signin'); return; }
+
+   
+    if (wishState === 'added' || wishState === 'already') {
+      try {
+        await api.delete('/lista-desejo', {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { jogoId: game.id },
+        });
+        setWishState('idle');
+      } catch (err) {
+        console.error("Erro ao remover da lista de desejos:", err);
+      }
+      return;
+    }
+
+    let finalGameId = game?.id;
+    if (!finalGameId) {
+      try {
+        const authRes = await api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } });
+        const jogosList = Array.isArray(authRes.data) ? authRes.data : (authRes.data.jogos || []);
+        const match = jogosList.find(g => g.nome === game.nome);
+        if (match?.id) {
+          finalGameId = match.id;
+          setGame(prev => ({ ...prev, id: finalGameId }));
+        } else { return; }
+      } catch (err) { 
+        console.error("Erro ao buscar ID do jogo para wishlist:", err);
+        alert("Não foi possível adicionar o jogo à lista de desejos. Tente novamente.");
+        return; 
+      }
+    }
+
+    try {
+      await api.post('/lista-desejo',
+        { jogoId: finalGameId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setWishState('added');
+    } catch (err) {
+      if (err.response?.status === 409) {
+        setWishState('already'); 
+      }
     }
   };
 
@@ -196,7 +302,12 @@ function GamePage() {
               >
                 {btn.text}
               </button>
-              <button className="btn btn-secondary btn-wishlist">♡ Lista de desejos</button>
+              <button
+                className={`btn btn-secondary btn-wishlist ${wishConfig[wishState].className}`}
+                onClick={handleWishlist}
+              >
+                {wishConfig[wishState].text}
+              </button>
             </div>
           </aside>
         </section>

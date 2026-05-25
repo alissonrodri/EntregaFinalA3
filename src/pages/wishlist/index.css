@@ -1,0 +1,229 @@
+/* Container Principal */
+.wishlist-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 30px;
+    min-height: 60vh;
+}
+
+.wishlist-loading {
+    text-align: center;
+    padding: 100px 20px;
+    color: var(--text-main);
+    font-size: 1.2rem;
+}
+
+/* Cabeçalho */
+.wishlist-header {
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+}
+
+.wishlist-title {
+    font-size: 2.5rem;
+    color: var(--text-main);
+    margin-bottom: 10px;
+}
+
+.wishlist-description {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* Estado vazio */
+.wishlist-empty {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 60px 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.wishlist-empty-icon {
+    font-size: 3.5rem;
+    line-height: 1;
+}
+
+.wishlist-empty h3 {
+    font-size: 1.5rem;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.wishlist-empty p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    max-width: 400px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.btn-browse-store {
+    background-color: var(--contrast);
+    color: var(--bg-dark);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: filter 0.2s, transform 0.2s;
+    margin-top: 5px;
+}
+
+.btn-browse-store:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* Grid de Jogos */
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* Card Individual */
+.wishlist-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, border-color 0.2s ease;
+}
+
+.wishlist-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--contrast);
+}
+
+.wishlist-media {
+    height: 160px;
+    background-color: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.wishlist-media:hover {
+    opacity: 0.85;
+}
+
+.wishlist-info {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.game-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-main);
+}
+
+.game-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.game-description {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Preço */
+.game-price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.game-price {
+    font-size: 1.4rem;
+    color: var(--contrast);
+    font-weight: bold;
+}
+
+.game-price-original {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.game-discount-badge {
+    background-color: var(--contrast);
+    color: var(--bg-dark);
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+/* Ações */
+.wishlist-actions {
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+}
+
+.btn-move-to-cart {
+    flex-grow: 1;
+    padding: 11px;
+    background-color: var(--contrast);
+    color: var(--bg-dark);
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.btn-move-to-cart:hover {
+    filter: brightness(1.1);
+}
+
+.btn-remove {
+    padding: 10px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.btn-remove:hover {
+    border-color: #ff4d4d;
+    background-color: rgba(255, 77, 77, 0.1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .wishlist-container { padding: 0 15px; }
+    .wishlist-title { font-size: 1.8rem; }
+    .wishlist-grid { grid-template-columns: 1fr; }
+}

@@ -269,3 +269,86 @@
     }
 }
 
+
+/* Preço com desconto */
+.item-price-original {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+    margin: 0;
+}
+
+.item-price {
+    font-weight: bold;
+    color: var(--contrast);
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.item-discount-badge {
+    background-color: var(--contrast);
+    color: var(--bg-dark);
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 4px;
+    align-self: flex-end;
+}
+
+/* Cupom */
+.coupon-section {
+    margin-top: 20px;
+}
+
+.coupon-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0 0 8px 0;
+}
+
+.coupon-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.coupon-input {
+    flex: 1;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.coupon-input:focus {
+    border-color: var(--contrast);
+}
+
+.btn-apply-coupon {
+    padding: 9px 16px;
+    background-color: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-apply-coupon:hover {
+    border-color: var(--contrast);
+    color: var(--contrast);
+}
+
+.coupon-msg {
+    font-size: 0.8rem;
+    margin: 6px 0 0 0;
+}
+
+.coupon-msg--error   { color: #ff4d4d; }
+.coupon-msg--success { color: #2ecc71; }

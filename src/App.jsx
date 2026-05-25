@@ -7,7 +7,8 @@ import SignUp from './pages/signUp';
 import SearchPage from './pages/search';
 import GamePage from './pages/gamepage';
 import CategoriesPage from './pages/categories';
-import CartPage from './pages/cart'
+import CartPage from './pages/cart';
+import Wishlist from './pages/wishlist'
 
 
 function AppRoutes(){
@@ -33,6 +34,7 @@ function AppRoutes(){
           <Route path="/game/:id" element={<GamePage />} />
           <Route path="/categorias" element={<CategoriesPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/wishlist" element={<Wishlist />} />
         </Routes>
       </main>
 
