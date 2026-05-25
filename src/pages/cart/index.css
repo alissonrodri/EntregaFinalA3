@@ -75,12 +75,11 @@
 
 .item-category {
     font-size: 0.75rem;
-    background: var(--bg-dark);
-    padding: 2px 8px;
-    border-radius: 4px;
+    padding: 5px 0px;
+    border-radius: 10px;
     color: var(--contrast);
-    text-transform: uppercase;
-}
+    text-transform: uppercase; 
+    }
 
 .item-meta {
     font-size: 0.9rem;

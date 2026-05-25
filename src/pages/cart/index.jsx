@@ -86,16 +86,7 @@ function CartPage() {
   };
 
   const handleCheckout = () => {
-    const token = localStorage.getItem('token');
-    api.post('/vendas/checkout', {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(() => {
-      alert("Compra finalizada com sucesso! Os jogos foram adicionados à sua biblioteca.");
-      navigate('/library');
-    }).catch((err) => {
-      console.error("Erro ao finalizar compra:", err);
-      alert("Ocorreu um erro ao processar o seu pedido.");
-    });
+    navigate('/checkout');
   };
 
   const formatPrice = (price) => {
