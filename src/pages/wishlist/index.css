@@ -1,4 +1,3 @@
-/* Container Principal */
 .wishlist-container {
     max-width: 1200px;
     margin: 40px auto;
@@ -13,7 +12,6 @@
     font-size: 1.2rem;
 }
 
-/* Cabeçalho */
 .wishlist-header {
     margin-bottom: 40px;
     border-bottom: 1px solid var(--border);
@@ -31,7 +29,6 @@
     font-size: 1.1rem;
 }
 
-/* Estado vazio */
 .wishlist-empty {
     background-color: var(--bg-card);
     border: 1px solid var(--border);
@@ -81,14 +78,12 @@
     transform: translateY(-1px);
 }
 
-/* Grid de Jogos */
 .wishlist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 30px;
 }
 
-/* Card Individual */
 .wishlist-card {
     background-color: var(--bg-card);
     border: 1px solid var(--border);
@@ -151,7 +146,6 @@
     overflow: hidden;
 }
 
-/* Preço */
 .game-price-row {
     display: flex;
     align-items: center;
@@ -181,7 +175,6 @@
     border-radius: 4px;
 }
 
-/* Ações */
 .wishlist-actions {
     padding: 16px 20px;
     display: flex;
@@ -200,6 +193,29 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: filter 0.2s;
+}
+
+.btn-move-to-cart.btn-success {
+    background-color: #28a745; 
+    color: #ffffff;
+    cursor: not-allowed;
+    pointer-events: none; 
+    transform: scale(0.98); 
+    transition: all 0.3s ease;
+}
+
+.btn-move-to-cart.btn-in-cart {
+    background-color: #ff4d4d;
+    color: #ffffff;
+}
+
+.btn-move-to-cart.btn-in-cart:hover {
+    filter: brightness(1.1);
+}
+
+.btn-remove:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .btn-move-to-cart:hover {
@@ -221,7 +237,6 @@
     background-color: rgba(255, 77, 77, 0.1);
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
     .wishlist-container { padding: 0 15px; }
     .wishlist-title { font-size: 1.8rem; }

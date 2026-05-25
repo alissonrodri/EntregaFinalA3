@@ -6,6 +6,8 @@ import './index.css';
 function WishlistPage() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addedItems, setAddedItems] = useState({});
+  const [cartItems, setCartItems] = useState(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,27 +16,30 @@ function WishlistPage() {
 
     const fetchWishlist = async () => {
       try {
-        
-        const [wishRes, publicRes] = await Promise.all([
+        const [wishRes, publicRes, cartRes] = await Promise.all([
           api.get('/lista-desejo', { headers: { Authorization: `Bearer ${token}` } }),
           api.get('/public/jogos'),
+          api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: {} }))
         ]);
 
-        const wishGames  = Array.isArray(wishRes.data)    ? wishRes.data    : [];
-        const publicGames = Array.isArray(publicRes.data) ? publicRes.data  : [];
+        const wishGames = Array.isArray(wishRes.data) ? wishRes.data : [];
+        const publicGames = Array.isArray(publicRes.data) ? publicRes.data : [];
+        const cartData = cartRes.data?.carrinho?.itens || [];
+
+        setCartItems(new Set(cartData.map(item => item.fkJogo)));
 
         const enriched = wishGames.map(game => {
           const publicGame = publicGames.find(g => g.nome === game.nome);
           return {
             ...game,
-            categoria:  publicGame?.categoria    || '—',
-            empresa:    publicGame?.empresa_nome || '—',
+            categoria: publicGame?.categoria || '—',
+            empresa: publicGame?.empresa_nome || '—',
           };
         });
 
         setWishlist(enriched);
       } catch (err) {
-        console.error("Erro ao buscar lista de desejos:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -52,7 +57,7 @@ function WishlistPage() {
       });
       setWishlist(prev => prev.filter(g => g.id !== jogoId));
     } catch (err) {
-      console.error("Erro ao remover da lista de desejos:", err);
+      console.error(err);
     }
   };
 
@@ -60,20 +65,49 @@ function WishlistPage() {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/signin'); return; }
 
+    if (cartItems.has(game.id)) {
+      navigate('/cart');
+      return;
+    }
+
+    const processSuccess = () => {
+      setAddedItems(prev => ({ ...prev, [game.id]: true }));
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      api.delete('/lista-desejo', {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { jogoId: game.id },
+      }).catch(err => console.error(err));
+
+      setTimeout(() => {
+        setWishlist(prev => prev.filter(g => g.id !== game.id));
+        setAddedItems(prev => {
+          const next = { ...prev };
+          delete next[game.id];
+          return next;
+        });
+        setCartItems(prev => {
+          const next = new Set(prev);
+          next.add(game.id);
+          return next;
+        });
+      }, 2000);
+    };
+
     try {
       await api.post('/carrinho/add',
         { jogoId: game.id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      window.dispatchEvent(new Event('cartUpdated'));
+      
+      processSuccess();
     } catch (err) {
-  
-      if (err.response?.status !== 400) {
+      if (err.response?.status === 400) {
+        processSuccess();
+      } else {
         alert("Erro ao adicionar ao carrinho. Tente novamente.");
-        return;
       }
     }
-    
   };
 
   const formatPrice = (price) => {
@@ -128,15 +162,16 @@ function WishlistPage() {
               </div>
               <div className="wishlist-actions">
                 <button
-                  className="btn-move-to-cart"
+                  className={`btn-move-to-cart ${addedItems[game.id] ? 'btn-success' : cartItems.has(game.id) ? 'btn-in-cart' : ''}`}
                   onClick={() => handleMoveToCart(game)}
+                  disabled={addedItems[game.id]}
                 >
-                  🛒 Adicionar ao carrinho
+                  {addedItems[game.id] ? '✓ Adicionado!' : cartItems.has(game.id) ? 'No carrinho' : '🛒 Adicionar ao carrinho'}
                 </button>
                 <button
                   className="btn-remove"
-                  title="Remover da lista"
                   onClick={() => handleRemove(game.id)}
+                  disabled={addedItems[game.id]}
                 >
                   🗑️
                 </button>
