@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './index.css';
 import iconCLT from '../../assets/img/icon_clt.png'; 
 import api from '../../services/api';
@@ -16,11 +16,12 @@ function Navbar() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // NOVO ESTADO: Controla o número da bolinha vermelha do carrinho
+
   const [cartCount, setCartCount] = useState(parseInt(localStorage.getItem('cartCount')) || 0);
 
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSearchSubmit = () => {
       setIsSearchOpen(false);
@@ -208,9 +209,9 @@ function Navbar() {
       </div>
 
         <div className={`navbar-menu ${isMobileMenuOpen ? 'active' : ''}`}>
-          <Link to="/" className="navbar-item active" onClick={() => setIsMobileMenuOpen(false)}>Loja</Link>
-          <Link to="/library" className="navbar-item" onClick={() => setIsMobileMenuOpen(false)}>Biblioteca</Link>
-          <Link to="/rankings" className="navbar-item" onClick={() => setIsMobileMenuOpen(false)}>Rankings</Link>
+          <Link to="/" className={`navbar-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Loja</Link>
+          <Link to="/library" className={`navbar-item ${location.pathname === '/library' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Biblioteca</Link>
+          <Link to="/rankings" className={`navbar-item ${location.pathname === '/rankings' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Rankings</Link>
         </div>
       </div>
 
