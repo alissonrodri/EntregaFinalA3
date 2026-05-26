@@ -11,6 +11,7 @@ import CartPage from './pages/cart';
 import Wishlist from './pages/wishlist'
 import Library from './pages/library'
 import Checkout from './pages/checkout'
+import History from './pages/history'
 
 
 function AppRoutes(){
@@ -37,8 +38,9 @@ function AppRoutes(){
           <Route path="/categorias" element={<CategoriesPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/library"    element={<Library />} />
-          <Route path="/checkout"   element={<Checkout />} />
+          <Route path="/library" element={<Library />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/history" element={<History />} />
         </Routes>
       </main>
 
