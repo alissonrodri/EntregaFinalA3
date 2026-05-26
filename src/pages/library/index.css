@@ -187,7 +187,15 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
 }
+
+.lib-card-title:hover{
+  color: var(--contrast);
+}
+
 
 .lib-card-meta {
   font-size: 0.8rem;

@@ -70,7 +70,10 @@ function LibraryCard({ game }) {
       </Link>
 
       <div className="lib-card-body">
-        <h3 className="lib-card-title">{game.nome}</h3>
+        <Link to={`/game/${encodeURIComponent(game.nome)}`} className="item-name-link">
+         <h3 className="lib-card-title">{game.nome}</h3>
+        </Link>
+        
         <p className="lib-card-meta">{game.empresa_nome || '—'}</p>
 
         <div className="lib-card-progress-wrap">
