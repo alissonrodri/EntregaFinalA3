@@ -3,6 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
+
+function getUserId() {
+  try {
+    const token   = localStorage.getItem('token');
+    if (!token) return 'guest';
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.id ?? payload.sub ?? payload.userId ?? 'guest';
+  } catch {
+    return 'guest';
+  }
+}
+
 const formatPrice = (v) => {
   const n = parseFloat(v);
   return isNaN(n) ? '0,00' : n.toFixed(2).replace('.', ',');
@@ -27,61 +39,23 @@ const maskCPF  = (v) =>
      d ? `${a}.${b}.${c}-${d}` : c ? `${a}.${b}.${c}` : b ? `${a}.${b}` : a
    );
 
+
 function CardForm({ onSubmit, loading }) {
   const [numero, setNumero]   = useState('');
   const [nome, setNome]       = useState('');
   const [validade, setValidade] = useState('');
   const [cvv, setCvv]         = useState('');
   const [parcelas, setParcelas] = useState('1');
-  const [erros, setErros] = useState({});
 
   const handleSubmit = () => {
-    const novosErros = {};
-    const numLimpo = numero.replace(/\s/g, '');
-
-    if (numLimpo.length !== 16) {
-      novosErros.numero = 'Número de cartão inválido';
-    }
-
-    if (nome.trim().split(/\s+/).length < 2) {
-      novosErros.nome = 'Insira o nome completo impresso no cartão.';
-    }
-
-    if (validade.length !== 5) {
-      novosErros.validade = 'Use o formato MM/AA.';
-    } else {
-      const [mes, ano] = validade.split('/');
-      const numMes = parseInt(mes, 10);
-      const numAno = parseInt(ano, 10);
-      const anoAtual = new Date().getFullYear() % 100; 
-
-      if (numMes < 1 || numMes > 12) {
-        novosErros.validade = 'Mês inválido.';
-      } else if (numAno < anoAtual || (numAno === anoAtual && numMes < new Date().getMonth() + 1)) {
-        novosErros.validade = 'Cartão expirado.';
-      }
-    }
-
-    if (cvv.length !== 3) {
-      novosErros.cvv = 'O CVV deve ter 3 dígitos.';
-    }
-
-    if (Object.keys(novosErros).length > 0) {
-      setErros(novosErros);
+    if (!numero || !nome || !validade || !cvv) {
+      alert('Preencha todos os campos do cartão.');
       return;
     }
-
-    setErros({});
     onSubmit({
       metodo: 'cartao',
-      dados: { numero: numLimpo, nome: nome.trim(), validade, cvv, parcelas },
+      dados: { numero: numero.replace(/\s/g, ''), nome, validade, cvv, parcelas },
     });
-  };
-
-  const limparErro = (campo) => {
-    if (erros[campo]) {
-      setErros(prev => ({ ...prev, [campo]: null }));
-    }
   };
 
   return (
@@ -89,62 +63,42 @@ function CardForm({ onSubmit, loading }) {
       <div className="pay-field">
         <label>Número do cartão</label>
         <input
-          style={{ borderColor: erros.numero ? '#ff4d4d' : undefined }}
           placeholder="0000 0000 0000 0000"
           value={numero}
-          onChange={e => {
-            setNumero(maskCard(e.target.value));
-            limparErro('numero');
-          }}
+          onChange={e => setNumero(maskCard(e.target.value))}
         />
-        {erros.numero && <span style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '-4px' }}>{erros.numero}</span>}
       </div>
       <div className="pay-field">
         <label>Nome no cartão</label>
         <input
-          style={{ borderColor: erros.nome ? '#ff4d4d' : undefined }}
           placeholder="Como aparece no cartão"
           value={nome}
-          onChange={e => {
-            setNome(e.target.value.toUpperCase());
-            limparErro('nome');
-          }}
+          onChange={e => setNome(e.target.value.toUpperCase())}
         />
-        {erros.nome && <span style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '-4px' }}>{erros.nome}</span>}
       </div>
       <div className="pay-row">
         <div className="pay-field">
           <label>Validade</label>
           <input
-            style={{ borderColor: erros.validade ? '#ff4d4d' : undefined }}
             placeholder="MM/AA"
             value={validade}
-            onChange={e => {
-              setValidade(maskExpiry(e.target.value));
-              limparErro('validade');
-            }}
+            onChange={e => setValidade(maskExpiry(e.target.value))}
           />
-          {erros.validade && <span style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '-4px' }}>{erros.validade}</span>}
         </div>
         <div className="pay-field">
           <label>CVV</label>
           <input
-            style={{ borderColor: erros.cvv ? '#ff4d4d' : undefined }}
             placeholder="123"
             value={cvv}
-            onChange={e => {
-              setCvv(maskCVV(e.target.value));
-              limparErro('cvv');
-            }}
+            onChange={e => setCvv(maskCVV(e.target.value))}
             type="password"
           />
-          {erros.cvv && <span style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '-4px' }}>{erros.cvv}</span>}
         </div>
       </div>
       <div className="pay-field">
         <label>Parcelas</label>
         <select value={parcelas} onChange={e => setParcelas(e.target.value)}>
-          {[1,2,3].map(n => (
+          {[1,2,3,6,12].map(n => (
             <option key={n} value={n}>
               {n}x {n === 1 ? '(à vista)' : 'sem juros'}
             </option>
@@ -158,16 +112,15 @@ function CardForm({ onSubmit, loading }) {
   );
 }
 
+
 function BoletoForm({ onSubmit, loading }) {
   const [cpf, setCpf] = useState('');
-  const [erro, setErro] = useState(null);
 
   const handleSubmit = () => {
     if (cpf.replace(/\D/g, '').length < 11) {
-      setErro('Informe um CPF válido');
+      alert('Informe um CPF válido.');
       return;
     }
-    setErro(null);
     onSubmit({ metodo: 'boleto', dados: { cpf } });
   };
 
@@ -180,15 +133,10 @@ function BoletoForm({ onSubmit, loading }) {
       <div className="pay-field">
         <label>CPF do pagador</label>
         <input
-          style={{ borderColor: erro ? '#ff4d4d' : undefined }}
           placeholder="000.000.000-00"
           value={cpf}
-          onChange={e => {
-            setCpf(maskCPF(e.target.value));
-            if (erro) setErro(null);
-          }}
+          onChange={e => setCpf(maskCPF(e.target.value))}
         />
-        {erro && <span style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '-4px' }}>{erro}</span>}
       </div>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? <><span className="pay-spinner" /> Gerando boleto…</> : '📄 Gerar boleto'}
@@ -196,6 +144,7 @@ function BoletoForm({ onSubmit, loading }) {
     </div>
   );
 }
+
 
 function PixForm({ onSubmit, loading }) {
   const handleSubmit = () => {
@@ -233,6 +182,7 @@ function PixForm({ onSubmit, loading }) {
   );
 }
 
+
 function SuccessScreen({ metodo }) {
   const navigate = useNavigate();
   const messages = {
@@ -254,13 +204,15 @@ function SuccessScreen({ metodo }) {
   );
 }
 
+
 export default function Checkout() {
   const navigate = useNavigate();
-  const [method, setMethod]   = useState('cartao');
+  const [method, setMethod]   = useState('cartao'); 
   const [loading, setLoading] = useState(false);
   const [done, setDone]       = useState(false);
   const [usedMethod, setUsedMethod] = useState('');
 
+ 
   const [cartItems, setCartItems] = useState([]);
   const [cartLoading, setCartLoading] = useState(true);
 
@@ -318,13 +270,20 @@ export default function Checkout() {
   const handlePay = async ({ metodo, dados }) => {
     setLoading(true);
     try {
+      // 1. Registra o pagamento
       await api.post('/vendas/pay', { metodo, dados });
+
+      // 2. Faz o checkout (finaliza o carrinho e gera a venda)
       await api.post('/vendas/checkout');
 
-      const currentIds = JSON.parse(localStorage.getItem('purchasedGameIds') || '[]');
+      // 3. Persiste os IDs na biblioteca local
+      const userId     = getUserId();
+      const storageKey = `purchasedGameIds_${userId}`;
+      const currentIds = JSON.parse(localStorage.getItem(storageKey) || '[]');
       const newIds     = cartItems.map(i => i.fkJogo);
-      localStorage.setItem('purchasedGameIds', JSON.stringify([...new Set([...currentIds, ...newIds])]));
+      localStorage.setItem(storageKey, JSON.stringify([...new Set([...currentIds, ...newIds])]));
 
+      // 4. Zera contador do carrinho na navbar
       localStorage.setItem('cartCount', '0');
       window.dispatchEvent(new Event('cartUpdated'));
 
@@ -332,6 +291,7 @@ export default function Checkout() {
       setDone(true);
     } catch (err) {
       console.error('Erro no pagamento:', err);
+      alert(`Erro ao processar pagamento: ${err.response?.data?.message || err.message}`);
     } finally {
       setLoading(false);
     }
@@ -351,9 +311,12 @@ export default function Checkout() {
   return (
     <div className="pay-page">
       <div className="pay-page-inner">
+
+        {/* ── Coluna esquerda: método de pagamento ── */}
         <section className="pay-section">
           <h1 className="pay-title">Finalizar compra</h1>
 
+          {/* Seletor de método */}
           <div className="pay-method-tabs">
             {[
               { id: 'cartao', label: '💳 Cartão' },
@@ -375,6 +338,7 @@ export default function Checkout() {
           {method === 'boleto' && <BoletoForm onSubmit={handlePay} loading={loading} />}
         </section>
 
+        
         <aside className="pay-summary">
           <h2 className="pay-summary-title">Resumo do pedido</h2>
 

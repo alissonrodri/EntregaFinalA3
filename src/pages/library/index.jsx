@@ -3,6 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
+// Decodifica o payload do JWT para obter o ID do usuário logado
+function getUserId() {
+  try {
+    const token   = localStorage.getItem('token');
+    if (!token) return 'guest';
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.id ?? payload.sub ?? payload.userId ?? 'guest';
+  } catch {
+    return 'guest';
+  }
+}
+
 function getInstallState(jogoId) {
   try {
     return localStorage.getItem(`install_${jogoId}`) || 'not_installed';
@@ -134,7 +146,7 @@ function Library() {
     }
 
     try {
-      const purchasedIds = JSON.parse(localStorage.getItem('purchasedGameIds') || '[]');
+      const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${getUserId()}`) || '[]');
 
       if (purchasedIds.length === 0) {
         setGames([]);
@@ -172,7 +184,9 @@ function Library() {
   }, [navigate]);
 
   useEffect(() => {
-    fetchLibrary();
+     setTimeout(() => { 
+      fetchLibrary();
+    }, 0);
   }, [fetchLibrary]);
 
   const filtered = games.filter(g =>
