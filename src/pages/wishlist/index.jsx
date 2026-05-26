@@ -141,7 +141,12 @@ function Wishlist() {
                 🎮
               </Link>
               <div className="wishlist-info">
+
+                <Link to={`/game/${encodeURIComponent(game.nome)}`} className="item-name-link">
                 <h3 className="game-name">{game.nome}</h3>
+                </Link>
+
+                
                 <p className="game-meta">{game.categoria} · {game.ano}</p>
                 {game.descricao && (
                   <p className="game-description">{game.descricao}</p>

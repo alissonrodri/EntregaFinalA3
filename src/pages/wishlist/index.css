@@ -129,6 +129,11 @@
     color: var(--text-main);
 }
 
+.game-name:hover {
+    color: var(--contrast);
+    transition: 0.2s;
+}
+
 .game-meta {
     color: var(--text-muted);
     font-size: 0.85rem;

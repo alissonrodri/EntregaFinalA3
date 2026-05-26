@@ -194,6 +194,7 @@
 
 .lib-card-title:hover{
   color: var(--contrast);
+  transition: 0.2s;
 }
 
 
