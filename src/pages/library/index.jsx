@@ -26,7 +26,7 @@ function getInstallState(jogoId) {
 function setInstallState(jogoId, state) {
   try {
     localStorage.setItem(`install_${jogoId}`, state);
-  } catch (_) {
+  } catch {
     // silencioso
   }
 }
