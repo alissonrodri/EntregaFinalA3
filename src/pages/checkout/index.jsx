@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-
 function getUserId() {
   try {
     const token   = localStorage.getItem('token');
@@ -207,12 +206,11 @@ function SuccessScreen({ metodo }) {
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const [method, setMethod]   = useState('cartao'); 
+  const [method, setMethod]   = useState('cartao');
   const [loading, setLoading] = useState(false);
   const [done, setDone]       = useState(false);
   const [usedMethod, setUsedMethod] = useState('');
 
- 
   const [cartItems, setCartItems] = useState([]);
   const [cartLoading, setCartLoading] = useState(true);
 
@@ -227,7 +225,7 @@ export default function Checkout() {
         if (cartRes.data.message === 'Carrinho vazio.' || !cartRes.data.carrinho) {
           navigate('/cart');
           return;
-        }
+        } 
 
         const itens = cartRes.data.carrinho.itens || [];
         const [publicRes, authRes] = await Promise.all([
@@ -274,7 +272,7 @@ export default function Checkout() {
       await api.post('/vendas/pay', { metodo, dados });
 
       // 2. Faz o checkout (finaliza o carrinho e gera a venda)
-      await api.post('/vendas/checkout');
+      const checkoutRes = await api.post('/vendas/checkout');
 
       // 3. Persiste os IDs na biblioteca local
       const userId     = getUserId();
@@ -283,7 +281,14 @@ export default function Checkout() {
       const newIds     = cartItems.map(i => i.fkJogo);
       localStorage.setItem(storageKey, JSON.stringify([...new Set([...currentIds, ...newIds])]));
 
-      // 4. Zera contador do carrinho na navbar
+      // 4. Salva método e parcelas para exibição no histórico
+      const vendaId = checkoutRes?.data?.venda?.id || `local_${Date.now()}`;
+      localStorage.setItem(`paymentMeta_${vendaId}`, JSON.stringify({
+        metodo:   metodo,
+        parcelas: dados?.parcelas || null,
+      }));
+
+      // 5. Zera contador do carrinho na navbar
       localStorage.setItem('cartCount', '0');
       window.dispatchEvent(new Event('cartUpdated'));
 
@@ -312,11 +317,11 @@ export default function Checkout() {
     <div className="pay-page">
       <div className="pay-page-inner">
 
-        {/* ── Coluna esquerda: método de pagamento ── */}
+        
         <section className="pay-section">
           <h1 className="pay-title">Finalizar compra</h1>
 
-          {/* Seletor de método */}
+          
           <div className="pay-method-tabs">
             {[
               { id: 'cartao', label: '💳 Cartão' },
@@ -338,7 +343,7 @@ export default function Checkout() {
           {method === 'boleto' && <BoletoForm onSubmit={handlePay} loading={loading} />}
         </section>
 
-        
+        {/* ── Coluna direita: resumo do pedido ── */}
         <aside className="pay-summary">
           <h2 className="pay-summary-title">Resumo do pedido</h2>
 
