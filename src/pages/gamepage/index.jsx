@@ -4,6 +4,17 @@ import api from '../../services/api';
 import './index.css';
 
 
+function getUserId() {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return 'guest';
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.id ?? payload.sub ?? payload.userId ?? 'guest';
+  } catch {
+    return 'guest';
+  }
+}
+
 function GamePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,6 +28,7 @@ function GamePage() {
   const [activeMedia, setActiveMedia] = useState(0);
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [isOwned, setIsOwned] = useState(false);
 
   const mockMedia = [
     { id: 0, label: "Trailer" },
@@ -44,6 +56,7 @@ function GamePage() {
       setLoading(true); 
       setWishState('idle');
       setBtnState('idle');
+      setIsOwned(false);
     }, 0);
     window.scrollTo(0, 0);
 
@@ -84,6 +97,13 @@ function GamePage() {
                 if (wishGames.some(g => g.id === gameWithId.id)) {
                   setWishState('already');
                 }
+
+                // Verifica se o jogo já foi comprado pelo usuário
+                const userId = getUserId();
+                const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
+                if (purchasedIds.includes(gameWithId.id)) {
+                  setIsOwned(true);
+                }
               }
             } catch (err) {
               console.warn("Aviso: Falha ao pré-carregar ID na rota autenticada.", err.message);
@@ -111,7 +131,7 @@ function GamePage() {
   const handleAddToCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      navigate('/signin');
+      navigate('/login');
       return;
     }
 
@@ -299,25 +319,49 @@ const handleBuy = async () => {
               <h1 className="game-card-title">{game.nome}</h1>
               <div className="game-price">R$ {formatPrice(game.preco)}</div>
 
-              <button className="btn btn-primary btn-buy" onClick={handleBuy}>Comprar</button>
-              <button
-                className={`btn btn-secondary btn-cart ${btn.className}`}
-                onClick={handleAddToCart}
-                disabled={btn.disabled}
-              >
-                {btn.text}
-              </button>
-              <button
-                className={`btn btn-secondary btn-wishlist ${wishConfig[wishState].className}`}
-                onClick={handleWishlist}
-              >
-                {wishConfig[wishState].text}
-              </button>
+              {isOwned ? (
+                <>
+                  <button
+                    className="btn btn-primary btn-buy btn-owned-play"
+                    onClick={() => navigate('/library')}
+                  >
+                    ▶ Jogar
+                  </button>
+                  <button
+                    className="btn btn-secondary btn-cart"
+                    onClick={() => {
+                      document.getElementById('avaliacoes')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    ★ Avaliar
+                  </button>
+                  <div className="btn-owned-badge">
+                    ✓ Na sua biblioteca
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button className="btn btn-primary btn-buy" onClick={handleBuy}>Comprar</button>
+                  <button
+                    className={`btn btn-secondary btn-cart ${btn.className}`}
+                    onClick={handleAddToCart}
+                    disabled={btn.disabled}
+                  >
+                    {btn.text}
+                  </button>
+                  <button
+                    className={`btn btn-secondary btn-wishlist ${wishConfig[wishState].className}`}
+                    onClick={handleWishlist}
+                  >
+                    {wishConfig[wishState].text}
+                  </button>
+                </>
+              )}
             </div>
           </aside>
         </section>
 
-        <section className="section">
+        <section className="section" id="avaliacoes">
           <h2 className="section-title">Inserir análise</h2>
           <div className="section-card">
             <div className="review-form">

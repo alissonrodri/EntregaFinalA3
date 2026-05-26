@@ -1,4 +1,3 @@
-/* Layout principal */
 .game-page {
     max-width: 1200px;
     margin: 0 auto;
@@ -241,7 +240,7 @@
     padding: 25px;
 }
 
-/* Review Form */
+
 .review-form {
     display: flex;
     gap: 20px;
@@ -324,7 +323,7 @@
     color: var(--contrast);
 }
 
-/* About & Requirements */
+
 .about-text {
     font-size: 0.95rem;
     color: var(--text-muted);
@@ -362,7 +361,7 @@
 .req-label { color: var(--text-muted); min-width: 60px; }
 .req-value { color: var(--text-main); }
 
-/* Jogos Similares */
+
 .similar-games {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -389,7 +388,7 @@
     color: var(--text-main);
 }
 
-/* Reviews de Usuários */
+
 .reviews-list {
     display: flex;
     flex-direction: column;
@@ -465,4 +464,29 @@
     border-color: #ff4d6d;
     color: #ff4d6d;
     background-color: rgba(255, 77, 109, 0.08);
+}
+
+.btn-owned-play {
+    background: var(--contrast);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-owned-play::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.btn-owned-badge {
+    cursor: default;
+    opacity: 0.75;
+    border-color: #22c55e;
+    color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.08);
+    text-align: center;
+    font-size: 0.88rem;
+    letter-spacing: 0.02em;
 }

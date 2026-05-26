@@ -52,7 +52,7 @@ function SearchInClass() {
       });
   }, []);
 
-  // Redireciona para /categorias já com o filtro aplicado via query param
+  
   const handleCategoryClick = (categoryName) => {
     navigate(`/categorias?categoria=${encodeURIComponent(categoryName)}`);
   };
