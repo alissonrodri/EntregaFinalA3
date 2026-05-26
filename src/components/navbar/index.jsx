@@ -212,6 +212,7 @@ function Navbar() {
           <Link to="/" className={`navbar-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Loja</Link>
           <Link to="/library" className={`navbar-item ${location.pathname === '/library' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Biblioteca</Link>
           <Link to="/rankings" className={`navbar-item ${location.pathname === '/rankings' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Rankings</Link>
+          <Link to="/categorias" className={`navbar-item ${location.pathname === '/categorias' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Categorias</Link>
         </div>
       </div>
 
@@ -253,7 +254,6 @@ function Navbar() {
                 <Link to="/history" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>Histórico de compras</Link>
                 <Link to="/wishlist" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>Lista de desejos</Link>
                 <Link to="/edit-profile" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>Editar conta</Link>
-                <Link to="/payments" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>Métodos de pagamento</Link>
                 <div className="dropdown-divider"></div>
                 <button className="dropdown-item logout-btn" onClick={handleLogout}>Finalizar sessão</button>
               </div>
