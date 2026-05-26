@@ -211,7 +211,7 @@ function CartPage() {
             onClick={handleCheckout}
             disabled={isCartEmpty}
           >
-            Finalizar Compra
+             Ir para o pagamento
           </button>
           <Link to="/" className="btn-continue">Continuar Comprando</Link>
         </aside>

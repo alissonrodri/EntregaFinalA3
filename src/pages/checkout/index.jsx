@@ -97,7 +97,7 @@ function CardForm({ onSubmit, loading }) {
       <div className="pay-field">
         <label>Parcelas</label>
         <select value={parcelas} onChange={e => setParcelas(e.target.value)}>
-          {[1,2,3,6,12].map(n => (
+          {[1,2,3].map(n => (
             <option key={n} value={n}>
               {n}x {n === 1 ? '(à vista)' : 'sem juros'}
             </option>
