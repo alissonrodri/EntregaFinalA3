@@ -8,6 +8,7 @@ function Wishlist() {
   const [loading, setLoading] = useState(true);
   const [addedItems, setAddedItems] = useState({});
   const [cartItems, setCartItems] = useState(new Set());
+  const [avgRatings, setAvgRatings] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,6 +39,21 @@ function Wishlist() {
         });
 
         setWishlist(enriched);
+
+        
+        const ratingsMap = {};
+        await Promise.all(
+          enriched.map(async (game) => {
+            try {
+              const rRes = await api.get(`/avaliacoes/media/${game.id}`, { headers: { Authorization: `Bearer ${token}` } });
+              if (rRes.status !== 204 && rRes.data?.media) {
+                ratingsMap[game.id] = { media: rRes.data.media, total: rRes.data.totalAvaliacoes };
+              }
+            } catch { /* sem avaliações */ }
+          })
+        );
+        setAvgRatings(ratingsMap);
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -141,13 +157,17 @@ function Wishlist() {
                 🎮
               </Link>
               <div className="wishlist-info">
-
-                <Link to={`/game/${encodeURIComponent(game.nome)}`} className="item-name-link">
                 <h3 className="game-name">{game.nome}</h3>
-                </Link>
-
-                
                 <p className="game-meta">{game.categoria} · {game.ano}</p>
+                {avgRatings[game.id] && (
+                  <div className="game-rating-row">
+                    {[1,2,3,4,5].map(s => (
+                      <span key={s} className={s <= Math.round(avgRatings[game.id].media) ? 'wish-star filled' : 'wish-star'}>★</span>
+                    ))}
+                    <span className="wish-rating-value">{avgRatings[game.id].media.toFixed(1)}</span>
+                    <span className="wish-rating-count">({avgRatings[game.id].total})</span>
+                  </div>
+                )}
                 {game.descricao && (
                   <p className="game-description">{game.descricao}</p>
                 )}

@@ -439,27 +439,6 @@
     color: var(--contrast);
 }
 
-
-/* Responsividade */
-@media (max-width: 900px) {
-    .game-hero { grid-template-columns: 1fr; }
-    .game-sidebar { order: -1; }
-    .similar-games { grid-template-columns: repeat(2, 1fr); }
-    .requirements-grid { grid-template-columns: 1fr; }
-    .footer-content { grid-template-columns: 1fr; text-align: center; }
-    .footer-description { margin: 0 auto; }
-    .footer-bottom { flex-direction: column; gap: 15px; }
-}
-
-@media (max-width: 600px) {
-    .game-page { padding: 20px 15px; }
-    .similar-games { grid-template-columns: 1fr; }
-    .review-form { flex-direction: column; align-items: center; }
-    .review-form-footer { flex-direction: column; gap: 15px; width: 100%; }
-    .btn-publish { width: 100%; }
-}
-
-
 .btn-wishlist.btn-wish-added {
     border-color: #ff4d6d;
     color: #ff4d6d;
@@ -489,4 +468,147 @@
     text-align: center;
     font-size: 0.88rem;
     letter-spacing: 0.02em;
+}
+
+.game-card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+}
+.game-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.star-display { display: flex; gap: 2px; }
+.rating-value { font-size: 0.9rem; font-weight: 700; color: var(--contrast); }
+.rating-count { font-size: 0.8rem; color: var(--text-muted); }
+
+
+.star-readonly { cursor: default !important; }
+
+.review-textarea--readonly {
+    cursor: default;
+    opacity: 0.75;
+    background-color: var(--bg-dark);
+    resize: none;
+}
+
+.review-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.review-edit-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-edit-review {
+    padding: 9px 20px;
+    border-radius: 8px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    font-weight: bold;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-edit-review:hover {
+    border-color: var(--contrast);
+    color: var(--contrast);
+}
+
+.btn-cancel-edit {
+    padding: 9px 18px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-cancel-edit:hover {
+    border-color: var(--text-muted);
+    color: var(--text-main);
+}
+
+.review-msg { font-size: 0.85rem; margin: 8px 0 0 0; }
+.review-msg--success { color: #2ecc71; }
+.review-msg--error   { color: #ff4d4d; }
+
+
+.reviews-avg-badge {
+    margin-left: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--contrast);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.reviews-empty {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.review-card-author {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    min-width: 60px;
+}
+
+.review-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.review-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.review-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+    .game-hero { grid-template-columns: 1fr; }
+    .game-sidebar { order: -1; }
+    .similar-games { grid-template-columns: repeat(2, 1fr); }
+    .requirements-grid { grid-template-columns: 1fr; }
+    .footer-content { grid-template-columns: 1fr; text-align: center; }
+    .footer-description { margin: 0 auto; }
+    .footer-bottom { flex-direction: column; gap: 15px; }
+}
+
+@media (max-width: 600px) {
+    .game-page { padding: 20px 15px; }
+    .similar-games { grid-template-columns: 1fr; }
+    .review-form { flex-direction: column; align-items: center; }
+    .review-form-footer { flex-direction: column; gap: 15px; width: 100%; }
+    .btn-publish { width: 100%; }
 }

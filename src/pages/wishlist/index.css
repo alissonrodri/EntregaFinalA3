@@ -129,11 +129,6 @@
     color: var(--text-main);
 }
 
-.game-name:hover {
-    color: var(--contrast);
-    transition: 0.2s;
-}
-
 .game-meta {
     color: var(--text-muted);
     font-size: 0.85rem;
@@ -246,4 +241,32 @@
     .wishlist-container { padding: 0 15px; }
     .wishlist-title { font-size: 1.8rem; }
     .wishlist-grid { grid-template-columns: 1fr; }
+}
+
+
+.game-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.wish-star {
+    font-size: 0.85rem;
+    color: var(--border);
+}
+
+.wish-star.filled {
+    color: var(--contrast);
+}
+
+.wish-rating-value {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--contrast);
+}
+
+.wish-rating-count {
+    font-size: 0.78rem;
+    color: var(--text-muted);
 }
