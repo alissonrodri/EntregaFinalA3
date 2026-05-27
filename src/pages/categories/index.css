@@ -23,7 +23,6 @@
   to { transform: rotate(360deg); }
 }
 
-
 .cat-page-topbar {
   background-color: var(--bg-card);
   border-bottom: 1px solid var(--border);
@@ -70,7 +69,6 @@
   border-color: var(--contrast);
 }
 
-
 .cat-page {
   min-height: 100vh;
 }
@@ -84,19 +82,16 @@
   align-items: flex-start;
 }
 
-
 .cat-main {
   flex: 1;
   min-width: 0;
 }
-
 
 .cat-games-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 24px;
 }
-
 
 .cat-game-card {
   background: var(--bg-card);
@@ -114,7 +109,6 @@
   box-shadow: 0 12px 32px rgba(56, 109, 189, 0.15);
 }
 
-
 .cat-card-thumb {
   position: relative;
   height: 160px;
@@ -122,6 +116,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
 }
 
 .cat-card-thumb-icon {
@@ -143,7 +138,6 @@
   letter-spacing: 0.04em;
 }
 
-/* Corpo */
 .cat-card-body {
   padding: 16px 16px 0;
   flex: 1;
@@ -167,9 +161,22 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #f5c542;
   font-size: 0.85rem;
   letter-spacing: 0.05em;
+}
+
+.cat-card-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.cat-star {
+  color: var(--border);
+  font-size: 0.95rem;
+}
+
+.cat-star.filled {
+  color:var(--contrast);
 }
 
 .cat-card-rating-num {
@@ -187,7 +194,6 @@
   overflow: hidden;
 }
 
-/* Rodapé */
 .cat-card-footer {
   padding: 14px 16px 16px;
   border-top: 1px solid var(--border);
@@ -197,7 +203,6 @@
   gap: 10px;
 }
 
-/* Linha 1: preço + wishlist */
 .cat-card-price-row {
   display: flex;
   align-items: center;
@@ -229,6 +234,10 @@
   color: #e05c7a;
 }
 
+.cat-btn-wish.wish-added {
+  color: #e05c7a;
+  border-color: #e05c7a;
+}
 
 .cat-card-actions {
   display: flex;
@@ -256,6 +265,42 @@
   transform: translateY(-1px);
 }
 
+.cat-btn-cart.btn-success {
+  background-color: #28a745;
+  color: #ffffff;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.cat-btn-cart.btn-in-cart {
+  background-color: #ff4d4d;
+  color: #ffffff;
+}
+
+.cat-btn-cart.btn-in-cart:hover {
+  filter: brightness(1.1);
+}
+
+.cat-btn-owned {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-dark);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.cat-btn-owned:hover {
+  border-color: var(--contrast);
+  color: var(--contrast);
+}
+
 .cat-btn-details {
   flex: 1;
   padding: 8px 10px;
@@ -275,7 +320,6 @@
   border-color: var(--contrast);
   color: var(--contrast);
 }
-
 
 .cat-empty {
   display: flex;
@@ -317,12 +361,9 @@
   color: #fff;
 }
 
-
 .cat-overlay {
   display: none;
 }
-
-/*RESPONSIVIDADE*/
 
 @media (max-width: 1024px) {
   .cat-layout {
