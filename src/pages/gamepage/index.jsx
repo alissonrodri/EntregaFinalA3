@@ -399,7 +399,7 @@ function GamePage() {
               <h1 className="game-card-title">{game.nome}</h1>
 
               <div className="game-card-meta">
-                {game.categoria && <span className="game-tag">{game.categoria}</span>}
+                
                 <div className="game-card-rating">
                   <StarDisplay rating={avgRating || 0} size="0.95rem" />
                   {avgRating !== null && <span className="rating-value">{avgRating.toFixed(1)}</span>}

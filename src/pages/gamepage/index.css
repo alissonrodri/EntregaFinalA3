@@ -125,22 +125,6 @@
     margin: 0;
 }
 
-.game-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.game-tag {
-    background-color: var(--bg-dark);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
-
 .game-price {
     font-size: 1.8rem;
     font-weight: 800;
@@ -473,7 +457,7 @@
 .game-card-meta {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
     width: 100%;
 }

@@ -3,6 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
+function getUserId() {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.id ?? payload.sub ?? payload.userId ?? null;
+  } catch (err) {
+    console.warn('Falha ao decodificar ID do token:', err.message);
+    return null;
+  }
+}
+
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,6 +22,9 @@ function Wishlist() {
   const [cartItems, setCartItems] = useState(new Set());
   const [avgRatings, setAvgRatings] = useState({});
   const navigate = useNavigate();
+
+  const userId = getUserId();
+  const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -20,7 +35,10 @@ function Wishlist() {
         const [wishRes, publicRes, cartRes] = await Promise.all([
           api.get('/lista-desejo', { headers: { Authorization: `Bearer ${token}` } }),
           api.get('/public/jogos'),
-          api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: {} }))
+          api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+            console.info('Aviso: Carrinho não encontrado ou vazio.', err.message);
+            return { data: {} };
+          })
         ]);
 
         const wishGames = Array.isArray(wishRes.data) ? wishRes.data : [];
@@ -40,7 +58,6 @@ function Wishlist() {
 
         setWishlist(enriched);
 
-        
         const ratingsMap = {};
         await Promise.all(
           enriched.map(async (game) => {
@@ -49,13 +66,15 @@ function Wishlist() {
               if (rRes.status !== 204 && rRes.data?.media) {
                 ratingsMap[game.id] = { media: rRes.data.media, total: rRes.data.totalAvaliacoes };
               }
-            } catch { /* sem avaliações */ }
+            } catch (err) {
+              console.info(`Aviso: Nenhuma avaliação encontrada para o jogo ${game.id}.`, err.message);
+            }
           })
         );
         setAvgRatings(ratingsMap);
 
       } catch (err) {
-        console.error(err);
+        console.error('Erro ao carregar os dados da lista de desejos:', err.message);
       } finally {
         setLoading(false);
       }
@@ -73,7 +92,7 @@ function Wishlist() {
       });
       setWishlist(prev => prev.filter(g => g.id !== jogoId));
     } catch (err) {
-      console.error(err);
+      console.error('Erro ao remover o item da lista de desejos:', err.message);
     }
   };
 
@@ -93,7 +112,7 @@ function Wishlist() {
       api.delete('/lista-desejo', {
         headers: { Authorization: `Bearer ${token}` },
         data: { jogoId: game.id },
-      }).catch(err => console.error(err));
+      }).catch(err => console.error('Erro secundário ao remover da lista de desejos após envio ao carrinho:', err.message));
 
       setTimeout(() => {
         setWishlist(prev => prev.filter(g => g.id !== game.id));
@@ -121,7 +140,7 @@ function Wishlist() {
       if (err.response?.status === 400) {
         processSuccess();
       } else {
-        alert("Erro ao adicionar ao carrinho. Tente novamente.");
+        alert(`Erro ao adicionar ao carrinho: ${err.message}`);
       }
     }
   };
@@ -151,58 +170,75 @@ function Wishlist() {
         </div>
       ) : (
         <div className="wishlist-grid" id="wishlist-grid">
-          {wishlist.map(game => (
-            <article key={game.id} className="wishlist-card">
-              <Link to={`/game/${encodeURIComponent(game.nome)}`} className="wishlist-media">
-                🎮
-              </Link>
-              <div className="wishlist-info">
-                <h3 className="game-name">{game.nome}</h3>
-                <p className="game-meta">{game.categoria} · {game.ano}</p>
-                {avgRatings[game.id] && (
+          {wishlist.map(game => {
+            const isOwned = purchasedIds.includes(game.id);
+            const ratingObj = avgRatings[game.id] || { media: 0, total: 0 };
+            const ratingMedia = ratingObj.media;
+            const ratingTotal = ratingObj.total;
+
+            return (
+              <article key={game.id} className="wishlist-card">
+                <Link to={`/game/${encodeURIComponent(game.nome)}`} className="wishlist-media">
+                  🎮
+                </Link>
+                <div className="wishlist-info">
+                  <h3 className="game-name">{game.nome}</h3>
+                  <p className="game-meta">{game.categoria} · {game.ano}</p>
+                  
                   <div className="game-rating-row">
-                    {[1,2,3,4,5].map(s => (
-                      <span key={s} className={s <= Math.round(avgRatings[game.id].media) ? 'wish-star filled' : 'wish-star'}>★</span>
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <span key={s} className={s <= Math.round(ratingMedia) ? 'wish-star filled' : 'wish-star'}>★</span>
                     ))}
-                    <span className="wish-rating-value">{avgRatings[game.id].media.toFixed(1)}</span>
-                    <span className="wish-rating-count">({avgRatings[game.id].total})</span>
+                    <span className="wish-rating-value">{ratingMedia > 0 ? ratingMedia.toFixed(1) : '0.0'}</span>
+                    <span className="wish-rating-count">({ratingTotal})</span>
                   </div>
-                )}
-                {game.descricao && (
-                  <p className="game-description">{game.descricao}</p>
-                )}
-                <div className="game-price-row">
-                  {game.desconto ? (
-                    <>
-                      <span className="game-price-original">R$ {formatPrice(game.preco)}</span>
-                      <span className="game-price">
-                        R$ {formatPrice(game.preco * (1 - game.desconto / 100))}
-                      </span>
-                      <span className="game-discount-badge">-{game.desconto}%</span>
-                    </>
-                  ) : (
-                    <span className="game-price">R$ {formatPrice(game.preco)}</span>
+
+                  {game.descricao && (
+                    <p className="game-description">{game.descricao}</p>
                   )}
+                  <div className="game-price-row">
+                    {game.desconto ? (
+                      <>
+                        <span className="game-price-original">R$ {formatPrice(game.preco)}</span>
+                        <span className="game-price">
+                          R$ {formatPrice(game.preco * (1 - game.desconto / 100))}
+                        </span>
+                        <span className="game-discount-badge">-{game.desconto}%</span>
+                      </>
+                    ) : (
+                      <span className="game-price">R$ {formatPrice(game.preco)}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="wishlist-actions">
-                <button
-                  className={`btn-move-to-cart ${addedItems[game.id] ? 'btn-success' : cartItems.has(game.id) ? 'btn-in-cart' : ''}`}
-                  onClick={() => handleMoveToCart(game)}
-                  disabled={addedItems[game.id]}
-                >
-                  {addedItems[game.id] ? '✓ Adicionado!' : cartItems.has(game.id) ? 'No carrinho' : '🛒 Adicionar ao carrinho'}
-                </button>
-                <button
-                  className="btn-remove"
-                  onClick={() => handleRemove(game.id)}
-                  disabled={addedItems[game.id]}
-                >
-                  🗑️
-                </button>
-              </div>
-            </article>
-          ))}
+                <div className="wishlist-actions">
+                  {isOwned ? (
+                    <button className="btn-owned" onClick={() => navigate('/library')}>
+                      ✓ Na sua biblioteca
+                    </button>
+                  ) : (
+                    <button
+                      className={`btn-move-to-cart ${addedItems[game.id] ? 'btn-success' : cartItems.has(game.id) ? 'btn-in-cart' : ''}`}
+                      onClick={() => handleMoveToCart(game)}
+                      disabled={addedItems[game.id]}
+                    >
+                      {addedItems[game.id] ? '✓ Adicionado!' : cartItems.has(game.id) ? 'No carrinho' : 'Adicionar ao carrinho'}
+                    </button>
+                  )}
+                  <Link to={`/game/${encodeURIComponent(game.nome)}`} className="btn-details">
+                    Ver detalhes
+                  </Link>
+                  <button
+                    className="btn-remove"
+                    onClick={() => handleRemove(game.id)}
+                    disabled={addedItems[game.id]}
+                    title="Remover da lista de desejos"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </main>
