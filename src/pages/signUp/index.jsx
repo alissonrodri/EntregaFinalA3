@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../../services/api';
+import axios from 'axios';
 import '../../../src/index.css'
 import '../signUp/index.css'
 
@@ -92,7 +92,7 @@ function SignUp() {
     };
 
     try {
-      const response = await axios.post('http://localhost:3000', payload);
+      const response = await axios.post('http://localhost:3000/auth/register', payload);
       
       // O Axios realiza o parse do JSON automaticamente e injeta em .data
       const data = response.data;
