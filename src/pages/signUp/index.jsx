@@ -92,7 +92,7 @@ function SignUp() {
     };
 
     try {
-      const response = await axios.post('http://localhost:3000/register', payload);
+      const response = await axios.post('http://localhost:3000/api/v1/auth/register', payload);
       
       // O Axios realiza o parse do JSON automaticamente e injeta em .data
       const data = response.data;
