@@ -82,8 +82,7 @@ function SignUp() {
     setIsLoading(true);
     setApiError(null);
 
-    // Montagem do payload enviado ao backend
-    // Ajuste as chaves ('nome', 'email', etc.) se a sua API esperar propriedades com nomes diferentes
+    // Montagem do payload enviado ao backend (dado enviado ao backend)
     const payload = {
       nome: formData.fullName.trim(),
       nickname: formData.username,
