@@ -66,7 +66,6 @@ function VendaCard({ venda, jogos }) {
 
   return (
     <article className="hist-card">
-      {/* Cabeçalho da venda */}
       <div className="hist-card-header" onClick={() => setExpanded(e => !e)}>
         <div className="hist-card-header-left">
           <span className="hist-order-id">Pedido #{String(venda.id).padStart(5, '0')}</span>
@@ -98,7 +97,6 @@ function VendaCard({ venda, jogos }) {
         </div>
       </div>
 
-      
       {expanded && (
         <div className="hist-card-body">
           {jogos.length === 0 ? (
@@ -108,12 +106,15 @@ function VendaCard({ venda, jogos }) {
               <div key={i} className="hist-item">
                 <div className="hist-item-icon">🎮</div>
                 <div className="hist-item-info">
-                  <Link
-                    to={`/game/${encodeURIComponent(item.nome)}`}
-                    className="hist-item-name"
-                  >
-                    {item.nome}
-                  </Link>
+                  {item.isDeleted ? (
+                    <span className="hist-item-name" style={{ color: 'var(--text-muted)' }}>
+                      {item.nome}
+                    </span>
+                  ) : (
+                    <Link to={`/game/${encodeURIComponent(item.nome)}`} className="hist-item-name">
+                      {item.nome}
+                    </Link>
+                  )}
                   <p className="hist-item-meta">{item.categoria || '—'} · {item.empresa || '—'}</p>
                   <ActivationKeyBadge chave={item.chave_ativacao} />
                 </div>
@@ -141,7 +142,9 @@ export default function History() {
 
     const load = async () => {
       try {
-        const vendasRes = await api.get('/vendas');
+        const vendasRes = await api.get('/vendas', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         const vendasData = Array.isArray(vendasRes.data) ? vendasRes.data : [];
 
         if (vendasData.length === 0) {
@@ -153,41 +156,74 @@ export default function History() {
         setVendas(vendasData);
 
         const [publicRes, authRes] = await Promise.all([
-          api.get('/public/jogos'),
-          api.get('/jogos'),
+          api.get('/public/jogos').catch(() => ({ data: [] })),
+          api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: [] })),
         ]);
 
         const publicGames = Array.isArray(publicRes.data) ? publicRes.data : [];
-        const authGames   = Array.isArray(authRes.data)   ? authRes.data   : [];
+        const authGames   = Array.isArray(authRes.data) ? authRes.data : (authRes.data.jogos || []);
+        const userId      = getUserId();
 
-        const userId     = getUserId();
         const storageKey = `purchasedGameIds_${userId}`;
         const allIds     = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
+       
         const enrichedGames = allIds.map(id => {
           const auth = authGames.find(g => g.id === id);
-          if (!auth) return null;
-          const pub  = publicGames.find(g => g.nome === auth.nome);
           const chave = localStorage.getItem(`activationKey_${id}_${userId}`) || generateFakeKey(id);
       
           if (!localStorage.getItem(`activationKey_${id}_${userId}`)) {
             localStorage.setItem(`activationKey_${id}_${userId}`, chave);
           }
+
+          if (!auth) {
+           
+            return {
+              id: id,
+              nome: 'Item Indisponível no Catálogo',
+              categoria: '—',
+              empresa: '—',
+              preco: 0,
+              chave_ativacao: chave,
+              isDeleted: true
+            };
+          }
+
+          const pub  = publicGames.find(g => g.nome === auth.nome);
           return {
             ...auth,
             categoria: pub?.categoria    || '—',
             empresa:   pub?.empresa_nome || '—',
             chave_ativacao: chave,
           };
-        }).filter(Boolean);
-
+        });
        
         const map = {};
         let cursor = 0;
         
         const sorted = [...vendasData].sort((a, b) => a.id - b.id);
+        
         sorted.forEach(v => {
-          const slice = enrichedGames.slice(cursor, cursor + v.quantidade);
+          const slice = enrichedGames.slice(cursor, cursor + v.quantidade).map(item => {
+           
+            const priceKey = `frozenPrice_${v.id}_${item.id}`;
+            let frozenPrice = localStorage.getItem(priceKey);
+
+            if (!frozenPrice && !item.isDeleted) {
+              frozenPrice = item.preco;
+              localStorage.setItem(priceKey, frozenPrice);
+            } else if (frozenPrice) {
+              frozenPrice = parseFloat(frozenPrice);
+            } else {
+              frozenPrice = 0;
+            }
+
+            return {
+              ...item,
+              preco: frozenPrice
+            };
+          });
+
           map[v.id] = slice;
           cursor += v.quantidade;
         });
