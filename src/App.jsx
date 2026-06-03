@@ -12,6 +12,7 @@ import Wishlist from './pages/wishlist'
 import Library from './pages/library'
 import Checkout from './pages/checkout'
 import History from './pages/history'
+import AdminPage from './pages/admin'
 
 
 function AppRoutes(){
@@ -41,6 +42,7 @@ function AppRoutes(){
           <Route path="/library" element={<Library />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/history" element={<History />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
 

@@ -204,7 +204,7 @@ function SuccessScreen({ metodo }) {
 }
 
 
-export default function Checkout() {
+function Checkout() {
   const navigate = useNavigate();
   const [method, setMethod]   = useState('cartao');
   const [loading, setLoading] = useState(false);
@@ -383,3 +383,5 @@ export default function Checkout() {
     </div>
   );
 }
+
+export default Checkout;
