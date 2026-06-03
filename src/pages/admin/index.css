@@ -340,3 +340,15 @@
 .admin-btn-delete-confirm:hover {
   background-color: #e60000;
 }
+
+.admin-error-message {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: rgba(255, 77, 77, 0.1);
+  border: 1px solid #ff4d4d;
+  border-radius: 8px;
+  color: #ff4d4d;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-align: left;
+}

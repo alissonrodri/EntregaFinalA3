@@ -26,6 +26,7 @@ function AdminPanel() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
+  const [modalEntity, setModalEntity] = useState('jogo'); 
   
   const [formData, setFormData] = useState({ 
     id: null, nome: '', preco: '', ano: '', descricao: '', fkEmpresa: '', fkCategoria: '' 
@@ -33,6 +34,10 @@ function AdminPanel() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [deleteEntity, setDeleteEntity] = useState('jogo');
+  
+  
+  const [deleteError, setDeleteError] = useState(null);
 
   const loadAllData = useCallback(async () => {
     setLoading(true);
@@ -56,16 +61,6 @@ function AdminPanel() {
     }
   }, []);
 
-  const loadGames = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } });
-      setGames(Array.isArray(response.data) ? response.data : (response.data.jogos || []));
-    } catch (err) {
-      console.error(err.message);
-    }
-  };
-
   useEffect(() => {
     const isAdmin = getAdminStatus();
     if (!isAdmin) {
@@ -77,20 +72,33 @@ function AdminPanel() {
     }, 0);
   }, [navigate, loadAllData]);
 
-  const handleOpenModal = (mode, game = null) => {
+  const handleOpenModal = (entity, mode, item = null) => {
+    setModalEntity(entity);
     setModalMode(mode);
-    if (mode === 'edit' && game) {
-      setFormData({
-        id: game.id,
-        nome: game.nome || '',
-        preco: game.preco || '',
-        ano: game.ano || '',
-        descricao: game.descricao || '',
-        fkEmpresa: game.fkEmpresa || game.fk_empresa || '',
-        fkCategoria: game.fkCategoria || game.fk_categoria || ''
-      });
+    
+    if (mode === 'edit' && item) {
+      if (entity === 'jogo') {
+        const compId = item.fkEmpresa || item.fk_empresa || companies.find(c => c.nome === item.empresa_nome || c.nome === item.empresa)?.id || '';
+        const catId = item.fkCategoria || item.fk_categoria || categories.find(c => c.nome === item.categoria_nome || c.nome === item.categoria)?.id || '';
+
+        setFormData({
+          id: item.id,
+          nome: item.nome || '',
+          preco: item.preco || '',
+          ano: item.ano || '',
+          descricao: item.descricao || '',
+          fkEmpresa: compId,
+          fkCategoria: catId
+        });
+      } else {
+        setFormData({ id: item.id, nome: item.nome || '' });
+      }
     } else {
-      setFormData({ id: null, nome: '', preco: '', ano: '', descricao: '', fkEmpresa: '', fkCategoria: '' });
+      if (entity === 'jogo') {
+        setFormData({ id: null, nome: '', preco: '', ano: '', descricao: '', fkEmpresa: '', fkCategoria: '' });
+      } else {
+        setFormData({ id: null, nome: '' });
+      }
     }
     setIsModalOpen(true);
   };
@@ -105,53 +113,73 @@ function AdminPanel() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveGame = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
     
-    const payload = {
-      ...formData,
-      preco: parseFloat(formData.preco),
-      ano: parseInt(formData.ano, 10),
-      fkEmpresa: parseInt(formData.fkEmpresa, 10),
-      fkCategoria: parseInt(formData.fkCategoria, 10),
-      fk_empresa: parseInt(formData.fkEmpresa, 10),
-      fk_categoria: parseInt(formData.fkCategoria, 10)
-    };
+    let payload = {};
+    let endpoint = '';
+
+    if (modalEntity === 'jogo') {
+      endpoint = '/jogos';
+      payload = {
+        nome: formData.nome,
+        descricao: formData.descricao,
+        preco: parseFloat(formData.preco),
+        ano: parseInt(formData.ano, 10),
+        fkEmpresa: parseInt(formData.fkEmpresa, 10),
+        fkCategoria: parseInt(formData.fkCategoria, 10)
+      };
+    } else if (modalEntity === 'empresa') {
+      endpoint = '/empresas';
+      payload = { nome: formData.nome };
+    } else if (modalEntity === 'categoria') {
+      endpoint = '/categorias';
+      payload = { nome: formData.nome };
+    }
     
     try {
       if (modalMode === 'create') {
-        await api.post('/jogos', payload, { headers });
+        await api.post(endpoint, payload, { headers });
       } else {
-        await api.put(`/jogos/${formData.id}`, payload, { headers });
+        await api.put(`${endpoint}/${formData.id}`, payload, { headers });
       }
       handleCloseModal();
-      loadGames();
+      loadAllData(); 
     } catch (err) {
       console.error(err.message);
       alert(`Erro ao salvar: ${err.response?.data?.message || err.message}`);
     }
   };
 
-  const confirmDelete = (game) => {
-    setItemToDelete(game);
+  const confirmDelete = (entity, item) => {
+    setDeleteError(null); 
+    setDeleteEntity(entity);
+    setItemToDelete(item);
     setIsDeleteModalOpen(true);
   };
 
   const handleDelete = async () => {
     if (!itemToDelete) return;
     const token = localStorage.getItem('token');
+    
+    let endpoint = '';
+    if (deleteEntity === 'jogo') endpoint = '/jogos';
+    else if (deleteEntity === 'empresa') endpoint = '/empresas';
+    else if (deleteEntity === 'categoria') endpoint = '/categorias';
+
     try {
-      await api.delete(`/jogos/${itemToDelete.id}`, {
+      await api.delete(`${endpoint}/${itemToDelete.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
-      loadGames();
+      loadAllData();
     } catch (err) {
       console.error(err.message);
-      alert('Erro ao excluir o jogo.');
+      
+      setDeleteError(`Não é possível excluir. Este registro já está vinculado a outras áreas do sistema (como histórico de compras ou catálogo).`);
     }
   };
 
@@ -162,6 +190,12 @@ function AdminPanel() {
 
   const getCompanyName = (id) => companies.find(c => c.id === id)?.nome || '—';
   const getCategoryName = (id) => categories.find(c => c.id === id)?.nome || '—';
+
+  const getModalTitle = () => {
+    const action = modalMode === 'create' ? 'Cadastrar Nova' : 'Editar';
+    const entityName = modalEntity === 'jogo' ? 'Jogo' : modalEntity === 'empresa' ? 'Empresa' : 'Categoria';
+    return `${action} ${entityName}`;
+  };
 
   if (loading) {
     return (
@@ -199,6 +233,7 @@ function AdminPanel() {
       </aside>
 
       <main className="admin-main">
+       
         {activeTab === 'jogos' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -206,7 +241,7 @@ function AdminPanel() {
                 <h1 className="admin-title">Gerenciamento de Jogos</h1>
                 <p className="admin-subtitle">Adicione, edite ou remova títulos do catálogo.</p>
               </div>
-              <button className="admin-btn-primary" onClick={() => handleOpenModal('create')}>
+              <button className="admin-btn-primary" onClick={() => handleOpenModal('jogo', 'create')}>
                 + Novo Jogo
               </button>
             </div>
@@ -237,8 +272,8 @@ function AdminPanel() {
                         <td>{game.categoria || getCategoryName(game.fkCategoria || game.fk_categoria)}</td>
                         <td>R$ {formatPrice(game.preco)}</td>
                         <td className="admin-actions">
-                          <button className="admin-btn-icon edit" onClick={() => handleOpenModal('edit', game)}>✏️</button>
-                          <button className="admin-btn-icon delete" onClick={() => confirmDelete(game)}>🗑️</button>
+                          <button className="admin-btn-icon edit" onClick={() => handleOpenModal('jogo', 'edit', game)}>✏️</button>
+                          <button className="admin-btn-icon delete" onClick={() => confirmDelete('jogo', game)}>🗑️</button>
                         </td>
                       </tr>
                     ))
@@ -249,84 +284,172 @@ function AdminPanel() {
           </section>
         )}
 
+      
         {activeTab === 'empresas' && (
           <section className="admin-section">
-            <h1 className="admin-title">Gerenciamento de Empresas</h1>
-            <p className="admin-subtitle">Área reservada para o CRUD de Desenvolvedoras.</p>
+            <div className="admin-header">
+              <div>
+                <h1 className="admin-title">Gerenciamento de Empresas</h1>
+                <p className="admin-subtitle">Cadastre e gerencie as desenvolvedoras de jogos.</p>
+              </div>
+              <button className="admin-btn-primary" onClick={() => handleOpenModal('empresa', 'create')}>
+                + Nova Empresa
+              </button>
+            </div>
+
+            <div className="admin-table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nome da Empresa</th>
+                    <th className="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {companies.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" className="admin-empty-state">Nenhuma empresa cadastrada no sistema.</td>
+                    </tr>
+                  ) : (
+                    companies.map(comp => (
+                      <tr key={comp.id}>
+                        <td>#{comp.id}</td>
+                        <td className="admin-td-bold">{comp.nome}</td>
+                        <td className="admin-actions">
+                          <button className="admin-btn-icon edit" onClick={() => handleOpenModal('empresa', 'edit', comp)}>✏️</button>
+                          <button className="admin-btn-icon delete" onClick={() => confirmDelete('empresa', comp)}>🗑️</button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
 
+       
         {activeTab === 'categorias' && (
           <section className="admin-section">
-            <h1 className="admin-title">Gerenciamento de Categorias</h1>
-            <p className="admin-subtitle">Área reservada para o CRUD de Gêneros de Jogos.</p>
+            <div className="admin-header">
+              <div>
+                <h1 className="admin-title">Gerenciamento de Categorias</h1>
+                <p className="admin-subtitle">Cadastre e gerencie os gêneros disponíveis na loja.</p>
+              </div>
+              <button className="admin-btn-primary" onClick={() => handleOpenModal('categoria', 'create')}>
+                + Nova Categoria
+              </button>
+            </div>
+
+            <div className="admin-table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nome da Categoria</th>
+                    <th className="text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" className="admin-empty-state">Nenhuma categoria cadastrada no sistema.</td>
+                    </tr>
+                  ) : (
+                    categories.map(cat => (
+                      <tr key={cat.id}>
+                        <td>#{cat.id}</td>
+                        <td className="admin-td-bold">{cat.nome}</td>
+                        <td className="admin-actions">
+                          <button className="admin-btn-icon edit" onClick={() => handleOpenModal('categoria', 'edit', cat)}>✏️</button>
+                          <button className="admin-btn-icon delete" onClick={() => confirmDelete('categoria', cat)}>🗑️</button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
       </main>
 
+     
       {isModalOpen && (
         <div className="admin-modal-overlay">
           <div className="admin-modal-box">
-            <h2 className="admin-modal-title">
-              {modalMode === 'create' ? 'Cadastrar Novo Jogo' : 'Editar Jogo'}
-            </h2>
-            <form onSubmit={handleSaveGame} className="admin-form">
+            <h2 className="admin-modal-title">{getModalTitle()}</h2>
+            <form onSubmit={handleSave} className="admin-form">
+              
               <div className="admin-form-group">
-                <label>Nome do Jogo</label>
-                <input required type="text" name="nome" value={formData.nome} onChange={handleChange} placeholder="Ex: Elden Ring" />
+                <label>Nome {modalEntity === 'jogo' ? 'do Jogo' : 'da ' + (modalEntity === 'empresa' ? 'Empresa' : 'Categoria')}</label>
+                <input required type="text" name="nome" value={formData.nome} onChange={handleChange} placeholder="Digite o nome..." />
               </div>
               
-              <div className="admin-form-row">
-                <div className="admin-form-group">
-                  <label>Empresa Desenvolvedora</label>
-                  <select required name="fkEmpresa" value={formData.fkEmpresa} onChange={handleChange}>
-                    <option value="">Selecione uma empresa...</option>
-                    {companies.map(comp => (
-                      <option key={comp.id} value={comp.id}>{comp.nome}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="admin-form-group">
-                  <label>Gênero / Categoria</label>
-                  <select required name="fkCategoria" value={formData.fkCategoria} onChange={handleChange}>
-                    <option value="">Selecione uma categoria...</option>
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.nome}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              {modalEntity === 'jogo' && (
+                <>
+                  <div className="admin-form-row">
+                    <div className="admin-form-group">
+                      <label>Empresa Desenvolvedora</label>
+                      <select required name="fkEmpresa" value={formData.fkEmpresa} onChange={handleChange}>
+                        <option value="">Selecione uma empresa...</option>
+                        {companies.map(comp => (
+                          <option key={comp.id} value={comp.id}>{comp.nome}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Gênero / Categoria</label>
+                      <select required name="fkCategoria" value={formData.fkCategoria} onChange={handleChange}>
+                        <option value="">Selecione uma categoria...</option>
+                        {categories.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.nome}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
 
-              <div className="admin-form-row">
-                <div className="admin-form-group">
-                  <label>Preço (R$)</label>
-                  <input required type="number" step="0.01" min="0" name="preco" value={formData.preco} onChange={handleChange} placeholder="0.00" />
-                </div>
-                <div className="admin-form-group">
-                  <label>Ano de Lançamento</label>
-                  <input type="number" name="ano" value={formData.ano} onChange={handleChange} placeholder="Ex: 2024" />
-                </div>
-              </div>
+                  <div className="admin-form-row">
+                    <div className="admin-form-group">
+                      <label>Preço (R$)</label>
+                      <input required type="number" step="0.01" min="0" name="preco" value={formData.preco} onChange={handleChange} placeholder="0.00" />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Ano de Lançamento</label>
+                      <input type="number" name="ano" value={formData.ano} onChange={handleChange} placeholder="Ex: 2024" />
+                    </div>
+                  </div>
 
-              <div className="admin-form-group">
-                <label>Descrição</label>
-                <textarea rows="3" name="descricao" value={formData.descricao} onChange={handleChange} placeholder="Detalhes do jogo..." />
-              </div>
+                  <div className="admin-form-group">
+                    <label>Descrição</label>
+                    <textarea rows="3" name="descricao" value={formData.descricao} onChange={handleChange} placeholder="Detalhes do jogo..." />
+                  </div>
+                </>
+              )}
               
               <div className="admin-modal-actions">
                 <button type="button" className="admin-btn-cancel" onClick={handleCloseModal}>Cancelar</button>
-                <button type="submit" className="admin-btn-save">Salvar Jogo</button>
+                <button type="submit" className="admin-btn-save">Salvar {modalEntity === 'jogo' ? 'Jogo' : ''}</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
+      
       {isDeleteModalOpen && (
         <div className="admin-modal-overlay">
           <div className="admin-modal-box admin-modal-alert">
             <h2 className="admin-modal-title">⚠️ Confirmar Exclusão</h2>
-            <p>Você está prestes a excluir permanentemente o jogo <strong>{itemToDelete?.nome}</strong>. Esta ação não pode ser desfeita.</p>
+            <p>Você está prestes a excluir permanentemente <strong>{itemToDelete?.nome}</strong>.</p>
+            
+            {deleteError && (
+              <div className="admin-error-message">
+                {deleteError}
+              </div>
+            )}
+
             <div className="admin-modal-actions">
               <button className="admin-btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>Cancelar</button>
               <button className="admin-btn-delete-confirm" onClick={handleDelete}>Sim, excluir</button>
