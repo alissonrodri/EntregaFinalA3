@@ -373,15 +373,30 @@
     font-size: 0.95rem;
 }
 
-.notif-mark-read {
+.notif-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.notif-action-btn {
     font-size: 0.75rem;
     color: var(--contrast);
     cursor: pointer;
-    transition: filter 0.2s;
+    transition: all 0.2s;
 }
 
-.notif-mark-read:hover {
+.notif-action-btn:hover {
     filter: brightness(1.2);
+    text-decoration: underline;
+}
+
+.notif-action-btn.clear {
+    color: var(--text-muted);
+}
+
+.notif-action-btn.clear:hover {
+    color: var(--contrast);
     text-decoration: underline;
 }
 

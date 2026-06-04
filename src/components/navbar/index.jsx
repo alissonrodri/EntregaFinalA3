@@ -154,7 +154,7 @@ function Navbar() {
       const welcomeShown = sessionStorage.getItem('welcomeShown');
       if (!welcomeShown) {
         window.dispatchEvent(new CustomEvent('notify', {
-          detail: { text: `Boas-vindas de volta, ${user.nome}! 🎮`, link: '/' }
+          detail: { text: `Bem-vindo (a) de volta, ${user.nome}! 🎮`, link: '/' }
         }));
         sessionStorage.setItem('welcomeShown', 'true');
       }
@@ -184,6 +184,10 @@ function Navbar() {
 
   const markAllAsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
   };
 
   return (
@@ -290,9 +294,14 @@ function Navbar() {
                 <div className="notif-dropdown">
                   <div className="notif-header">
                     <p className="notif-title">Notificações</p>
-                    {unreadCount > 0 && (
-                      <span className="notif-mark-read" onClick={markAllAsRead}>Marcar como lidas</span>
-                    )}
+                    <div className="notif-actions">
+                      {unreadCount > 0 && (
+                        <span className="notif-action-btn" onClick={markAllAsRead}>Marcar como lidas</span>
+                      )}
+                      {notifications.length > 0 && (
+                        <span className="notif-action-btn clear" onClick={clearNotifications}>Limpar notificações</span>
+                      )}
+                    </div>
                   </div>
                   <div className="notif-body">
                     {notifications.length === 0 ? (
