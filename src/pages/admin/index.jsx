@@ -36,7 +36,6 @@ function AdminPanel() {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteEntity, setDeleteEntity] = useState('jogo');
   
-  
   const [deleteError, setDeleteError] = useState(null);
 
   const loadAllData = useCallback(async () => {
@@ -134,10 +133,7 @@ function AdminPanel() {
     } else if (modalEntity === 'empresa') {
       endpoint = '/empresas';
       payload = { nome: formData.nome };
-    } else if (modalEntity === 'categoria') {
-      endpoint = '/categorias';
-      payload = { nome: formData.nome };
-    }
+    } 
     
     try {
       if (modalMode === 'create') {
@@ -167,7 +163,6 @@ function AdminPanel() {
     let endpoint = '';
     if (deleteEntity === 'jogo') endpoint = '/jogos';
     else if (deleteEntity === 'empresa') endpoint = '/empresas';
-    else if (deleteEntity === 'categoria') endpoint = '/categorias';
 
     try {
       await api.delete(`${endpoint}/${itemToDelete.id}`, {
@@ -178,7 +173,6 @@ function AdminPanel() {
       loadAllData();
     } catch (err) {
       console.error(err.message);
-      
       setDeleteError(`Não é possível excluir. Este registro já está vinculado a outras áreas do sistema (como histórico de compras ou catálogo).`);
     }
   };
@@ -227,7 +221,7 @@ function AdminPanel() {
             className={`admin-nav-btn ${activeTab === 'categorias' ? 'active' : ''}`}
             onClick={() => setActiveTab('categorias')}
           >
-            🏷️ Gerenciar Categorias
+            🏷️ Listagem de Categorias
           </button>
         </nav>
       </aside>
@@ -334,12 +328,9 @@ function AdminPanel() {
           <section className="admin-section">
             <div className="admin-header">
               <div>
-                <h1 className="admin-title">Gerenciamento de Categorias</h1>
-                <p className="admin-subtitle">Cadastre e gerencie os gêneros disponíveis na loja.</p>
+                <h1 className="admin-title">Listagem de Categorias</h1>
+                <p className="admin-subtitle">Visualize os gêneros de jogos disponíveis no sistema.</p>
               </div>
-              <button className="admin-btn-primary" onClick={() => handleOpenModal('categoria', 'create')}>
-                + Nova Categoria
-              </button>
             </div>
 
             <div className="admin-table-container">
@@ -348,23 +339,18 @@ function AdminPanel() {
                   <tr>
                     <th>ID</th>
                     <th>Nome da Categoria</th>
-                    <th className="text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {categories.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="admin-empty-state">Nenhuma categoria cadastrada no sistema.</td>
+                      <td colSpan="2" className="admin-empty-state">Nenhuma categoria cadastrada no sistema.</td>
                     </tr>
                   ) : (
                     categories.map(cat => (
                       <tr key={cat.id}>
                         <td>#{cat.id}</td>
                         <td className="admin-td-bold">{cat.nome}</td>
-                        <td className="admin-actions">
-                          <button className="admin-btn-icon edit" onClick={() => handleOpenModal('categoria', 'edit', cat)}>✏️</button>
-                          <button className="admin-btn-icon delete" onClick={() => confirmDelete('categoria', cat)}>🗑️</button>
-                        </td>
                       </tr>
                     ))
                   )}
