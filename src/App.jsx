@@ -13,7 +13,6 @@ import Library from './pages/library'
 import Checkout from './pages/checkout'
 import History from './pages/history'
 
-
 function AppRoutes(){
   const location = useLocation();
 
