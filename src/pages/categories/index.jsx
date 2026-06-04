@@ -205,6 +205,8 @@ function CategoriesPage() {
           next.delete(jogoId);
           return next;
         });
+
+        
       } catch (err) { 
         console.error(err.message); 
       }
@@ -216,6 +218,9 @@ function CategoriesPage() {
           next.add(jogoId);
           return next;
         });
+        window.dispatchEvent(new CustomEvent('notify', { 
+       detail: { text: 'Item adicionado à sua Lista de Desejos! ❤️', link: '/wishlist' } 
+        }));
       } catch (err) { 
         console.error(err.message); 
       }

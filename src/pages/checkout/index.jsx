@@ -273,6 +273,9 @@ function Checkout() {
 
       // 2. Faz o checkout (finaliza o carrinho e gera a venda)
       const checkoutRes = await api.post('/vendas/checkout');
+      window.dispatchEvent(new CustomEvent('notify', { 
+      detail: { text: 'Compra aprovada! Verifique na sua biblioteca. 🎮', link: '/library' } 
+      }));
 
       // 3. Persiste os IDs na biblioteca local
       const userId     = getUserId();

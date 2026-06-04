@@ -335,6 +335,7 @@ function GamePage() {
       try {
         await api.delete('/lista-desejo', { headers: { Authorization: `Bearer ${token}` }, data: { jogoId: game.id } });
         setWishState('idle');
+       
       } catch (err) { 
         console.error('Falha na remoção da lista de desejos:', err.message); 
       }
@@ -356,6 +357,10 @@ function GamePage() {
     try {
       await api.post('/lista-desejo', { jogoId: finalGameId }, { headers: { Authorization: `Bearer ${token}` } });
       setWishState('added');
+
+       window.dispatchEvent(new CustomEvent('notify', { 
+        detail: { text: 'Item adicionado à sua Lista de Desejos! ❤️', link: '/wishlist' } 
+      }));
     } catch (err) { 
       if (err.response?.status === 409) setWishState('already'); 
       else console.error('Erro ao adicionar à lista de desejos:', err.message);

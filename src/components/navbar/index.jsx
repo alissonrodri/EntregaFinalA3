@@ -7,8 +7,11 @@ import api from '../../services/api';
 function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
  
@@ -16,12 +19,21 @@ function Navbar() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-
   const [cartCount, setCartCount] = useState(parseInt(localStorage.getItem('cartCount')) || 0);
+  
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem('clt_notifications');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const menuRef = useRef(null);
+  const notifRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    localStorage.setItem('clt_notifications', JSON.stringify(notifications));
+  }, [notifications]);
 
   const handleSearchSubmit = () => {
       setIsSearchOpen(false);
@@ -40,19 +52,20 @@ function Navbar() {
     localStorage.setItem('theme', nextTheme);
   };
 
-  // Encerrar sessão
   function handleLogout() {
     localStorage.removeItem('token');
     localStorage.removeItem('cartCount');
-    setCartCount(0); // Zera o contador visualmente
+    localStorage.removeItem('clt_notifications');
+    sessionStorage.removeItem('welcomeShown'); 
+    setCartCount(0);
     setIsLoggedIn(false);
     setUser(null);
     setIsAdmin(false);
     setIsMenuOpen(false);
+    setNotifications([]);
     navigate('/');
   }
 
-  // Retorna as iniciais do usuário logado para o avatar visual
   const getInitials = (fullName) => {
     if (!fullName) return "??";
     const parts = fullName.trim().split(' ');
@@ -61,7 +74,6 @@ function Navbar() {
     }
     return parts[0].substring(0, 2).toUpperCase();
   };
-
   
   const fetchCartCount = useCallback(() => {
     const token = localStorage.getItem('token');
@@ -79,11 +91,10 @@ function Navbar() {
           localStorage.setItem('cartCount', count);
         }
       })
-      .catch((err) => console.error("Erro ao buscar quantidade do carrinho:", err));
+      .catch((err) => console.error(err));
     }
   }, []);
 
-  // Processa o token JWT para recuperar os dados do usuário logado
   const processToken = useCallback((token) => {
     try {
       const payloadBase64 = token.split('.')[1];
@@ -93,7 +104,7 @@ function Navbar() {
       setIsLoggedIn(true);
       setIsAdmin(decodedPayload.perfil === 'Administrador' || decodedPayload.perfil === 'Admin');
     } catch (error) {
-      console.error("Erro ao ler o token", error);
+      console.error(error);
       handleLogout();
     }
   }, []);
@@ -101,7 +112,7 @@ function Navbar() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token && !isLoggedIn) {
-        setTimeout(() =>{
+        setTimeout(() => {
             processToken(token);
         }, 0);
     }
@@ -113,28 +124,67 @@ function Navbar() {
     }
   }, [processToken, theme, isLoggedIn]);
 
-  
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchCartCount();
-    }
+    if (isLoggedIn) fetchCartCount();
   }, [isLoggedIn, fetchCartCount]);
 
-  
   useEffect(() => {
+    const handleNotify = (e) => {
+      const newNotif = {
+        id: Date.now(),
+        text: e.detail.text,
+        link: e.detail.link || null,
+        read: false,
+        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      };
+      setNotifications(prev => [newNotif, ...prev]);
+    };
+
     window.addEventListener('cartUpdated', fetchCartCount);
-    return () => window.removeEventListener('cartUpdated', fetchCartCount);
+    window.addEventListener('notify', handleNotify);
+    
+    return () => {
+      window.removeEventListener('cartUpdated', fetchCartCount);
+      window.removeEventListener('notify', handleNotify);
+    };
   }, [fetchCartCount]);
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false);
+    if (isLoggedIn && user?.nome) {
+      const welcomeShown = sessionStorage.getItem('welcomeShown');
+      if (!welcomeShown) {
+        window.dispatchEvent(new CustomEvent('notify', {
+          detail: { text: `Boas-vindas de volta, ${user.nome}! 🎮`, link: '/' }
+        }));
+        sessionStorage.setItem('welcomeShown', 'true');
       }
+    }
+  }, [isLoggedIn, user]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) setIsMenuOpen(false);
+      if (notifRef.current && !notifRef.current.contains(event.target)) setIsNotifOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const handleNotificationHover = (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
+
+  const handleNotificationClick = (notif) => {
+    handleNotificationHover(notif.id);
+    setIsNotifOpen(false);
+    if (notif.link) navigate(notif.link);
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
 
   return (
     <nav className="navbar">
@@ -170,7 +220,7 @@ function Navbar() {
                   setSearchResults(filtrados.slice(0, 5)); 
                   setIsSearchOpen(true);
                 })
-                .catch((err) => console.error("Erro na busca rápida:", err));
+                .catch((err) => console.error(err));
             } else {
               setIsSearchOpen(false);
             }
@@ -228,14 +278,46 @@ function Navbar() {
               <Link to="/admin" className="navbar-item admin">Painel ADM</Link>
             )}
 
-            <div className="action-icon notification" id="nav-notification">
-              🔔 <span className="badge-notification">0</span>
+            <div className="notification-container" ref={notifRef}>
+              <div 
+                className={`action-icon notification ${unreadCount > 0 ? 'has-items' : ''}`} 
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+              >
+                🔔 {unreadCount > 0 && <span className="badge-notification">{unreadCount}</span>}
+              </div>
+
+              {isNotifOpen && (
+                <div className="notif-dropdown">
+                  <div className="notif-header">
+                    <p className="notif-title">Notificações</p>
+                    {unreadCount > 0 && (
+                      <span className="notif-mark-read" onClick={markAllAsRead}>Marcar como lidas</span>
+                    )}
+                  </div>
+                  <div className="notif-body">
+                    {notifications.length === 0 ? (
+                      <div className="notif-empty">Nenhuma notificação nova</div>
+                    ) : (
+                      notifications.map(notif => (
+                        <div 
+                          key={notif.id} 
+                          className={`notif-item ${!notif.read ? 'unread' : ''}`}
+                          onClick={() => handleNotificationClick(notif)}
+                          onMouseEnter={() => handleNotificationHover(notif.id)}
+                        >
+                          <div className="notif-item-text">{notif.text}</div>
+                          <div className="notif-item-time">{notif.time}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-           
             <Link to="/cart" className="cart-btn">
-              <div className="action-icon cart" id="nav-cart">
-                🛒 <span className="badge-cart">{cartCount}</span>
+              <div className={`action-icon cart ${cartCount > 0 ? 'has-items' : ''}`} id="nav-cart">
+                🛒 {cartCount > 0 && <span className="badge-cart">{cartCount}</span>}
               </div>
             </Link>
 
