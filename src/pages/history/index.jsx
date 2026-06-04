@@ -209,13 +209,12 @@ export default function History() {
             const priceKey = `frozenPrice_${v.id}_${item.id}`;
             let frozenPrice = localStorage.getItem(priceKey);
 
-            if (!frozenPrice && !item.isDeleted) {
-              frozenPrice = item.preco;
-              localStorage.setItem(priceKey, frozenPrice);
-            } else if (frozenPrice) {
+            if (frozenPrice) {
+              
               frozenPrice = parseFloat(frozenPrice);
             } else {
-              frozenPrice = 0;
+             
+              frozenPrice = v.valor_total / (v.quantidade || 1);
             }
 
             return {

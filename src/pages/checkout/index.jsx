@@ -291,6 +291,10 @@ function Checkout() {
         parcelas: dados?.parcelas || null,
       }));
 
+      cartItems.forEach(item => {
+      localStorage.setItem(`frozenPrice_${vendaId}_${item.id}`, item.preco);
+      });
+
       // 5. Zera contador do carrinho na navbar
       localStorage.setItem('cartCount', '0');
       window.dispatchEvent(new Event('cartUpdated'));
