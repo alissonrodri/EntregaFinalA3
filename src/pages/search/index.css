@@ -124,7 +124,7 @@
 
 .btn-row-add-cart {
     background-color: var(--contrast);
-    color: var(--bg-dark);
+    color: var(--text-main);
     border: 1px solid transparent; 
     padding: 0 25px;
     border-radius: 8px;
