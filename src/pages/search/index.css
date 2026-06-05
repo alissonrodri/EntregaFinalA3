@@ -28,7 +28,7 @@
     font-size: 1rem;
 }
 
-/* LISTAGEM EM RETÂNGULOS */
+
 .results-list {
     display: flex;
     flex-direction: column;
@@ -122,7 +122,6 @@
     width: 100%;
 }
 
-/* Botão 1: Adicionar ao Carrinho */
 .btn-row-add-cart {
     background-color: var(--contrast);
     color: var(--bg-dark);
@@ -146,7 +145,37 @@
     box-shadow: 0 4px 10px var(--contrast); 
 }
 
-/* Botão 2: Lista de Desejos */
+.btn-row-success {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-row-in-cart {
+    background-color: #ff4d4d !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+.btn-row-in-cart:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4) !important;
+}
+
+.btn-row-owned {
+    background: var(--bg-dark) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.btn-row-owned:hover {
+    border-color: var(--contrast) !important;
+    color: var(--contrast) !important;
+    box-shadow: none !important;
+}
+
+
 .btn-row-wishlist {
     background: transparent;
     border: 1px solid var(--border);
@@ -171,7 +200,12 @@
     color: #ff4d6d;
 }
 
-/* Botão 3: Ver Detalhes */
+.btn-row-wishlist--active {
+    border-color: #ff4d6d;
+    color: #ff4d6d;
+}
+
+
 .btn-row-details {
     background: transparent;
     border: 1px solid var(--border);
@@ -195,7 +229,7 @@
     border-color: var(--contrast);
 }
 
-/* CAIXA DE "NENHUM RESULTADO" */
+
 .no-results-box {
     text-align: center;
     padding: 60px 20px;
@@ -224,7 +258,7 @@
     font-size: 0.95rem;
 }
 
-/* VITRINE DE RECOMENDAÇÕES */
+
 .recommendations-section {
     border-top: 1px solid var(--border);
     padding-top: 40px;
@@ -324,7 +358,7 @@
     font-style: italic;
 }
 
-/* RESPONSIVIDADE */
+
 @media (max-width: 900px) {
     .game-row-card { flex-direction: column; }
     .game-row-thumb { width: 100%; height: 120px; font-size: 2.5rem; border-right: none; border-bottom: 1px solid var(--border); }
