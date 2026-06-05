@@ -92,7 +92,7 @@ function GamePage() {
     idle:      { text: 'Adicionar ao carrinho', disabled: false, className: '' },
     success:   { text: 'Adicionado! ✓',         disabled: true,  className: 'btn-success' },
     duplicate: { text: 'Já adicionado',         disabled: true,  className: 'btn-added' },
-    already:   { text: 'No carrinho',           disabled: true,  className: 'btn-added' },
+    already:   { text: '✓ Visualizar no carrinho',           disabled: false, className: 'btn-added' },
   };
 
   const wishConfig = {
@@ -275,6 +275,7 @@ function GamePage() {
   const handleAddToCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/login'); return; }
+    if (btnState === 'already') { navigate('/cart'); return; }
     let finalGameId = game?.id;
     if (!finalGameId) {
       try {

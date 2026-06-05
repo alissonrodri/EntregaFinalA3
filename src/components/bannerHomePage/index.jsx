@@ -216,7 +216,7 @@ function Banner() {
                 onClick={() => handleAddToCart(currentGame.id)}
                 disabled={justAdded}
               >
-                {justAdded ? '✓ Adicionado!' : inCart ? 'No carrinho' : 'Adicionar ao carrinho'}
+                {justAdded ? '✓ Adicionado!' : inCart ? '✓ Visualizar no carrinho' : 'Adicionar ao carrinho'}
               </button>
             )}
 

@@ -351,7 +351,7 @@ function CategoriesPage() {
                             onClick={() => handleAddToCart(jogo.id)}
                             disabled={addedItems[jogo.id]}
                           >
-                            {addedItems[jogo.id] ? '✓ Adicionado!' : cartItems.has(jogo.id) ? 'No carrinho' : 'Adicionar ao carrinho'}
+                            {addedItems[jogo.id] ? '✓ Adicionado!' : cartItems.has(jogo.id) ? '✓ Visualizar no carrinho' : 'Adicionar ao carrinho'}
                           </button>
                         )}
                         <Link
