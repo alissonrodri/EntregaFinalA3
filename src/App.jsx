@@ -4,6 +4,7 @@ import Footer from "./components/footer";
 import Home from "./pages/home";
 import SignIn from './pages/signIn';
 import SignUp from './pages/signUp';
+import EditUser from './pages/editUser';
 import SearchPage from './pages/search';
 import GamePage from './pages/gamepage';
 import CategoriesPage from './pages/categories';
@@ -34,6 +35,7 @@ function AppRoutes(){
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/edituser" element={<EditUser />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/game/:id" element={<GamePage />} />
           <Route path="/categorias" element={<CategoriesPage />} />
