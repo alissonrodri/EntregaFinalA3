@@ -34,5 +34,25 @@ export default function Ranking() {
                 setLoading(false);
             }
         };
-    })
+
+        fetchRanking();
+    }, [top, empresaId]);
+
+
+    const handleFiltrar = () => {
+        setEmpresaId(inputEmpresa);
+    };
+
+
+    const handleLimpar = () => {
+        setInputEmpresa('');
+        setEmpresaId('');
+    };
+
+    const getMedalha = (posicao) => {
+        if (posicao === 0) return 'medalha ouro';
+        if (posicao === 1) return 'medalha prata';
+        if (posicao === 2) return 'medalha bronze';
+        return '';
+    };
 }
