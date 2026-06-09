@@ -123,7 +123,61 @@ export default function Ranking() {
             </section>
 
 
-            
+            {empresaId && (
+                <div className='filtro-ativo-badge'>
+                    <span>📌 Mostrando resultados da empresa ID: <strong>{empresaId}</strong></span>
+                </div>
+            )}
+
+
+            <section className='ranking-conteudo'>
+                {loading && erro && (
+                    <div className='ranking-erro'>
+                        <span className='erro-icone'>⚠️</span>
+                        <p>{erro}</p>
+                    </div>
+                )}
+
+
+                {!loading && !erro && jogos.length === 0 && (
+                    <div className='ranking-vazio'>
+                        <span className='vazio-icone'>🎮</span>
+                        <p>Nenhum jogo encontrado com os filtros aplicados.</p>
+                    </div>
+                )}
+
+
+                {!loading && !erro && jogos.length > 0 && (
+                    <div className='ranking-lista'>
+                        <div className='ranking-tabela-header'>
+                            <span className='col-pos'>Pos.</span>
+                            <span className='col-jogo'>Jogo</span>
+                            <span className='col-empresa'>Empresa</span>
+                            <span className='col-vendas'>Total de Vendas</span>
+                        </div>
+
+
+                        {jogos.map((jogo, index) => (
+                            <div
+                                key={`${jogo.nome}-${index}`}
+                                className={`ranking-item ${getMedalha(index)} ${index < 3 ? 'destaque' : ''}`}
+                                style={{ animationDelay: `${index * 60}ms` }}
+                            >
+                                
+                                
+                                <div className='col-pos'>
+                                    {index < 3 ? (
+                                        <span className='medalha-emoji'>
+                                            {index === 0 '🥇' : index === 1 ? '🥈' : '🥉'}
+                                        </span>
+                                    ) : ( 
+                                        <span className='pos-numero'>#{index + 1}</span>
+                                    )}
+                                </div>
+                        ))}
+                    </div>
+                )}
+            </section>
         </div>  
     )
 }
