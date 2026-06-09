@@ -1,97 +1,116 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import "./index.css";
+import { useNavigate, Link } from 'react-router-dom';
+import api from '../../services/api';
+import './index.css';
 
-const SignIn = () => {
-    // Estados para controlar formulário, erro e carregamento
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    
-    const navigate = useNavigate();
+import iconHidden from '../../assets/img/senha_oculta.png';
+import iconShow from '../../assets/img/senha_visivel.png';
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setError('');
-        setIsLoading(true);
+function SignIn() {
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  
+  const navigate = useNavigate();
 
-        // Validação simples de preenchimento
-        if (!email || !password) {
-            setError('Por favor, preencha todos os campos.');
-            setIsLoading(false);
-            return;
-        }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-        try {
-            // Integração com API utilizando Axios
-            const response = await axios.post('https://localhost:3000/api/v1/auth/login', {
-                email,
-                password
-            });
+    try {
+      const response = await api.post('/auth/login', {
+        email,
+        senha
+      });
 
-            // Se o login for bem-sucedido
-            if (response.data && response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                navigate('/home'); 
-            }
-        } catch (err) {
-            // Tratamento de erro específico do Axios
-            if (err.response) {
-                // Erro retornado pelo servidor (ex: 401, 404)
-                setError(err.response.data.message || 'E-mail ou senha incorretos.');
-            } else {
-                // Erro de rede ou outro problema
-                setError('Erro de conexão com o servidor. Tente novamente mais tarde.');
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
+      const { token } = response.data;
 
-    return (
-        <div className="signin-container">
-            <form className="signin-form" onSubmit={handleLogin}>
-                <h2>Entrar na <span className="logo-text">CLT Gaming</span></h2>
-                
-                {error && <p className="error-message">{error}</p>}
+      if (token) {
+        localStorage.setItem('token', token);
+        navigate('/');
+      }
+    } catch (err) {
+      console.error('Erro no login:', err);
+      setError(
+        err.response?.data?.message || 'E-mail ou senha incorretos. Tente novamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <div className="form-group">
-                    <label htmlFor="email">E-mail</label>
-                    <input 
-                        type="email" 
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="seu@email.com" 
-                        disabled={isLoading}
-                    />
-                </div>
+  return (
+    <div className="signin-container">
+      <form onSubmit={handleLogin} className="signin-form">
+        <h2>Entrar na <span className="logo-text">CLT Gaming</span></h2>
 
-                <div className="form-group">
-                    <label htmlFor="password">Senha</label>
-                    <input 
-                        type="password" 
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Sua senha" 
-                        disabled={isLoading}
-                    />
-                    <a href="/recuperar-senha" className="forgot-link">Esqueci minha senha</a>
-                </div>
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
 
-                <button type="submit" className="btn-signin" disabled={isLoading}>
-                    {isLoading ? 'Entrando...' : 'Entrar'}
-                </button>
-
-                <div className="signin-footer">
-                    <span>Não tem uma conta? <a href="/signUp">Cadastre-se</a></span>
-                </div>
-            </form>
+        <div className="form-group">
+          <label htmlFor="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="seu@email.com"
+            required
+            autoComplete="email"
+          />
         </div>
-    );
-};
+
+        <div className="form-group">
+          <label htmlFor="senha">Senha</label>
+          
+          <div className="password-input-wrapper">
+            <input
+              id="senha"
+              // Altera dinamicamente entre 'password' e 'text'
+              type={passwordVisible ? "text" : "password"}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder="Sua senha"
+              required
+              autoComplete="current-password"
+            />
+            {/* Botão do ícone ajustado para usar as imagens */}
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={() => setPasswordVisible(!passwordVisible)}
+              title={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+              aria-label={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+            >
+              {/* --- ALTERAÇÃO AQUI: Renderização condicional das imagens --- */}
+              {passwordVisible ? (
+                <img src={iconHidden} alt="Ícone Ocultar senha" className="password-icon" />
+              ) : (
+                <img src={iconShow} alt="Ícone Mostrar senha" className="password-icon" />
+              )}
+            </button>
+          </div>
+          
+          <Link to="/forgot-password" className="forgot-link">Esqueci minha senha</Link>
+        </div>
+
+        <button type="submit" className="btn-signin" disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar'}
+        </button>
+
+        <div className="signin-footer">
+          Não tem uma conta? <Link to="/signup">Cadastre-se</Link>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 export default SignIn;

@@ -1,47 +1,4 @@
-*{
-    overflow: hidden;
-}
 
-/* navbar */
-.navbar{
-    background-color: var(--bg-card);
-    border-bottom: 1px solid var(--border);
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 30px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-.navbar-container{
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-.navbar-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -1px;
-    text-decoration: none;
-}
-.navbar-logo img {
-    width: 30px;
-    height: 30px;
-    display: block;
-}
-
-.navbar-logo span { 
-    color: var(--contrast); 
-}
-
-/* Container ocupa a tela toda */
 .signin-container {
     display: flex;
     justify-content: center;
@@ -51,7 +8,7 @@
     margin-top: -65px;
 }
 
-/*Caixa do formulário*/
+
 .signin-form {
     background-color: var(--bg-card);
     padding: 40px;
@@ -69,11 +26,11 @@
 }
 
 .logo-text {
-    color: var(--contrast); /*usa a cor de destaque global*/
+    color: var(--contrast); 
     font-weight: bold;
 }
 
-/*mensagem de erro*/
+
 .error-message {
     background-color: rgba(255, 46, 46, 0.1);
     color: #ff4e4e;
@@ -85,7 +42,7 @@
     text-align: center;
 }
 
-/*grupos de input*/
+
 .form-group {
     margin-bottom: 20px;
     display: flex;
@@ -113,14 +70,14 @@
     border-color: var(--contrast);
 }
 
-/*botão de entrar*/
+
 .btn-signin {
     width: 100%;
     padding: 14px;
     border: none;
     border-radius: 6px;
     background-color: var(--contrast);
-    color: var(--bg-dark); /*texto escuro para dar leitura no botão colorido*/
+    color: var(--bg-dark); 
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
@@ -129,14 +86,14 @@
 }
 
 .btn-signin:hover {
-    filter: brightness(1.1); /*substitui a cor fixa de hover por um brilho genérico*/
+    filter: brightness(1.1); 
 }
 
 .btn-signin:active {
     transform: scale(0.98);
 }
 
-/*rodapé do formulário*/
+    
 .signin-footer {
     margin-top: 25px;
     text-align: center;
@@ -154,9 +111,9 @@
     text-decoration: underline;
 }
 
-/*link de esqueci a senha*/
+
 .forgot-link {
-    align-self: flex-end; /*alinha o link à direita dentro da coluna*/
+    align-self: flex-end; 
     font-size: 0.8rem;
     color: var(--text-muted);
     text-decoration: none;
@@ -167,4 +124,49 @@
 .forgot-link:hover {
     color: var(--contrast);
     text-decoration: underline;
+}
+
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 48px !important; 
+    box-sizing: border-box;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 14px; 
+    top: 50%;
+    transform: translateY(-50%); 
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2; 
+    transition: transform 0.1s ease;
+}
+
+
+.password-icon {
+    width: 22px; 
+    height: auto;
+    display: block;
+    opacity: 0.6; 
+    transition: opacity 0.7s ease, filter 0.3s ease;
+    opacity: 1;
+    filter: drop-shadow(0px 0px 3px var(--contrast));
+}
+
+.password-toggle-btn:active {
+    transform: translateY(-50%) scale(0.9);
 }
