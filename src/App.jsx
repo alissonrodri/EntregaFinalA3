@@ -13,13 +13,14 @@ import Library from './pages/library'
 import Checkout from './pages/checkout'
 import History from './pages/history'
 import AdminPage from './pages/admin'
+import ForgotPassword from './pages/forgotPassword';
 
 
 function AppRoutes(){
   const location = useLocation();
 
-  const rotasSemNavbar = ['/signin', '/signup'];
-  const rotasSemFooter = ['/signin', '/signup'];
+  const rotasSemNavbar = ['/signin', '/signup', '/forgot-password'];
+  const rotasSemFooter = ['/signin', '/signup',  '/forgot-password'];
 
   const rotasComNavbar = !rotasSemNavbar.includes(location.pathname);
   const rotasComFooter = !rotasSemFooter.includes(location.pathname);
@@ -43,6 +44,7 @@ function AppRoutes(){
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/history" element={<History />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </main>
 
