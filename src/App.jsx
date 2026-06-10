@@ -13,6 +13,7 @@ import Library from './pages/library'
 import Checkout from './pages/checkout'
 import History from './pages/history'
 import AdminPage from './pages/admin'
+import FAQ from './pages/faq'
 
 
 function AppRoutes(){
@@ -43,6 +44,7 @@ function AppRoutes(){
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/history" element={<History />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/faq" element={<FAQ />} />
         </Routes>
       </main>
 
