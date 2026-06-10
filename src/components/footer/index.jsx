@@ -1,4 +1,5 @@
 import './index.css';
+import { Link } from 'react-router-dom'
 
 function Footer() {
   return (
@@ -32,6 +33,9 @@ function Footer() {
             <li><a href="#termos">Termos de serviço</a></li>
             <li><a href="#privacidade">Política de privacidade</a></li>
             <li><a href="#reembolso">Política de reembolso</a></li>
+            <li>
+              <Link to="/faq">Perguntas Frequentes</Link>
+            </li>
           </ul>
         </div>
       </div>
