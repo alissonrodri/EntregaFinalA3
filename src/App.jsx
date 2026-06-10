@@ -13,7 +13,7 @@ import Library from './pages/library'
 import Checkout from './pages/checkout'
 import History from './pages/history'
 import AdminPage from './pages/admin'
-import FAQ from './pages/faq'
+import FAQ from './pages/FAQ/FAQ';
 
 
 function AppRoutes(){
