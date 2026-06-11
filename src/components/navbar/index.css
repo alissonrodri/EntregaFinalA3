@@ -272,7 +272,9 @@
     position: absolute;
     top: 45px;
     left: 0;
-    width: 100%;
+    width: max-content;
+    min-width: 70%;
+    max-width: 320px;
     background-color: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -282,6 +284,7 @@
     flex-direction: column;
     overflow: hidden;
 }
+
 
 
 .search-dropdown-item {
@@ -318,6 +321,10 @@
     font-weight: 500;
     margin: 0;
     color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
 }
 
 .search-item-category {
@@ -326,7 +333,7 @@
     margin: 2px 0 0 0;
 }
 
-/* ---- Efeito Glow para ícones ativos ---- */
+
 .action-icon.has-items {
     filter: drop-shadow(0px 0px 8px color-mix(in srgb, var(--contrast) 60%, transparent));
     animation: pulseGlow 2s infinite alternate;
@@ -337,7 +344,7 @@
     100% { filter: drop-shadow(0px 0px 10px color-mix(in srgb, var(--contrast) 90%, transparent)); }
 }
 
-/* ---- Menu de Notificações ---- */
+
 .notification-container {
     position: relative;
 }
@@ -498,5 +505,13 @@
     .navbar-logo { 
         font-size: 0.9rem; 
     }
-}
 
+     .search-dropdown {
+        position: fixed;
+        top: 70px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-width: none;
+}
+}
