@@ -25,11 +25,12 @@ function Banner() {
   const [cartItems, setCartItems] = useState(new Set());
   const [wishlistItems, setWishlistItems] = useState(new Set());
   const [addedItems, setAddedItems] = useState({});
+  
+  const [avgRatings, setAvgRatings] = useState({});
 
   const userId = getUserId();
   const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
 
-  
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -72,6 +73,37 @@ function Banner() {
 
         setGames(gamesData);
         setLoading(false);
+
+       
+        try {
+          const ratingsMap = {};
+          await Promise.all(
+            gamesData.map(async (g) => {
+              if (!g.id) return;
+              try {
+                
+                const rRes = await api.get(`/avaliacoes/media/${g.id}`);
+                
+                
+                if (rRes.status !== 204 && rRes.data?.media) {
+                  ratingsMap[g.id] = { 
+                    media: Number(rRes.data.media), 
+                    total: Number(rRes.data.totalAvaliacoes) 
+                  };
+                } else {
+                  ratingsMap[g.id] = { media: 0, total: 0 };
+                }
+              } catch (err) {
+                console.warn(`Sem avaliações para o jogo ${g.id}:`, err.message);
+                ratingsMap[g.id] = { media: 0, total: 0 };
+              }
+            })
+          );
+          setAvgRatings(ratingsMap);
+        } catch (error) {
+          console.error("Erro ao buscar avaliações no banner:", error);
+        }
+
       })
       .catch((err) => {
         console.error("Erro na integração com a API de Jogos via Axios:", err);
@@ -79,7 +111,6 @@ function Banner() {
       });
   }, []);
 
- 
   useEffect(() => {
     if (games.length === 0) return;
 
@@ -176,11 +207,16 @@ function Banner() {
   const justAdded = addedItems[currentGame.id];
   const inWishlist = wishlistItems.has(currentGame.id);
 
-  
   const formatPrice = (price) => {
     const num = parseFloat(price);
     return isNaN(num) ? "0,00" : num.toFixed(2).replace('.', ',');
   };
+
+  // Preparando dados da avaliação do jogo atual
+  const ratingObj = avgRatings[currentGame.id] || { media: 0, total: 0 };
+  const ratingMedia = ratingObj.media;
+  const ratingTotal = ratingObj.total;
+  const roundedRating = Math.round(ratingMedia);
 
   return (
     <section className="banner-home">
@@ -235,13 +271,34 @@ function Banner() {
           <div className="media-card">
             <div className="media-placeholder">🎮</div>
             <div className="media-stats">
-              <div className="stars">⭐⭐⭐⭐⭐</div>
+              
+             
+              <div className="banner-card-rating">
+                <div className="banner-stars-container">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span 
+                      key={star} 
+                      className={`banner-star ${star <= roundedRating ? 'filled' : ''}`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                {ratingMedia > 0 ? (
+                  <>
+                    <span className="rating-value">{ratingMedia.toFixed(1)}</span>
+                    <span className="rating-count">({ratingTotal})</span>
+                  </>
+                ) : (
+                  <span className="rating-count">(Sem avaliações)</span>
+                )}
+              </div>
+
             </div>
           </div>
         </div>
       </div>
 
-     
       <div className="banner-dots">
         {games.map((_, i) => (
           <span
