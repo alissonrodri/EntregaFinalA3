@@ -236,7 +236,6 @@ function Banner() {
             <div className="media-placeholder">🎮</div>
             <div className="media-stats">
               <div className="stars">⭐⭐⭐⭐⭐</div>
-              <span className="rating-text">Premium Edition</span>
             </div>
           </div>
         </div>

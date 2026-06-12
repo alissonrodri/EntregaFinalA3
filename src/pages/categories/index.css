@@ -241,12 +241,21 @@
 
 .cat-card-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.cat-btn-cart,
+.cat-btn-owned,
+.cat-btn-details {
+  width: 100%;
 }
 
 .cat-btn-cart {
-  flex: 1;
+  /* flex: 1; */
+  width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
   border: none;
@@ -256,8 +265,14 @@
   font-weight: 600;
   cursor: pointer;
   transition: filter 0.2s, transform 0.15s;
-  white-space: nowrap;
+
+  white-space: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  line-height: 1.2;
+  min-height: 36px;
 }
 
 .cat-btn-cart:hover {
@@ -282,7 +297,8 @@
 }
 
 .cat-btn-owned {
-  flex: 1;
+ /* flex: 1; REMOVIDO */
+  width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -292,8 +308,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
+  white-space: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  line-height: 1.2;
+  min-height: 36px;
 }
 
 .cat-btn-owned:hover {
@@ -302,7 +323,8 @@
 }
 
 .cat-btn-details {
-  flex: 1;
+/* flex: 1; */
+  width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -312,8 +334,14 @@
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s;
-  white-space: nowrap;
+  
+  white-space: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  line-height: 1.2;
+  min-height: 36px;
 }
 
 .cat-btn-details:hover {
@@ -418,10 +446,18 @@
   }
 
   .cat-card-actions {
-    flex-wrap: wrap;
+    flex-direction: column;
+    flex-wrap: nowrap;
   }
 
-  .cat-btn-cart {
-    flex: 1 1 100%;
+  .cat-btn-cart,
+  .cat-btn-owned,
+  .cat-btn-details {
+    font-size: 0.75rem;
+    padding: 6px 8px;
   }
+
+  /* .cat-btn-cart {
+    flex: 1 1 100%;
+  } */
 }
