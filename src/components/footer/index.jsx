@@ -1,10 +1,13 @@
 import './index.css';
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
+
 
 function Footer() {
   return (
     <footer className="footer-container">
       <div className="footer-content">
+
+
 
         {/* Coluna 1 do rodapé */}
         <div className="footer-brand">
@@ -34,11 +37,12 @@ function Footer() {
             <li><a href="#privacidade">Política de privacidade</a></li>
             <li><a href="#reembolso">Política de reembolso</a></li>
             <li>
-              <Link to="/faq">Perguntas Frequentes</Link>
-            </li>
+  <Link to="/faq">Perguntas Frequentes</Link>
+</li>
           </ul>
         </div>
-      </div>
+      
+       </div>
 
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} CLT Gaming. Todos os direitos reservados.</p>
