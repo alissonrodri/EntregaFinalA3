@@ -194,6 +194,44 @@
     background: var(--contrast); 
 }
 
+.banner-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 12px;
+    border-radius: 20px;
+    margin-top: 10px;
+}
+
+.banner-stars-container {
+    display: flex;
+    gap: 2px;
+}
+
+.banner-star {
+    color: var(--border); 
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.banner-star.filled {
+    color: var(--contrast); 
+}
+
+.banner-card-rating .rating-value {
+    font-weight: bold;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.banner-card-rating .rating-count {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+
+
 /* Responsividade Mobile */
 @media (max-width: 992px) {
     .banner-media { 

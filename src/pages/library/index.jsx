@@ -144,7 +144,7 @@ function Library() {
   const fetchLibrary = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 

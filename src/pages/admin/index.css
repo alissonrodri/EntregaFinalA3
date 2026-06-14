@@ -352,3 +352,94 @@
   line-height: 1.4;
   text-align: left;
 }
+
+@media (max-width: 768px) {
+  
+  .admin-container {
+    flex-direction: column;
+  }
+
+  
+  .admin-sidebar {
+    width: 100%;
+    padding: 20px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .admin-sidebar-title {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  
+  .admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: none; 
+  }
+  
+  .admin-nav::-webkit-scrollbar {
+    display: none; 
+  }
+
+  .admin-nav-btn {
+    white-space: nowrap; 
+    flex-shrink: 0; 
+  }
+
+
+  .admin-main {
+    padding: 20px 15px;
+  }
+
+ 
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .admin-btn-primary {
+    width: 100%; 
+    text-align: center;
+  }
+
+  .admin-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; 
+  }
+
+  .admin-table {
+    min-width: 600px; 
+  }
+
+
+  .admin-modal-box {
+    padding: 20px;
+    width: 95%; 
+    margin: 10px;
+    max-height: 90vh; 
+    overflow-y: auto; 
+  }
+
+
+  .admin-form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+
+  .admin-modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .admin-btn-cancel,
+  .admin-btn-save,
+  .admin-btn-delete-confirm {
+    width: 100%;
+    padding: 12px;
+  }
+}

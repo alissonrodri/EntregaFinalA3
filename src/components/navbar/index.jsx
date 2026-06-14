@@ -354,7 +354,7 @@ function Navbar() {
         ) : (
           <>
             <Link to="/signup" className="btn-signup">Criar conta</Link>
-            <Link to="/login" className="btn-login">Entrar</Link>
+            <Link to="/signin" className="btn-login">Entrar</Link>
           </>
         )}
       </div>
