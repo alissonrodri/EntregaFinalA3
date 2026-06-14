@@ -3,18 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-function getUserId() {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? null;
-  } catch (err) { 
-    console.warn('Falha ao decodificar ID do token:', err.message);
-    return null; 
-  }
-}
-
 function getUserName() {
   try {
     const token = localStorage.getItem('token');
@@ -174,9 +162,16 @@ function GamePage() {
                 const wishGames = Array.isArray(wishRes.data) ? wishRes.data : [];
                 if (wishGames.some(g => g.id === gameWithId.id)) setWishState('already');
 
-                const userId       = getUserId();
-                const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
-                if (purchasedIds.includes(gameWithId.id)) setIsOwned(true);
+                try {
+                  const myGamesRes = await api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } });
+                  const myGames = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+                  
+                  if (myGames.some(item => item.jogo.id === gameWithId.id)) {
+                    setIsOwned(true);
+                  }
+                } catch (err) {
+                  console.warn('Aviso: Não foi possível verificar a biblioteca do usuário:', err.message);
+                }
 
                 try {
                   const myReviewRes = await api.get(`/avaliacoes?jogoId=${gameWithId.id}`, { headers: { Authorization: `Bearer ${token}` } });
