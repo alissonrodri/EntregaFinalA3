@@ -3,17 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-function getUserId() {
-  try {
-    const token   = localStorage.getItem('token');
-    if (!token) return 'guest';
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? 'guest';
-  } catch {
-    return 'guest';
-  }
-}
-
 const formatPrice = (v) => {
   const n = parseFloat(v);
   return isNaN(n) ? '0,00' : n.toFixed(2).replace('.', ',');
@@ -268,34 +257,17 @@ function Checkout() {
   const handlePay = async ({ metodo, dados }) => {
     setLoading(true);
     try {
-      // 1. Registra o pagamento
+      
       await api.post('/vendas/pay', { metodo, dados });
 
-      // 2. Faz o checkout (finaliza o carrinho e gera a venda)
-      const checkoutRes = await api.post('/vendas/checkout');
+      
+      await api.post('/vendas/checkout');
+
       window.dispatchEvent(new CustomEvent('notify', { 
-      detail: { text: 'Compra aprovada! Verifique na sua biblioteca. 🎮', link: '/library' } 
+        detail: { text: 'Compra aprovada! Verifique na sua biblioteca. 🎮', link: '/library' } 
       }));
 
-      // 3. Persiste os IDs na biblioteca local
-      const userId     = getUserId();
-      const storageKey = `purchasedGameIds_${userId}`;
-      const currentIds = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      const newIds     = cartItems.map(i => i.fkJogo);
-      localStorage.setItem(storageKey, JSON.stringify([...new Set([...currentIds, ...newIds])]));
-
-      // 4. Salva método e parcelas para exibição no histórico
-      const vendaId = checkoutRes?.data?.venda?.id || `local_${Date.now()}`;
-      localStorage.setItem(`paymentMeta_${vendaId}`, JSON.stringify({
-        metodo:   metodo,
-        parcelas: dados?.parcelas || null,
-      }));
-
-      cartItems.forEach(item => {
-      localStorage.setItem(`frozenPrice_${vendaId}_${item.id}`, item.preco);
-      });
-
-      // 5. Zera contador do carrinho na navbar
+      
       localStorage.setItem('cartCount', '0');
       window.dispatchEvent(new Event('cartUpdated'));
 
@@ -324,11 +296,9 @@ function Checkout() {
     <div className="pay-page">
       <div className="pay-page-inner">
 
-        
         <section className="pay-section">
           <h1 className="pay-title">Finalizar compra</h1>
 
-          
           <div className="pay-method-tabs">
             {[
               { id: 'cartao', label: '💳 Cartão' },
@@ -350,7 +320,6 @@ function Checkout() {
           {method === 'boleto' && <BoletoForm onSubmit={handlePay} loading={loading} />}
         </section>
 
-        {/* ── Coluna direita: resumo do pedido ── */}
         <aside className="pay-summary">
           <h2 className="pay-summary-title">Resumo do pedido</h2>
 

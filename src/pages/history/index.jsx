@@ -22,21 +22,6 @@ const formatTime = (raw) => {
   return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 };
 
-const METHOD_LABEL = {
-  cartao: '💳 Cartão de crédito',
-  pix:    '⚡ Pix',
-  boleto: '📄 Boleto bancário',
-};
-
-function getPaymentMeta(vendaId) {
-  try {
-    const raw = localStorage.getItem(`paymentMeta_${vendaId}`);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
 function ActivationKeyBadge({ chave }) {
   const [copied, setCopied] = useState(false);
 
@@ -59,10 +44,6 @@ function ActivationKeyBadge({ chave }) {
 
 function VendaCard({ venda, jogos }) {
   const [expanded, setExpanded] = useState(false);
-  const meta = getPaymentMeta(venda.id);
-
-  const metodo   = meta?.metodo   || null;
-  const parcelas = meta?.parcelas || null;
 
   return (
     <article className="hist-card">
@@ -77,17 +58,6 @@ function VendaCard({ venda, jogos }) {
             <span className="hist-meta-item">
               🎮 {venda.quantidade} {venda.quantidade === 1 ? 'jogo' : 'jogos'}
             </span>
-            {metodo && (
-              <>
-                <span className="hist-meta-sep">·</span>
-                <span className="hist-meta-item">
-                  {METHOD_LABEL[metodo] || metodo}
-                  {metodo === 'cartao' && parcelas && parcelas > 1
-                    ? ` · ${parcelas}x`
-                    : ''}
-                </span>
-              </>
-            )}
           </div>
         </div>
 
@@ -118,9 +88,7 @@ function VendaCard({ venda, jogos }) {
                   <p className="hist-item-meta">{item.categoria || '—'} · {item.empresa || '—'}</p>
                   <ActivationKeyBadge chave={item.chave_ativacao} />
                 </div>
-                <div className="hist-item-price">
-                  R$ {formatPrice(item.preco)}
-                </div>
+
               </div>
             ))
           )}
@@ -133,7 +101,7 @@ function VendaCard({ venda, jogos }) {
 export default function History() {
   const navigate = useNavigate();
   const [vendas, setVendas]     = useState([]);
-  const [itensMap, setItensMap] = useState({}); 
+  const [itensMap, setItensMap] = useState({});
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
@@ -142,10 +110,15 @@ export default function History() {
 
     const load = async () => {
       try {
-        const vendasRes = await api.get('/vendas', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const vendasData = Array.isArray(vendasRes.data) ? vendasRes.data : [];
+        const [vendasRes, myGamesRes, publicRes] = await Promise.all([
+          api.get('/vendas'),
+          api.get('/usuarios/my/games'),
+          api.get('/public/jogos').catch(() => ({ data: [] })),
+        ]);
+
+        const vendasData  = Array.isArray(vendasRes.data)   ? vendasRes.data   : [];
+        const myGames     = Array.isArray(myGamesRes.data)  ? myGamesRes.data  : [];
+        const publicGames = Array.isArray(publicRes.data)   ? publicRes.data   : [];
 
         if (vendasData.length === 0) {
           setVendas([]);
@@ -153,80 +126,28 @@ export default function History() {
           return;
         }
 
-        setVendas(vendasData);
-
-        const [publicRes, authRes] = await Promise.all([
-          api.get('/public/jogos').catch(() => ({ data: [] })),
-          api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: [] })),
-        ]);
-
-        const publicGames = Array.isArray(publicRes.data) ? publicRes.data : [];
-        const authGames   = Array.isArray(authRes.data) ? authRes.data : (authRes.data.jogos || []);
-        const userId      = getUserId();
-
-        const storageKey = `purchasedGameIds_${userId}`;
-        const allIds     = JSON.parse(localStorage.getItem(storageKey) || '[]');
-
        
-        const enrichedGames = allIds.map(id => {
-          const auth = authGames.find(g => g.id === id);
-          const chave = localStorage.getItem(`activationKey_${id}_${userId}`) || generateFakeKey(id);
-      
-          if (!localStorage.getItem(`activationKey_${id}_${userId}`)) {
-            localStorage.setItem(`activationKey_${id}_${userId}`, chave);
-          }
-
-          if (!auth) {
-           
-            return {
-              id: id,
-              nome: 'Item Indisponível no Catálogo',
-              categoria: '—',
-              empresa: '—',
-              preco: 0,
-              chave_ativacao: chave,
-              isDeleted: true
-            };
-          }
-
-          const pub  = publicGames.find(g => g.nome === auth.nome);
+        const enrichedGames = myGames.map(({ chaveAtivacao, jogo }) => {
+          const pub = publicGames.find(g => g.nome === jogo.nome);
           return {
-            ...auth,
+            ...jogo,
+            chave_ativacao: chaveAtivacao,
             categoria: pub?.categoria    || '—',
             empresa:   pub?.empresa_nome || '—',
-            chave_ativacao: chave,
           };
         });
-       
+
+        
         const map = {};
         let cursor = 0;
-        
         const sorted = [...vendasData].sort((a, b) => a.id - b.id);
-        
+
         sorted.forEach(v => {
-          const slice = enrichedGames.slice(cursor, cursor + v.quantidade).map(item => {
-           
-            const priceKey = `frozenPrice_${v.id}_${item.id}`;
-            let frozenPrice = localStorage.getItem(priceKey);
-
-            if (frozenPrice) {
-              
-              frozenPrice = parseFloat(frozenPrice);
-            } else {
-             
-              frozenPrice = v.valor_total / (v.quantidade || 1);
-            }
-
-            return {
-              ...item,
-              preco: frozenPrice
-            };
-          });
-
-          map[v.id] = slice;
+          map[v.id] = enrichedGames.slice(cursor, cursor + v.quantidade);
           cursor += v.quantidade;
         });
 
+        setVendas(vendasData);
         setItensMap(map);
       } catch (err) {
         console.error('Erro ao carregar histórico:', err);
@@ -280,29 +201,4 @@ export default function History() {
       )}
     </main>
   );
-}
-
-function getUserId() {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return 'guest';
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? 'guest';
-  } catch {
-    return 'guest';
-  }
-}
-
-function generateFakeKey(seed) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let s = seed * 9301 + 49297;
-  const seg = () => {
-    let r = '';
-    for (let i = 0; i < 4; i++) {
-      s = (s * 9301 + 49297) % 233280;
-      r += chars[s % chars.length];
-    }
-    return r;
-  };
-  return `${seg()}-${seg()}-${seg()}-${seg()}`;
 }
