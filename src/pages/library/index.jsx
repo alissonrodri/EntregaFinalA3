@@ -145,9 +145,9 @@ function Library() {
 
       const myGames    = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
       const publicGames = Array.isArray(publicRes.data)  ? publicRes.data  : [];
+      const jogosComprados = myGames.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
 
-      
-      const libraryGames = myGames.map(({ jogo }) => {
+      const libraryGames = jogosComprados.map(({ jogo }) => {
         const publicGame = publicGames.find(g => g.nome === jogo.nome);
         return {
           ...jogo,
