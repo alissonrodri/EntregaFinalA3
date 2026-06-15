@@ -34,7 +34,7 @@ function Footer() {
           <ul>      
             <li><Link to="/sobre">Sobre nós</Link></li>
             <li><Link to="/termos">Termos de Serviço</Link></li>
-            <li><a href="#privacidade">Política de privacidade</a></li>
+            <li><Link to="/privacidade">Política de Privacidade</Link></li>
             <li><a href="#reembolso">Política de reembolso</a></li>
             <li>
   <Link to="/faq">Perguntas Frequentes</Link>
