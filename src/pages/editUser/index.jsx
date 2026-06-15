@@ -1,22 +1,93 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
+// Ícone SVG de calendário
+const IconCalendar = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+const IconEye = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const IconEyeOff = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+    <line x1="1" y1="1" x2="23" y2="23" />
+  </svg>
+);
+
+const IconAlert = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ marginRight: "4px", flexShrink: 0 }}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+);
+
 function EditUser() {
   const navigate = useNavigate();
+  const dateInputRef = useRef(null);
 
   const [userId, setUserId] = useState(null);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [dataNascimento, setDataNascimento] = useState("");
+  const [dataNascimento, setDataNascimento] = useState(""); // exibição DD/MM/AAAA
+  const [dateValue, setDateValue] = useState(""); // valor interno AAAA-MM-DD
   const [novoUsername, setNovoUsername] = useState("");
   const [senhaAtual, setSenhaAtual] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const [blocoAberto, setBlocoAberto] = useState(null);
-
   const [verSenhaAtual, setVerSenhaAtual] = useState(false);
   const [verNovaSenha, setVerNovaSenha] = useState(false);
   const [verConfirmar, setVerConfirmar] = useState(false);
@@ -24,6 +95,7 @@ function EditUser() {
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [feedback, setFeedback] = useState({ tipo: "", msg: "" });
+  const [erros, setErros] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -39,11 +111,14 @@ function EditUser() {
       .then((res) => {
         setNome(res.data.nome || "");
         setEmail(res.data.email || "");
-        setDataNascimento(
-          res.data.dataNascimento
-            ? new Date(res.data.dataNascimento).toLocaleDateString("pt-BR")
-            : "",
-        );
+        if (res.data.dataNascimento) {
+          const d = new Date(res.data.dataNascimento);
+          const dd = String(d.getUTCDate()).padStart(2, "0");
+          const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+          const yyyy = d.getUTCFullYear();
+          setDataNascimento(`${dd}/${mm}/${yyyy}`);
+          setDateValue(`${yyyy}-${mm}-${dd}`);
+        }
         setLoading(false);
       })
       .catch(() => {
@@ -66,17 +141,88 @@ function EditUser() {
 
   const toggleBloco = (bloco) => {
     setBlocoAberto(blocoAberto === bloco ? null : bloco);
+    setErros({});
   };
 
+  // ─── Validações ────────────────────────────────────────────────
+  const validarNome = (valor) => {
+    if (!valor.trim()) return "O nome não pode ser vazio.";
+    if (/[^a-zA-ZÀ-ÿ\s]/.test(valor)) return "Apenas letras são permitidas.";
+    const partes = valor.trim().split(/\s+/).filter(Boolean);
+    if (partes.length < 2) return "Informe nome e sobrenome.";
+    return null;
+  };
+
+  const validarData = (valor) => {
+    if (!valor.trim()) return "A data de nascimento é obrigatória.";
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const match = valor.match(regex);
+    if (!match) return "Use o formato DD/MM/AAAA.";
+    const dia = parseInt(match[1], 10);
+    const mes = parseInt(match[2], 10);
+    const ano = parseInt(match[3], 10);
+    if (mes < 1 || mes > 12) return "Mês inválido.";
+    if (dia < 1 || dia > 31) return "Dia inválido.";
+    // Valida data real usando UTC para evitar problemas de fuso
+    const data = new Date(Date.UTC(ano, mes - 1, dia));
+    if (
+      data.getUTCFullYear() !== ano ||
+      data.getUTCMonth() + 1 !== mes ||
+      data.getUTCDate() !== dia
+    )
+      return "Data inválida.";
+    if (ano < 1900 || ano > new Date().getFullYear()) return "Ano inválido.";
+    return null;
+  };
+
+  // Máscara DD/MM/AAAA ao digitar manualmente
+  const handleDataChange = (valor) => {
+    const numeros = valor.replace(/\D/g, "").slice(0, 8);
+    let formatado = numeros;
+    if (numeros.length > 4)
+      formatado =
+        numeros.slice(0, 2) +
+        "/" +
+        numeros.slice(2, 4) +
+        "/" +
+        numeros.slice(4);
+    else if (numeros.length > 2)
+      formatado = numeros.slice(0, 2) + "/" + numeros.slice(2);
+    setDataNascimento(formatado);
+    // Sincroniza o input date oculto
+    if (numeros.length === 8) {
+      const dd = numeros.slice(0, 2);
+      const mm = numeros.slice(2, 4);
+      const yyyy = numeros.slice(4);
+      setDateValue(`${yyyy}-${mm}-${dd}`);
+    }
+    if (erros.data) setErros((e) => ({ ...e, data: null }));
+  };
+
+  // Quando seleciona pelo calendário nativo
+  const handleDatePicker = (valor) => {
+    if (!valor) return;
+    setDateValue(valor);
+    const [yyyy, mm, dd] = valor.split("-");
+    setDataNascimento(`${dd}/${mm}/${yyyy}`);
+    if (erros.data) setErros((e) => ({ ...e, data: null }));
+  };
+
+  const handleNomeChange = (valor) => {
+    if (/[^a-zA-ZÀ-ÿ\s]/.test(valor)) return;
+    setNome(valor);
+    if (erros.nome) setErros((e) => ({ ...e, nome: null }));
+  };
+
+  // ─── Ações ─────────────────────────────────────────────────────
   async function salvarNome() {
-    if (!nome.trim()) {
-      mostrarFeedback("erro", "O nome não pode ser vazio.");
+    const erroNome = validarNome(nome);
+    const erroData = validarData(dataNascimento);
+    if (erroNome || erroData) {
+      setErros({ nome: erroNome, data: erroData });
       return;
     }
-    if (!dataNascimento.trim()) {
-      mostrarFeedback("erro", "A data de nascimento é obrigatória.");
-      return;
-    }
+    setErros({});
     setSalvando(true);
     try {
       await api.put(`/usuarios/${userId}`, { nome, dataNascimento });
@@ -90,9 +236,10 @@ function EditUser() {
 
   async function confirmarUsername() {
     if (!novoUsername.trim()) {
-      mostrarFeedback("aviso", "Digite um novo nome de usuário.");
+      setErros({ username: "Digite um novo nome de usuário." });
       return;
     }
+    setErros({});
     setSalvando(true);
     try {
       await api.put(`/usuarios/${userId}`, { nome, username: novoUsername });
@@ -107,18 +254,19 @@ function EditUser() {
   }
 
   async function confirmarSenhaFn() {
-    if (!senhaAtual || !novaSenha || !confirmarSenha) {
-      mostrarFeedback("erro", "Preencha todos os campos de senha.");
+    const novosErros = {};
+    if (!senhaAtual) novosErros.senhaAtual = "Digite sua senha atual.";
+    if (!novaSenha) novosErros.novaSenha = "Digite a nova senha.";
+    else if (novaSenha.length < 8)
+      novosErros.novaSenha = "Mínimo de 8 caracteres.";
+    if (!confirmarSenha) novosErros.confirmarSenha = "Confirme a nova senha.";
+    else if (novaSenha !== confirmarSenha)
+      novosErros.confirmarSenha = "As senhas não coincidem.";
+    if (Object.keys(novosErros).length > 0) {
+      setErros(novosErros);
       return;
     }
-    if (novaSenha !== confirmarSenha) {
-      mostrarFeedback("erro", "As senhas não coincidem.");
-      return;
-    }
-    if (novaSenha.length < 8) {
-      mostrarFeedback("erro", "Mínimo de 8 caracteres na nova senha.");
-      return;
-    }
+    setErros({});
     setSalvando(true);
     try {
       await api.put("/auth/change-password", {
@@ -137,6 +285,7 @@ function EditUser() {
     }
   }
 
+  // ─── Estilos ────────────────────────────────────────────────────
   const s = {
     overlay: {
       position: "fixed",
@@ -192,7 +341,7 @@ function EditUser() {
     avatarWrap: {
       display: "flex",
       justifyContent: "center",
-      padding: "4px 0 8px",
+      padding: "4px 0 6px",
     },
     avatar: {
       width: "56px",
@@ -227,6 +376,17 @@ function EditUser() {
       width: "100%",
       height: "40px",
     },
+    inputErro: {
+      background: "#08090b",
+      border: "1px solid #e53935",
+      borderRadius: "8px",
+      padding: "9px 12px",
+      color: "#e8eaf0",
+      fontSize: "0.90rem",
+      outline: "none",
+      width: "100%",
+      height: "40px",
+    },
     inputRO: {
       background: "#08090b",
       border: "1px solid #2a2d3a",
@@ -240,6 +400,32 @@ function EditUser() {
       cursor: "not-allowed",
     },
     hint: { fontSize: "0.70rem", color: "#9194a6" },
+    erroMsg: {
+      fontSize: "0.70rem",
+      color: "#e53935",
+      marginTop: "2px",
+      display: "flex",
+      alignItems: "center",
+    },
+    dataWrap: { position: "relative", display: "flex", alignItems: "center" },
+    calBtn: {
+      position: "absolute",
+      right: "8px",
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+      color: "#9194a6",
+      display: "flex",
+      alignItems: "center",
+      padding: 0,
+    },
+    dateHidden: {
+      position: "absolute",
+      opacity: 0,
+      pointerEvents: "none",
+      width: 0,
+      height: 0,
+    },
     toggleBtn: {
       background: "transparent",
       border: "1px solid #2a2d3a",
@@ -312,8 +498,9 @@ function EditUser() {
       background: "transparent",
       border: "none",
       cursor: "pointer",
-      fontSize: "0.95rem",
       color: "#9194a6",
+      display: "flex",
+      alignItems: "center",
       padding: 0,
     },
     obrig: { color: "#e53935" },
@@ -356,18 +543,15 @@ function EditUser() {
   return createPortal(
     <div style={s.overlay}>
       <div style={s.container}>
-        {/* Cabeçalho fixo */}
         <div style={s.header}>
           <h2 style={s.title}>Editar Perfil</h2>
         </div>
 
-        {/* Corpo scrollável */}
         <div style={s.body}>
           {feedback.msg && (
             <div style={s.feedback(feedback.tipo)}>{feedback.msg}</div>
           )}
 
-          {/* Avatar */}
           <div style={s.avatarWrap}>
             <div style={s.avatar}>{getIniciais()}</div>
           </div>
@@ -379,32 +563,63 @@ function EditUser() {
             <span style={s.hint}>O email não pode ser alterado.</span>
           </div>
 
-          {/* Nome + Data lado a lado */}
+          {/* Nome + Data */}
           <div style={s.row}>
             <div style={s.field}>
               <label style={s.label}>
                 Nome completo <span style={s.obrig}>*</span>
               </label>
               <input
-                style={s.input}
+                style={erros.nome ? s.inputErro : s.input}
                 type="text"
                 value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                placeholder="Seu nome completo"
+                onChange={(e) => handleNomeChange(e.target.value)}
+                placeholder="Nome e sobrenome"
               />
+              {erros.nome && (
+                <span style={s.erroMsg}>
+                  <IconAlert />
+                  {erros.nome}
+                </span>
+              )}
             </div>
             <div style={s.field}>
               <label style={s.label}>
                 Data de nascimento <span style={s.obrig}>*</span>
               </label>
-              <input
-                style={s.input}
-                type="text"
-                value={dataNascimento}
-                onChange={(e) => setDataNascimento(e.target.value)}
-                placeholder="DD/MM/AAAA"
-                maxLength={10}
-              />
+              <div style={s.dataWrap}>
+                <input
+                  style={{
+                    ...(erros.data ? s.inputErro : s.input),
+                    paddingRight: "36px",
+                  }}
+                  type="text"
+                  value={dataNascimento}
+                  onChange={(e) => handleDataChange(e.target.value)}
+                  placeholder="DD/MM/AAAA"
+                  maxLength={10}
+                />
+                {/* Input date nativo oculto — abre pelo botão */}
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={dateValue}
+                  onChange={(e) => handleDatePicker(e.target.value)}
+                  style={s.dateHidden}
+                />
+                <button
+                  style={s.calBtn}
+                  onClick={() => dateInputRef.current?.showPicker()}
+                >
+                  <IconCalendar />
+                </button>
+              </div>
+              {erros.data && (
+                <span style={s.erroMsg}>
+                  <IconAlert />
+                  {erros.data}
+                </span>
+              )}
             </div>
           </div>
 
@@ -412,23 +627,35 @@ function EditUser() {
           <button style={s.toggleBtn} onClick={() => toggleBloco("username")}>
             Alterar nome de usuário
           </button>
-
           {blocoAberto === "username" && (
             <div style={s.expandable}>
               <div style={s.field}>
                 <label style={s.label}>Novo nome de usuário</label>
                 <input
-                  style={s.input}
+                  style={erros.username ? s.inputErro : s.input}
                   type="text"
                   value={novoUsername}
-                  onChange={(e) => setNovoUsername(e.target.value)}
+                  onChange={(e) => {
+                    setNovoUsername(e.target.value);
+                    if (erros.username)
+                      setErros((er) => ({ ...er, username: null }));
+                  }}
                   placeholder="@novo_usuario"
                 />
+                {erros.username && (
+                  <span style={s.erroMsg}>
+                    <IconAlert />
+                    {erros.username}
+                  </span>
+                )}
               </div>
               <div style={s.expandFooter}>
                 <button
                   style={s.cancelSmall}
-                  onClick={() => setBlocoAberto(null)}
+                  onClick={() => {
+                    setBlocoAberto(null);
+                    setErros({});
+                  }}
                 >
                   Cancelar
                 </button>
@@ -447,67 +674,108 @@ function EditUser() {
           <button style={s.toggleBtn} onClick={() => toggleBloco("senha")}>
             Alterar senha
           </button>
-
           {blocoAberto === "senha" && (
             <div style={s.expandable}>
               <div style={s.field}>
                 <label style={s.label}>Senha atual</label>
                 <div style={s.senhaWrap}>
                   <input
-                    style={s.input}
+                    style={{
+                      ...(erros.senhaAtual ? s.inputErro : s.input),
+                      paddingRight: "36px",
+                    }}
                     type={verSenhaAtual ? "text" : "password"}
                     value={senhaAtual}
-                    onChange={(e) => setSenhaAtual(e.target.value)}
+                    onChange={(e) => {
+                      setSenhaAtual(e.target.value);
+                      if (erros.senhaAtual)
+                        setErros((er) => ({ ...er, senhaAtual: null }));
+                    }}
                     placeholder="Digite sua senha atual"
                   />
                   <button
                     style={s.olhoBtn}
                     onClick={() => setVerSenhaAtual(!verSenhaAtual)}
                   >
-                    {verSenhaAtual ? "🙈" : "👁"}
+                    {verSenhaAtual ? <IconEyeOff /> : <IconEye />}
                   </button>
                 </div>
+                {erros.senhaAtual && (
+                  <span style={s.erroMsg}>
+                    <IconAlert />
+                    {erros.senhaAtual}
+                  </span>
+                )}
               </div>
               <div style={s.field}>
                 <label style={s.label}>Nova senha</label>
                 <div style={s.senhaWrap}>
                   <input
-                    style={s.input}
+                    style={{
+                      ...(erros.novaSenha ? s.inputErro : s.input),
+                      paddingRight: "36px",
+                    }}
                     type={verNovaSenha ? "text" : "password"}
                     value={novaSenha}
-                    onChange={(e) => setNovaSenha(e.target.value)}
+                    onChange={(e) => {
+                      setNovaSenha(e.target.value);
+                      if (erros.novaSenha)
+                        setErros((er) => ({ ...er, novaSenha: null }));
+                    }}
                     placeholder="Digite a nova senha"
                   />
                   <button
                     style={s.olhoBtn}
                     onClick={() => setVerNovaSenha(!verNovaSenha)}
                   >
-                    {verNovaSenha ? "🙈" : "👁"}
+                    {verNovaSenha ? <IconEyeOff /> : <IconEye />}
                   </button>
                 </div>
+                {erros.novaSenha && (
+                  <span style={s.erroMsg}>
+                    <IconAlert />
+                    {erros.novaSenha}
+                  </span>
+                )}
               </div>
               <div style={s.field}>
                 <label style={s.label}>Confirmar nova senha</label>
                 <div style={s.senhaWrap}>
                   <input
-                    style={s.input}
+                    style={{
+                      ...(erros.confirmarSenha ? s.inputErro : s.input),
+                      paddingRight: "36px",
+                    }}
                     type={verConfirmar ? "text" : "password"}
                     value={confirmarSenha}
-                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                    onChange={(e) => {
+                      setConfirmarSenha(e.target.value);
+                      if (erros.confirmarSenha)
+                        setErros((er) => ({ ...er, confirmarSenha: null }));
+                    }}
                     placeholder="Confirme a nova senha"
                   />
                   <button
                     style={s.olhoBtn}
                     onClick={() => setVerConfirmar(!verConfirmar)}
                   >
-                    {verConfirmar ? "🙈" : "👁"}
+                    {verConfirmar ? <IconEyeOff /> : <IconEye />}
                   </button>
                 </div>
+                {erros.confirmarSenha && (
+                  <span style={s.erroMsg}>
+                    <IconAlert />
+                    {erros.confirmarSenha}
+                  </span>
+                )}
               </div>
               <div style={s.expandFooter}>
                 <button
                   style={s.cancelSmall}
-                  onClick={() => setBlocoAberto(null)}
+                  onClick={() => {
+                    setBlocoAberto(null);
+                    setErros({});
+                  }}
                 >
                   Cancelar
                 </button>
@@ -523,7 +791,6 @@ function EditUser() {
           )}
         </div>
 
-        {/* Rodapé fixo */}
         <div style={s.footer}>
           <button style={s.cancelBtn} onClick={() => navigate(-1)}>
             Cancelar
