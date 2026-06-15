@@ -80,7 +80,7 @@ function GamePage() {
     idle:      { text: 'Adicionar ao carrinho', disabled: false, className: '' },
     success:   { text: 'Adicionado! ✓',         disabled: true,  className: 'btn-success' },
     duplicate: { text: 'Já adicionado',         disabled: true,  className: 'btn-added' },
-    already:   { text: '✓ Visualizar no carrinho',           disabled: false, className: 'btn-added' },
+    already:   { text: 'No carrinho',           disabled: false, className: 'btn-added' },
   };
 
   const wishConfig = {
@@ -166,7 +166,10 @@ function GamePage() {
                   const myGamesRes = await api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } });
                   const myGames = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
                   
-                  if (myGames.some(item => item.jogo.id === gameWithId.id)) {
+                
+                  const comprados = myGames.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+
+                  if (comprados.some(item => item.jogo?.id === gameWithId.id)) {
                     setIsOwned(true);
                   }
                 } catch (err) {

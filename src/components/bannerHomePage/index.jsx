@@ -1,19 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api'; 
 import './index.css';
-
-function getUserId() {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? null;
-  } catch (err) {
-    console.warn(err.message);
-    return null;
-  }
-}
 
 function Banner() {
   const navigate = useNavigate();
@@ -25,11 +13,9 @@ function Banner() {
   const [cartItems, setCartItems] = useState(new Set());
   const [wishlistItems, setWishlistItems] = useState(new Set());
   const [addedItems, setAddedItems] = useState({});
+  const [ownedItems, setOwnedItems] = useState(new Set());
   
   const [avgRatings, setAvgRatings] = useState({});
-
-  const userId = getUserId();
-  const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -40,7 +26,7 @@ function Banner() {
 
         if (token) {
           try {
-            const [authResponse, cartRes, wishRes] = await Promise.all([
+            const [authResponse, cartRes, wishRes, myGamesRes] = await Promise.all([
               api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } }),
               api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
                 console.warn(err.message);
@@ -50,6 +36,10 @@ function Banner() {
                 console.warn(err.message);
                 return { data: [] };
               }),
+              api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+                console.warn(err.message);
+                return { data: [] };
+              })
             ]);
 
             const authGamesList = Array.isArray(authResponse.data)
@@ -66,6 +56,11 @@ function Banner() {
 
             const wData = Array.isArray(wishRes.data) ? wishRes.data : [];
             setWishlistItems(new Set(wData.map(i => i.id || i.fkJogo)));
+
+            const myGamesData = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+            const comprados = myGamesData.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+            setOwnedItems(new Set(comprados.map(item => item.jogo?.id)));
+
           } catch (err) {
             console.error(err.message);
           }
@@ -73,7 +68,6 @@ function Banner() {
 
         setGames(gamesData);
         setLoading(false);
-
        
         try {
           const ratingsMap = {};
@@ -81,9 +75,7 @@ function Banner() {
             gamesData.map(async (g) => {
               if (!g.id) return;
               try {
-                
                 const rRes = await api.get(`/avaliacoes/media/${g.id}`);
-                
                 
                 if (rRes.status !== 204 && rRes.data?.media) {
                   ratingsMap[g.id] = { 
@@ -202,7 +194,7 @@ function Banner() {
   if (games.length === 0) return null;
 
   const currentGame = games[activeIndex];
-  const isOwned = purchasedIds.includes(currentGame.id);
+  const isOwned = ownedItems.has(currentGame.id);
   const inCart = cartItems.has(currentGame.id);
   const justAdded = addedItems[currentGame.id];
   const inWishlist = wishlistItems.has(currentGame.id);
@@ -212,7 +204,6 @@ function Banner() {
     return isNaN(num) ? "0,00" : num.toFixed(2).replace('.', ',');
   };
 
-  // Preparando dados da avaliação do jogo atual
   const ratingObj = avgRatings[currentGame.id] || { media: 0, total: 0 };
   const ratingMedia = ratingObj.media;
   const ratingTotal = ratingObj.total;
@@ -234,6 +225,7 @@ function Banner() {
             <span className="banner-tag">{currentGame.ano}</span>
             <span className="banner-tag">Digital</span>
           </div>
+          
 
           <p className="banner-description">{currentGame.descricao}</p>
 
@@ -252,7 +244,7 @@ function Banner() {
                 onClick={() => handleAddToCart(currentGame.id)}
                 disabled={justAdded}
               >
-                {justAdded ? '✓ Adicionado!' : inCart ? '✓ Visualizar no carrinho' : 'Adicionar ao carrinho'}
+                {justAdded ? '✓ Adicionado!' : inCart ? 'No carrinho' : 'Adicionar ao carrinho'}
               </button>
             )}
 
@@ -263,16 +255,45 @@ function Banner() {
               {inWishlist ? '♥ Na lista' : '♡ Lista de desejos'}
             </button>
 
-            <Link to={`/game/${currentGame.nome}`} className="btn-details">Ver detalhes</Link>
+           
+            <button 
+              className="btn-details" 
+              onClick={() => navigate(`/game/${encodeURIComponent(currentGame.nome)}`)}
+            >
+              Ver detalhes
+            </button>
+           
           </div>
+
+           <div className="banner-card-rating-mobile">
+                <div className="banner-stars-container">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span 
+                      key={star} 
+                      className={`banner-star ${star <= roundedRating ? 'filled' : ''}`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                {ratingMedia > 0 ? (
+                  <>
+                    <span className="rating-value">{ratingMedia.toFixed(1)}</span>
+                    <span className="rating-count">({ratingTotal})</span>
+                  </>
+                ) : (
+                  <span className="rating-count">(Sem avaliações)</span>
+                )}
+              </div>
+          
         </div>
+        
 
         <div className="banner-media">
           <div className="media-card">
             <div className="media-placeholder">🎮</div>
             <div className="media-stats">
               
-             
               <div className="banner-card-rating">
                 <div className="banner-stars-container">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -299,6 +320,7 @@ function Banner() {
         </div>
       </div>
 
+                
       <div className="banner-dots">
         {games.map((_, i) => (
           <span

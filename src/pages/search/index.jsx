@@ -3,18 +3,6 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-function getUserId() {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? null;
-  } catch (err) {
-    console.warn(err.message);
-    return null;
-  }
-}
-
 function SearchPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -27,9 +15,7 @@ function SearchPage() {
   const [cartItems, setCartItems] = useState(new Set());
   const [wishlistItems, setWishlistItems] = useState(new Set());
   const [addedItems, setAddedItems] = useState({});
-
-  const userId = getUserId();
-  const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
+  const [ownedItems, setOwnedItems] = useState(new Set());
 
   useEffect(() => {
     
@@ -45,7 +31,7 @@ function SearchPage() {
 
         if (token) {
           try {
-            const [authResponse, cartRes, wishRes] = await Promise.all([
+            const [authResponse, cartRes, wishRes, myGamesRes] = await Promise.all([
               api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } }),
               api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
                 console.warn(err.message);
@@ -55,6 +41,10 @@ function SearchPage() {
                 console.warn(err.message);
                 return { data: [] };
               }),
+              api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+                console.warn(err.message);
+                return { data: [] };
+              })
             ]);
 
             const authGamesList = Array.isArray(authResponse.data)
@@ -71,20 +61,21 @@ function SearchPage() {
 
             const wData = Array.isArray(wishRes.data) ? wishRes.data : [];
             setWishlistItems(new Set(wData.map(i => i.id || i.fkJogo)));
+
+            const myGamesData = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+            const comprados = myGamesData.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+            setOwnedItems(new Set(comprados.map(item => item.jogo?.id)));
           } catch (err) {
             console.error(err.message);
           }
         }
 
-        
         if (!query) {
           setIsLimitedResult(true);
           const shuffledGames = [...allGames].sort(() => 0.5 - Math.random());
           setExactResults(shuffledGames.slice(0, 10));
           setRecommendedGames([]);
-        }
-       
-        else {
+        } else {
           setIsLimitedResult(false);
 
           const filtrados = allGames.filter(jogo =>
@@ -222,7 +213,7 @@ function SearchPage() {
         {exactResults.length > 0 ? (
           <div className="results-list">
             {exactResults.map((jogo) => {
-              const isOwned = purchasedIds.includes(jogo.id);
+              const isOwned = ownedItems.has(jogo.id);
               const inCart = cartItems.has(jogo.id);
               const justAdded = addedItems[jogo.id];
               const inWishlist = wishlistItems.has(jogo.id);
@@ -261,7 +252,7 @@ function SearchPage() {
                         {inWishlist ? '♥' : '♡'}
                       </button>
 
-                      <Link to={`/game/${jogo.nome}`} className="btn-row-details">
+                      <Link to={`/game/${encodeURIComponent(jogo.nome)}`} className="btn-row-details">
                         Ver detalhes
                       </Link>
                     </div>
@@ -293,7 +284,7 @@ function SearchPage() {
                     <span className="thumb-category">{jogo.categoria?.trim()}</span>
                     <span className="thumb-price">R$ {formatPrice(jogo.preco)}</span>
                   </div>
-                  <Link to={`/game/${jogo.nome}`} className="btn-thumb-view">Ver detalhes</Link>
+                  <Link to={`/game/${encodeURIComponent(jogo.nome)}`} className="btn-thumb-view">Ver detalhes</Link>
                 </div>
               </div>
             ))}

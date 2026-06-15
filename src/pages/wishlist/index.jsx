@@ -3,28 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-function getUserId() {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? null;
-  } catch (err) {
-    console.warn('Falha ao decodificar ID do token:', err.message);
-    return null;
-  }
-}
-
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addedItems, setAddedItems] = useState({});
   const [cartItems, setCartItems] = useState(new Set());
+  const [ownedItems, setOwnedItems] = useState(new Set());
   const [avgRatings, setAvgRatings] = useState({});
   const navigate = useNavigate();
 
-  const userId = getUserId();
-  const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [gameToRemove, setGameToRemove] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -32,12 +22,16 @@ function Wishlist() {
 
     const fetchWishlist = async () => {
       try {
-        const [wishRes, publicRes, cartRes] = await Promise.all([
+        const [wishRes, publicRes, cartRes, myGamesRes] = await Promise.all([
           api.get('/lista-desejo', { headers: { Authorization: `Bearer ${token}` } }),
           api.get('/public/jogos'),
           api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
             console.info('Aviso: Carrinho não encontrado ou vazio.', err.message);
             return { data: {} };
+          }),
+          api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+            console.warn('Aviso: Não foi possível checar a biblioteca.', err.message);
+            return { data: [] };
           })
         ]);
 
@@ -46,6 +40,11 @@ function Wishlist() {
         const cartData = cartRes.data?.carrinho?.itens || [];
 
         setCartItems(new Set(cartData.map(item => item.fkJogo)));
+
+    
+        const myGamesData = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+        const comprados = myGamesData.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+        setOwnedItems(new Set(comprados.map(item => item.jogo?.id)));
 
         const enriched = wishGames.map(game => {
           const publicGame = publicGames.find(g => g.nome === game.nome);
@@ -83,16 +82,31 @@ function Wishlist() {
     fetchWishlist();
   }, [navigate]);
 
-  const handleRemove = async (jogoId) => {
+  
+  const handleRemoveClick = (game) => {
+    setGameToRemove(game);
+    setIsModalOpen(true);
+  };
+
+  const handleCancelRemove = () => {
+    setIsModalOpen(false);
+    setGameToRemove(null);
+  };
+
+  const handleConfirmRemove = async () => {
+    if (!gameToRemove) return;
     const token = localStorage.getItem('token');
     try {
       await api.delete('/lista-desejo', {
         headers: { Authorization: `Bearer ${token}` },
-        data: { jogoId },
+        data: { jogoId: gameToRemove.id },
       });
-      setWishlist(prev => prev.filter(g => g.id !== jogoId));
+      setWishlist(prev => prev.filter(g => g.id !== gameToRemove.id));
     } catch (err) {
       console.error('Erro ao remover o item da lista de desejos:', err.message);
+    } finally {
+      setIsModalOpen(false);
+      setGameToRemove(null);
     }
   };
 
@@ -171,7 +185,7 @@ function Wishlist() {
       ) : (
         <div className="wishlist-grid" id="wishlist-grid">
           {wishlist.map(game => {
-            const isOwned = purchasedIds.includes(game.id);
+            const isOwned = ownedItems.has(game.id);
             const ratingObj = avgRatings[game.id] || { media: 0, total: 0 };
             const ratingMedia = ratingObj.media;
             const ratingTotal = ratingObj.total;
@@ -229,7 +243,7 @@ function Wishlist() {
                   </Link>
                   <button
                     className="btn-remove"
-                    onClick={() => handleRemove(game.id)}
+                    onClick={() => handleRemoveClick(game)}
                     disabled={addedItems[game.id]}
                     title="Remover da lista de desejos"
                   >
@@ -239,6 +253,22 @@ function Wishlist() {
               </article>
             );
           })}
+        </div>
+      )}
+
+    
+      {isModalOpen && gameToRemove && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 className="modal-title">Remover da Lista?</h2>
+            <p className="modal-desc">
+              Tem certeza que deseja remover <strong>{gameToRemove.nome}</strong> da sua lista de desejos?
+            </p>
+            <div className="modal-actions">
+              <button className="btn-modal-cancel" onClick={handleCancelRemove}>Cancelar</button>
+              <button className="btn-modal-confirm" onClick={handleConfirmRemove}>Remover</button>
+            </div>
+          </div>
         </div>
       )}
     </main>
