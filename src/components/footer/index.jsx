@@ -1,5 +1,6 @@
 import './index.css';
 import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 function Footer() {
@@ -32,7 +33,7 @@ function Footer() {
         <div className="footer-links">
           <h3>Institucional</h3>
           <ul>
-            <li><a href="#sobre">Sobre nós</a></li>
+            <Link to="/sobre-nos">Sobre nós</Link>
             <li><a href="#termos">Termos de serviço</a></li>
             <li><a href="#privacidade">Política de privacidade</a></li>
             <li><a href="#reembolso">Política de reembolso</a></li>
