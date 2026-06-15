@@ -32,8 +32,8 @@ function Footer() {
         <div className="footer-links">
           <h3>Institucional</h3>
           <ul>      
-            <Link to="/sobre">Sobre nós</Link>
-            <li><a href="#termos">Termos de serviço</a></li>
+            <li><Link to="/sobre">Sobre nós</Link></li>
+            <li><Link to="/termos">Termos de Serviço</Link></li>
             <li><a href="#privacidade">Política de privacidade</a></li>
             <li><a href="#reembolso">Política de reembolso</a></li>
             <li>
