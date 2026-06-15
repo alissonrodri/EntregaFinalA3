@@ -1,80 +1,69 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import '../../../src/index.css'
-import '../signUp/index.css'
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../../services/api";
+import "./index.css";
 
 function SignUp() {
-  // 1. Estado único para controlar os campos do formulário
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    fullName: '',
-    username: '',
-    email: '',
-    confirmEmail: '',
-    password: '',
-    confirmPassword: ''
+    nickname: "",
+    email: "",
+    senha: "",
+    confirmarSenha: "",
   });
 
-  // Estados para gerenciar o feedback da API
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
+  const [verSenha, setVerSenha] = useState(false);
+  const [verConfirmar, setVerConfirmar] = useState(false);
 
-  // 2. Manipulador de mudanças nos inputs com a máscara de caracteres 
+  // ─── Manipulador de inputs ──────────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'fullName') {
-      // Permite apenas letras e espaços 
-      const sanitizedValue = value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
-      setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
-      return;
-    }
+    // Bloqueia espaços no nickname em tempo real
+    if (name === "nickname" && /\s/.test(value)) return;
 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 3. VALIDAÇÕES EM TEMPO REAL (Derived State)
+  // ─── Validações em tempo real ───────────────────────────────────
   const errors = {};
 
-  // Validação do Nome Completo
-  const nameValue = formData.fullName.trim();
-  const nameParts = nameValue.split(' ');
-  const nameOk = nameParts.length >= 2 && nameValue.length > 3;
-  if (formData.fullName.length > 0 && nameParts.length < 2) {
-    errors.fullName = "Digite seu nome completo";
+  const nicknameOk = formData.nickname.trim().length >= 3;
+  if (formData.nickname.length > 0 && !nicknameOk) {
+    errors.nickname = "Mínimo de 3 caracteres.";
+  }
+  if (formData.nickname.length > 0 && /\s/.test(formData.nickname)) {
+    errors.nickname = "Não pode conter espaços.";
   }
 
-  // Validação de Formato de E-mail
   const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
   const emailOk = isEmailValid(formData.email);
   if (formData.email.length > 0 && !emailOk) {
-    errors.email = "E-mail inválido";
+    errors.email = "E-mail inválido.";
   }
 
-  // Comparação de E-mails
-  const emailsMatch = formData.email === formData.confirmEmail && formData.confirmEmail !== '';
-  if (formData.confirmEmail.length > 0 && !emailsMatch) {
-    errors.confirmEmail = "Os e-mails não coincidem";
+  const passLengthOk = formData.senha.length >= 8;
+  if (formData.senha.length > 0 && !passLengthOk) {
+    errors.senha = "Mínimo de 8 caracteres.";
   }
 
-  // Mínimo de 8 caracteres na Senha
-  const passLengthOk = formData.password.length >= 8;
-  if (formData.password.length > 0 && !passLengthOk) {
-    errors.password = "Mínimo de 8 caracteres";
+  const passwordsMatch =
+    formData.senha === formData.confirmarSenha &&
+    formData.confirmarSenha !== "";
+  if (formData.confirmarSenha.length > 0 && !passwordsMatch) {
+    errors.confirmarSenha = "As senhas não coincidem.";
   }
 
-  // Comparação de Senhas
-  const passwordsMatch = formData.password === formData.confirmPassword && formData.confirmPassword !== '';
-  if (formData.confirmPassword.length > 0 && !passwordsMatch) {
-    errors.confirmPassword = "As senhas não coincidem";
-  }
+  const allFieldsFilled = Object.values(formData).every(
+    (val) => val.trim() !== "",
+  );
+  const isFormValid =
+    nicknameOk && emailOk && passLengthOk && passwordsMatch && allFieldsFilled;
 
-  // Verifica se todos os campos obrigatórios possuem valores preenchidos
-  const allFieldsFilled = Object.values(formData).every((val) => val.trim() !== '');
-
-  // O formulário só será válido se passar em todas as regras (condição para habilitar o botão)
-  const isFormValid = emailOk && emailsMatch && passLengthOk && passwordsMatch && nameOk && allFieldsFilled;
-
-  // 4. ENVIO DOS DADOS PARA A API COM AXIOS
+  // ─── Envio ──────────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid) return;
@@ -82,35 +71,18 @@ function SignUp() {
     setIsLoading(true);
     setApiError(null);
 
-    // Montagem do payload enviado ao backend (dado enviado ao backend)
-    const payload = {
-      nome: formData.fullName.trim(),
-      nickname: formData.username,
-      email: formData.email,
-      senha: formData.password
-    };
-
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/auth/register', payload);
-      
-      // O Axios realiza o parse do JSON automaticamente e injeta em .data
-      const data = response.data;
+      await api.post("/auth/register", {
+        nome: formData.nickname,
+        email: formData.email,
+        senha: formData.senha,
+      });
 
-      // Armazena a sessão localmente caso o backend retorne o token no cadastro
-      if (data.token) {
-        localStorage.setItem('token', JSON.stringify({
-          token: data.token,
-          name: payload.nome,
-          loginTime: new Date().toISOString()
-        }));
-      }
-
-      alert("Cadastro realizado com sucesso!");
-      window.location.href = "home.html";
-
+      navigate("/signin");
     } catch (error) {
-      // Trata erros HTTP
-      const errorMessage = error.response?.data?.message || 'Erro ao realizar o cadastro. Tente novamente.';
+      const errorMessage =
+        error.response?.data?.message ||
+        "Erro ao realizar o cadastro. Tente novamente.";
       setApiError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -118,128 +90,126 @@ function SignUp() {
   };
 
   return (
-    <>
-      <nav className="navbar">
-        <div className="navbar-container">
-          <a href="home.html" className="navbar-logo">
-            <img src="../assets/img/icon_clt.png" alt="Icone" />
-            <span>CLT</span> Gaming
-          </a>
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>
+            Criar <span>Conta</span>
+          </h2>
+          <p>Preencha os dados abaixo para começar</p>
         </div>
-      </nav>
 
-      <div className="auth-wrapper">
-        <div className="auth-card">
-          <div className="auth-header">
-            <h2>Criar <span>Conta</span></h2>
-            <p>Preencha os dados abaixo para começar</p>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {apiError && <div className="signup-api-error">{apiError}</div>}
+
+          {/* Nickname */}
+          <div className="form-field">
+            <label htmlFor="nickname">Nome de usuário</label>
+            <input
+              type="text"
+              id="nickname"
+              name="nickname"
+              className={errors.nickname ? "input-error" : ""}
+              value={formData.nickname}
+              onChange={handleChange}
+              placeholder="seu_usuario"
+              required
+            />
+            {errors.nickname && (
+              <small className="error-message">{errors.nickname}</small>
+            )}
           </div>
 
-          <form id="signUpForm" className="auth-form" onSubmit={handleSubmit}>
-            {/* Mensagem de Erro Geral vinda da API */}
-            {apiError && (
-              <div className="error-message" style={{ textAlign: 'center', marginBottom: '15px', color: '#ff4d4d', fontWeight: 'bold' }}>
-                {apiError}
-              </div>
+          {/* Email */}
+          <div className="form-field">
+            <label htmlFor="email">E-mail</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className={errors.email ? "input-error" : ""}
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="seu@email.com"
+              required
+            />
+            {errors.email && (
+              <small className="error-message">{errors.email}</small>
             )}
+          </div>
 
-            <div className="form-row">
-              <div className="form-field">
-                <label htmlFor="fullName">Nome</label>
+          {/* Senha + Confirmar lado a lado */}
+          <div className="form-row">
+            <div className="form-field">
+              <label htmlFor="senha">Senha</label>
+              <div className="signup-senha-wrap">
                 <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  placeholder="Ex: Chris Redfield"
-                  value={formData.fullName}
+                  type={verSenha ? "text" : "password"}
+                  id="senha"
+                  name="senha"
+                  className={errors.senha ? "input-error" : ""}
+                  value={formData.senha}
                   onChange={handleChange}
+                  placeholder="Mínimo 8 caracteres"
                   required
                 />
-                {errors.fullName && <small className="error-message">{errors.fullName}</small>}
+                <button
+                  type="button"
+                  className="signup-olho-btn"
+                  onClick={() => setVerSenha(!verSenha)}
+                >
+                  <i
+                    className={`fa-solid ${verSenha ? "fa-eye-slash" : "fa-eye"}`}
+                  ></i>
+                </button>
               </div>
-              <div className="form-field">
-                <label htmlFor="username">Nickname</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+              {errors.senha && (
+                <small className="error-message">{errors.senha}</small>
+              )}
             </div>
-
-            <div className="form-row">
-              <div className="form-field">
-                <label htmlFor="email">E-mail</label>
+            <div className="form-field">
+              <label htmlFor="confirmarSenha">Confirmar senha</label>
+              <div className="signup-senha-wrap">
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className={errors.email ? 'input-error' : ''}
-                  value={formData.email}
+                  type={verConfirmar ? "text" : "password"}
+                  id="confirmarSenha"
+                  name="confirmarSenha"
+                  className={errors.confirmarSenha ? "input-error" : ""}
+                  value={formData.confirmarSenha}
                   onChange={handleChange}
+                  placeholder="Repita a senha"
                   required
                 />
-                {errors.email && <small className="error-message">{errors.email}</small>}
+                <button
+                  type="button"
+                  className="signup-olho-btn"
+                  onClick={() => setVerConfirmar(!verConfirmar)}
+                >
+                  <i
+                    className={`fa-solid ${verConfirmar ? "fa-eye-slash" : "fa-eye"}`}
+                  ></i>
+                </button>
               </div>
-              <div className="form-field">
-                <label htmlFor="confirmEmail">Confirmar E-mail</label>
-                <input
-                  type="email"
-                  id="confirmEmail"
-                  name="confirmEmail"
-                  className={errors.confirmEmail ? 'input-error' : ''}
-                  value={formData.confirmEmail}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.confirmEmail && <small className="error-message">{errors.confirmEmail}</small>}
-              </div>
+              {errors.confirmarSenha && (
+                <small className="error-message">{errors.confirmarSenha}</small>
+              )}
             </div>
+          </div>
 
-            <div className="form-row">
-              <div className="form-field">
-                <label htmlFor="password">Senha</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  className={errors.password ? 'input-error' : ''}
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.password && <small className="error-message">{errors.password}</small>}
-              </div>
-              <div className="form-field">
-                <label htmlFor="confirmPassword">Confirmar Senha</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  className={errors.confirmPassword ? 'input-error' : ''}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.confirmPassword && <small className="error-message">{errors.confirmPassword}</small>}
-              </div>
-            </div>
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={!isFormValid || isLoading}
+          >
+            {isLoading ? "Processando..." : "Finalizar Cadastro"}
+          </button>
 
-            <button
-              type="submit"
-              id="btnSubmit"
-              className="btn-primary"
-              disabled={!isFormValid || isLoading}
-            >
-              {isLoading ? 'Processando...' : 'Finalizar Cadastro'}
-            </button>
-          </form>
-        </div>
+          <p className="signup-login-link">
+            Já tem uma conta? <Link to="/signin">Entrar</Link>
+          </p>
+        </form>
       </div>
-    </>
+    </div>
   );
 }
 
