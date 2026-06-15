@@ -138,83 +138,79 @@ function EditUser() {
   }
 
   const s = {
-    // Overlay estático — sem scroll
     overlay: {
       position: "fixed",
       top: 0,
       left: 0,
       width: "100vw",
       height: "100vh",
-      background: "rgba(0,0,0,0.7)",
+      background: "rgba(0,0,0,0.75)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       zIndex: 9999,
     },
-    // Container com altura máxima e scroll interno
     container: {
       background: "#1c1f26",
       border: "1px solid #2a2d3a",
       borderRadius: "16px",
       width: "90%",
-      maxWidth: "580px",
-      maxHeight: "90vh",
+      maxWidth: "560px",
+      maxHeight: "88vh",
       display: "flex",
       flexDirection: "column",
       color: "#e8eaf0",
       overflow: "hidden",
     },
-    // Cabeçalho fixo no topo do modal
     header: {
       display: "flex",
-      justifyContent: "space-between",
       alignItems: "center",
-      padding: "22px 32px 16px",
+      padding: "18px 28px 14px",
       borderBottom: "1px solid #2a2d3a",
       flexShrink: 0,
     },
-    title: { fontSize: "1.2rem", fontWeight: 700 },
-    // Área central com scroll
+    title: { fontSize: "1.1rem", fontWeight: 700 },
     body: {
       overflowY: "auto",
-      padding: "20px 32px",
+      padding: "16px 28px",
       display: "flex",
       flexDirection: "column",
-      gap: "14px",
+      gap: "12px",
       flex: 1,
+      scrollbarWidth: "thin",
+      scrollbarColor: "#2a2d3a #1c1f26",
     },
-    // Rodapé fixo no fundo do modal
     footer: {
       display: "flex",
       justifyContent: "flex-end",
       alignItems: "center",
-      gap: "12px",
-      padding: "16px 32px",
+      gap: "10px",
+      padding: "14px 28px",
       borderTop: "1px solid #2a2d3a",
       flexShrink: 0,
     },
     avatarWrap: {
       display: "flex",
       justifyContent: "center",
-      paddingBottom: "4px",
+      padding: "4px 0 8px",
     },
     avatar: {
-      width: "60px",
-      height: "60px",
+      width: "56px",
+      height: "56px",
       background: "#08090b",
       border: "2px solid #386dbd",
       borderRadius: "50%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "1.3rem",
+      fontSize: "1.2rem",
       fontWeight: "bold",
       color: "#386dbd",
     },
     row: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" },
-    field: { display: "flex", flexDirection: "column", gap: "5px" },
+    field: { display: "flex", flexDirection: "column", gap: "4px" },
     label: {
-      fontSize: "0.73rem",
+      fontSize: "0.70rem",
       color: "#9194a6",
       fontWeight: 500,
       letterSpacing: "0.5px",
@@ -224,68 +220,68 @@ function EditUser() {
       background: "#08090b",
       border: "1px solid #2a2d3a",
       borderRadius: "8px",
-      padding: "10px 14px",
+      padding: "9px 12px",
       color: "#e8eaf0",
-      fontSize: "0.92rem",
+      fontSize: "0.90rem",
       outline: "none",
       width: "100%",
-      height: "42px",
+      height: "40px",
     },
     inputRO: {
       background: "#08090b",
       border: "1px solid #2a2d3a",
       borderRadius: "8px",
-      padding: "10px 14px",
+      padding: "9px 12px",
       color: "#e8eaf0",
-      fontSize: "0.92rem",
+      fontSize: "0.90rem",
       width: "100%",
-      height: "42px",
+      height: "40px",
       opacity: 0.4,
       cursor: "not-allowed",
     },
-    hint: { fontSize: "0.72rem", color: "#9194a6" },
-    // Bloco do botão toggle + cancelar juntos
-    toggleWrap: { display: "flex", flexDirection: "column", gap: "0" },
+    hint: { fontSize: "0.70rem", color: "#9194a6" },
     toggleBtn: {
       background: "transparent",
       border: "1px solid #2a2d3a",
       color: "#9194a6",
-      padding: "10px 14px",
+      padding: "9px 14px",
       borderRadius: "8px",
       fontSize: "0.85rem",
       cursor: "pointer",
       textAlign: "left",
       width: "100%",
-      height: "42px",
-    },
-    cancelBloco: {
-      background: "transparent",
-      border: "1px solid #c0392b",
-      color: "#c0392b",
-      padding: "7px 14px",
-      borderRadius: "0 0 8px 8px",
-      fontSize: "0.80rem",
-      cursor: "pointer",
-      textAlign: "center",
-      width: "100%",
-      borderTop: "none",
+      height: "40px",
     },
     expandable: {
       display: "flex",
       flexDirection: "column",
-      gap: "12px",
+      gap: "10px",
       padding: "14px",
       background: "#08090b",
       border: "1px solid #2a2d3a",
       borderRadius: "8px",
     },
-    expandRow: { display: "flex", justifyContent: "flex-end" },
+    expandFooter: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "8px",
+      marginTop: "4px",
+    },
+    cancelSmall: {
+      background: "transparent",
+      border: "1px solid #c0392b",
+      color: "#c0392b",
+      borderRadius: "8px",
+      padding: "7px 16px",
+      fontSize: "0.82rem",
+      cursor: "pointer",
+    },
     confirmBtn: {
       background: "transparent",
       border: "1px solid #386dbd",
       color: "#386dbd",
       borderRadius: "8px",
-      padding: "8px 20px",
+      padding: "7px 16px",
       fontSize: "0.82rem",
       fontWeight: 600,
       cursor: "pointer",
@@ -294,8 +290,8 @@ function EditUser() {
       background: "transparent",
       border: "1px solid #c0392b",
       color: "#c0392b",
-      padding: "10px 20px",
-      fontSize: "0.88rem",
+      padding: "9px 20px",
+      fontSize: "0.86rem",
       cursor: "pointer",
       borderRadius: "8px",
     },
@@ -304,27 +300,27 @@ function EditUser() {
       color: "#fff",
       border: "none",
       borderRadius: "8px",
-      padding: "10px 24px",
-      fontSize: "0.88rem",
+      padding: "9px 22px",
+      fontSize: "0.86rem",
       fontWeight: 700,
       cursor: "pointer",
     },
     senhaWrap: { position: "relative", display: "flex", alignItems: "center" },
     olhoBtn: {
       position: "absolute",
-      right: "12px",
+      right: "10px",
       background: "transparent",
       border: "none",
       cursor: "pointer",
-      fontSize: "1rem",
+      fontSize: "0.95rem",
       color: "#9194a6",
       padding: 0,
     },
     obrig: { color: "#e53935" },
     feedback: (tipo) => ({
-      padding: "10px 14px",
+      padding: "9px 12px",
       borderRadius: "8px",
-      fontSize: "0.82rem",
+      fontSize: "0.80rem",
       fontWeight: 500,
       background:
         tipo === "sucesso"
@@ -365,9 +361,8 @@ function EditUser() {
           <h2 style={s.title}>Editar Perfil</h2>
         </div>
 
-        {/* Corpo com scroll interno */}
+        {/* Corpo scrollável */}
         <div style={s.body}>
-          {/* Feedback */}
           {feedback.msg && (
             <div style={s.feedback(feedback.tipo)}>{feedback.msg}</div>
           )}
@@ -414,30 +409,9 @@ function EditUser() {
           </div>
 
           {/* Bloco Username */}
-          <div style={s.toggleWrap}>
-            <button
-              style={{
-                ...s.toggleBtn,
-                borderRadius:
-                  blocoAberto === "username" ? "8px 8px 0 0" : "8px",
-                borderBottom:
-                  blocoAberto === "username"
-                    ? "1px solid #2a2d3a"
-                    : "1px solid #2a2d3a",
-              }}
-              onClick={() => toggleBloco("username")}
-            >
-              Alterar nome de usuário
-            </button>
-            {blocoAberto === "username" && (
-              <button
-                style={s.cancelBloco}
-                onClick={() => setBlocoAberto(null)}
-              >
-                Cancelar alteração
-              </button>
-            )}
-          </div>
+          <button style={s.toggleBtn} onClick={() => toggleBloco("username")}>
+            Alterar nome de usuário
+          </button>
 
           {blocoAberto === "username" && (
             <div style={s.expandable}>
@@ -451,7 +425,13 @@ function EditUser() {
                   placeholder="@novo_usuario"
                 />
               </div>
-              <div style={s.expandRow}>
+              <div style={s.expandFooter}>
+                <button
+                  style={s.cancelSmall}
+                  onClick={() => setBlocoAberto(null)}
+                >
+                  Cancelar
+                </button>
                 <button
                   style={s.confirmBtn}
                   onClick={confirmarUsername}
@@ -464,25 +444,9 @@ function EditUser() {
           )}
 
           {/* Bloco Senha */}
-          <div style={s.toggleWrap}>
-            <button
-              style={{
-                ...s.toggleBtn,
-                borderRadius: blocoAberto === "senha" ? "8px 8px 0 0" : "8px",
-              }}
-              onClick={() => toggleBloco("senha")}
-            >
-              Alterar senha
-            </button>
-            {blocoAberto === "senha" && (
-              <button
-                style={s.cancelBloco}
-                onClick={() => setBlocoAberto(null)}
-              >
-                Cancelar alteração
-              </button>
-            )}
-          </div>
+          <button style={s.toggleBtn} onClick={() => toggleBloco("senha")}>
+            Alterar senha
+          </button>
 
           {blocoAberto === "senha" && (
             <div style={s.expandable}>
@@ -540,7 +504,13 @@ function EditUser() {
                   </button>
                 </div>
               </div>
-              <div style={s.expandRow}>
+              <div style={s.expandFooter}>
+                <button
+                  style={s.cancelSmall}
+                  onClick={() => setBlocoAberto(null)}
+                >
+                  Cancelar
+                </button>
                 <button
                   style={s.confirmBtn}
                   onClick={confirmarSenhaFn}
