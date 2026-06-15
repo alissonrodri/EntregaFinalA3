@@ -35,10 +35,9 @@ function Footer() {
             <li><Link to="/sobre">Sobre nós</Link></li>
             <li><Link to="/termos">Termos de Serviço</Link></li>
             <li><Link to="/privacidade">Política de Privacidade</Link></li>
-            <li><a href="#reembolso">Política de reembolso</a></li>
-            <li>
-  <Link to="/faq">Perguntas Frequentes</Link>
-</li>
+            <li><Link to="/reembolso">Política de Reembolso</Link></li>
+            <li><Link to="/faq">Perguntas Frequentes</Link></li>
+
           </ul>
         </div>
       

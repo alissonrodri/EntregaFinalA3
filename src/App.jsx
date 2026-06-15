@@ -17,6 +17,7 @@ import FAQ from "./pages/FAQ/FAQ";
 import SobreNos from "./pages/SobreNos/SobreNos";
 import TermosServico from "./pages/TermosServico/TermosServico";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade/PoliticaPrivacidade";
+import PoliticaReembolso from "./pages/PoliticaReembolso/PoliticaReembolso";
 
 
 function AppRoutes(){
@@ -51,6 +52,7 @@ function AppRoutes(){
           <Route path="/sobre" element={<SobreNos />} />
           <Route path="/termos" element={<TermosServico />} />
           <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+          <Route path="/reembolso" element={<PoliticaReembolso />} />
         </Routes>
       </main>
 
