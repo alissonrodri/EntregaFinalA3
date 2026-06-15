@@ -1,32 +1,31 @@
-import { BrowserRouter, Routes, Route, useLocation} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import Home from "./pages/home";
-import SignIn from './pages/signIn';
-import SignUp from './pages/signUp';
-import EditUser from './pages/editUser';
-import SearchPage from './pages/search';
-import GamePage from './pages/gamepage';
-import CategoriesPage from './pages/categories';
-import CartPage from './pages/cart';
-import Wishlist from './pages/wishlist'
-import Library from './pages/library'
-import Checkout from './pages/checkout'
-import History from './pages/history'
-import AdminPage from './pages/admin'
-import ForgotPassword from './pages/forgotPassword';
+import SignIn from "./pages/signIn";
+import SignUp from "./pages/signUp";
+import EditUser from "./pages/editUser";
+import SearchPage from "./pages/search";
+import GamePage from "./pages/gamepage";
+import CategoriesPage from "./pages/categories";
+import CartPage from "./pages/cart";
+import Wishlist from "./pages/wishlist";
+import Library from "./pages/library";
+import Checkout from "./pages/checkout";
+import History from "./pages/history";
+import AdminPage from "./pages/admin";
+import ForgotPassword from "./pages/forgotPassword";
 
-
-function AppRoutes(){
+function AppRoutes() {
   const location = useLocation();
 
-  const rotasSemNavbar = ['/signin', '/signup', '/forgot-password'];
-  const rotasSemFooter = ['/signin', '/signup',  '/forgot-password'];
+  const rotasSemNavbar = ["/signin", "/signup", "/forgot-password"];
+  const rotasSemFooter = ["/signin", "/signup", "/forgot-password"];
 
   const rotasComNavbar = !rotasSemNavbar.includes(location.pathname);
   const rotasComFooter = !rotasSemFooter.includes(location.pathname);
 
-  return(
+  return (
     <>
       {/* A Navbar só será renderizada se a rota atual não for login ou cadastro */}
       {rotasComNavbar && <Navbar />}
@@ -36,7 +35,7 @@ function AppRoutes(){
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/edituser" element={<EditUser />} />
+          <Route path="/edit-profile" element={<EditUser />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/game/:id" element={<GamePage />} />
           <Route path="/categorias" element={<CategoriesPage />} />
@@ -51,20 +50,16 @@ function AppRoutes(){
       </main>
 
       {rotasComFooter && <Footer />}
-
-
     </>
   );
 }
 
 function App() {
- 
   return (
     <BrowserRouter>
-    <AppRoutes/>
+      <AppRoutes />
     </BrowserRouter>
-  )
-   
+  );
 }
 
-export default App
+export default App;
