@@ -15,8 +15,7 @@ function EditUser() {
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  const [blocoUsername, setBlocoUsername] = useState(false);
-  const [blocoSenha, setBlocoSenha] = useState(false);
+  const [blocoAberto, setBlocoAberto] = useState(null);
 
   const [verSenhaAtual, setVerSenhaAtual] = useState(false);
   const [verNovaSenha, setVerNovaSenha] = useState(false);
@@ -32,11 +31,9 @@ function EditUser() {
       navigate("/signin");
       return;
     }
-
     const payload = JSON.parse(atob(token.split(".")[1]));
     const id = payload.id;
     setUserId(id);
-
     api
       .get(`/usuarios/${id}`)
       .then((res) => {
@@ -65,6 +62,10 @@ function EditUser() {
   const mostrarFeedback = (tipo, msg) => {
     setFeedback({ tipo, msg });
     setTimeout(() => setFeedback({ tipo: "", msg: "" }), 4000);
+  };
+
+  const toggleBloco = (bloco) => {
+    setBlocoAberto(blocoAberto === bloco ? null : bloco);
   };
 
   async function salvarNome() {
@@ -97,7 +98,7 @@ function EditUser() {
       await api.put(`/usuarios/${userId}`, { nome, username: novoUsername });
       mostrarFeedback("sucesso", "Nome de usuário atualizado!");
       setNovoUsername("");
-      setBlocoUsername(false);
+      setBlocoAberto(null);
     } catch {
       mostrarFeedback("erro", "Erro ao atualizar o nome de usuário.");
     } finally {
@@ -115,7 +116,7 @@ function EditUser() {
       return;
     }
     if (novaSenha.length < 8) {
-      mostrarFeedback("erro", "A nova senha deve ter pelo menos 8 caracteres.");
+      mostrarFeedback("erro", "Mínimo de 8 caracteres na nova senha.");
       return;
     }
     setSalvando(true);
@@ -128,7 +129,7 @@ function EditUser() {
       setSenhaAtual("");
       setNovaSenha("");
       setConfirmarSenha("");
-      setBlocoSenha(false);
+      setBlocoAberto(null);
     } catch {
       mostrarFeedback("erro", "Senha atual incorreta.");
     } finally {
@@ -137,6 +138,7 @@ function EditUser() {
   }
 
   const s = {
+    // Overlay estático — sem scroll
     overlay: {
       position: "fixed",
       top: 0,
@@ -148,49 +150,68 @@ function EditUser() {
       alignItems: "center",
       justifyContent: "center",
       zIndex: 9999,
-      overflowY: "auto",
-      padding: "20px",
     },
+    // Container com altura máxima e scroll interno
     container: {
       background: "#1c1f26",
       border: "1px solid #2a2d3a",
       borderRadius: "16px",
-      padding: "28px 36px 24px",
       width: "90%",
-      maxWidth: "560px",
+      maxWidth: "580px",
+      maxHeight: "90vh",
       display: "flex",
       flexDirection: "column",
-      gap: "18px",
       color: "#e8eaf0",
+      overflow: "hidden",
     },
+    // Cabeçalho fixo no topo do modal
     header: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
+      padding: "22px 32px 16px",
+      borderBottom: "1px solid #2a2d3a",
+      flexShrink: 0,
     },
     title: { fontSize: "1.2rem", fontWeight: 700 },
-    closeBtn: {
-      background: "transparent",
-      border: "none",
-      color: "#9194a6",
-      fontSize: "1.1rem",
-      cursor: "pointer",
+    // Área central com scroll
+    body: {
+      overflowY: "auto",
+      padding: "20px 32px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "14px",
+      flex: 1,
     },
-    avatarWrap: { display: "flex", justifyContent: "center" },
+    // Rodapé fixo no fundo do modal
+    footer: {
+      display: "flex",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      gap: "12px",
+      padding: "16px 32px",
+      borderTop: "1px solid #2a2d3a",
+      flexShrink: 0,
+    },
+    avatarWrap: {
+      display: "flex",
+      justifyContent: "center",
+      paddingBottom: "4px",
+    },
     avatar: {
-      width: "68px",
-      height: "68px",
+      width: "60px",
+      height: "60px",
       background: "#08090b",
       border: "2px solid #386dbd",
       borderRadius: "50%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "1.4rem",
+      fontSize: "1.3rem",
       fontWeight: "bold",
       color: "#386dbd",
     },
-    form: { display: "flex", flexDirection: "column", gap: "12px" },
+    row: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" },
     field: { display: "flex", flexDirection: "column", gap: "5px" },
     label: {
       fontSize: "0.73rem",
@@ -223,6 +244,8 @@ function EditUser() {
       cursor: "not-allowed",
     },
     hint: { fontSize: "0.72rem", color: "#9194a6" },
+    // Bloco do botão toggle + cancelar juntos
+    toggleWrap: { display: "flex", flexDirection: "column", gap: "0" },
     toggleBtn: {
       background: "transparent",
       border: "1px solid #2a2d3a",
@@ -235,6 +258,18 @@ function EditUser() {
       width: "100%",
       height: "42px",
     },
+    cancelBloco: {
+      background: "transparent",
+      border: "1px solid #c0392b",
+      color: "#c0392b",
+      padding: "7px 14px",
+      borderRadius: "0 0 8px 8px",
+      fontSize: "0.80rem",
+      cursor: "pointer",
+      textAlign: "center",
+      width: "100%",
+      borderTop: "none",
+    },
     expandable: {
       display: "flex",
       flexDirection: "column",
@@ -244,24 +279,16 @@ function EditUser() {
       border: "1px solid #2a2d3a",
       borderRadius: "8px",
     },
+    expandRow: { display: "flex", justifyContent: "flex-end" },
     confirmBtn: {
       background: "transparent",
       border: "1px solid #386dbd",
       color: "#386dbd",
       borderRadius: "8px",
-      padding: "10px",
-      fontSize: "0.85rem",
+      padding: "8px 20px",
+      fontSize: "0.82rem",
       fontWeight: 600,
       cursor: "pointer",
-      width: "100%",
-    },
-    footer: {
-      display: "flex",
-      justifyContent: "flex-end",
-      alignItems: "center",
-      gap: "12px",
-      paddingTop: "16px",
-      borderTop: "1px solid #2a2d3a",
     },
     cancelBtn: {
       background: "transparent",
@@ -271,7 +298,6 @@ function EditUser() {
       fontSize: "0.88rem",
       cursor: "pointer",
       borderRadius: "8px",
-      transition: "all 0.2s",
     },
     saveBtn: {
       background: "#386dbd",
@@ -294,7 +320,7 @@ function EditUser() {
       color: "#9194a6",
       padding: 0,
     },
-    obrigatorio: { color: "#e53935" },
+    obrig: { color: "#e53935" },
     feedback: (tipo) => ({
       padding: "10px 14px",
       borderRadius: "8px",
@@ -334,26 +360,23 @@ function EditUser() {
   return createPortal(
     <div style={s.overlay}>
       <div style={s.container}>
-        {/* Cabeçalho */}
+        {/* Cabeçalho fixo */}
         <div style={s.header}>
           <h2 style={s.title}>Editar Perfil</h2>
-          <button style={s.closeBtn} onClick={() => navigate(-1)}>
-            ✕
-          </button>
         </div>
 
-        {/* Feedback */}
-        {feedback.msg && (
-          <div style={s.feedback(feedback.tipo)}>{feedback.msg}</div>
-        )}
+        {/* Corpo com scroll interno */}
+        <div style={s.body}>
+          {/* Feedback */}
+          {feedback.msg && (
+            <div style={s.feedback(feedback.tipo)}>{feedback.msg}</div>
+          )}
 
-        {/* Avatar */}
-        <div style={s.avatarWrap}>
-          <div style={s.avatar}>{getIniciais()}</div>
-        </div>
+          {/* Avatar */}
+          <div style={s.avatarWrap}>
+            <div style={s.avatar}>{getIniciais()}</div>
+          </div>
 
-        {/* Formulário */}
-        <div style={s.form}>
           {/* Email */}
           <div style={s.field}>
             <label style={s.label}>Email</label>
@@ -361,47 +384,62 @@ function EditUser() {
             <span style={s.hint}>O email não pode ser alterado.</span>
           </div>
 
-          {/* Nome completo */}
-          <div style={s.field}>
-            <label style={s.label}>
-              Nome completo <span style={s.obrigatorio}>*</span>
-            </label>
-            <input
-              style={s.input}
-              type="text"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              placeholder="Seu nome completo"
-            />
-          </div>
-
-          {/* Data de nascimento */}
-          <div style={s.field}>
-            <label style={s.label}>
-              Data de nascimento <span style={s.obrigatorio}>*</span>
-            </label>
-            <input
-              style={s.input}
-              type="text"
-              value={dataNascimento}
-              onChange={(e) => setDataNascimento(e.target.value)}
-              placeholder="DD/MM/AAAA"
-              maxLength={10}
-            />
+          {/* Nome + Data lado a lado */}
+          <div style={s.row}>
+            <div style={s.field}>
+              <label style={s.label}>
+                Nome completo <span style={s.obrig}>*</span>
+              </label>
+              <input
+                style={s.input}
+                type="text"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                placeholder="Seu nome completo"
+              />
+            </div>
+            <div style={s.field}>
+              <label style={s.label}>
+                Data de nascimento <span style={s.obrig}>*</span>
+              </label>
+              <input
+                style={s.input}
+                type="text"
+                value={dataNascimento}
+                onChange={(e) => setDataNascimento(e.target.value)}
+                placeholder="DD/MM/AAAA"
+                maxLength={10}
+              />
+            </div>
           </div>
 
           {/* Bloco Username */}
-          <button
-            style={s.toggleBtn}
-            onClick={() => {
-              setBlocoUsername(!blocoUsername);
-              setBlocoSenha(false);
-            }}
-          >
-            {blocoUsername ? "✕ Cancelar" : "Alterar nome de usuário"}
-          </button>
+          <div style={s.toggleWrap}>
+            <button
+              style={{
+                ...s.toggleBtn,
+                borderRadius:
+                  blocoAberto === "username" ? "8px 8px 0 0" : "8px",
+                borderBottom:
+                  blocoAberto === "username"
+                    ? "1px solid #2a2d3a"
+                    : "1px solid #2a2d3a",
+              }}
+              onClick={() => toggleBloco("username")}
+            >
+              Alterar nome de usuário
+            </button>
+            {blocoAberto === "username" && (
+              <button
+                style={s.cancelBloco}
+                onClick={() => setBlocoAberto(null)}
+              >
+                Cancelar alteração
+              </button>
+            )}
+          </div>
 
-          {blocoUsername && (
+          {blocoAberto === "username" && (
             <div style={s.expandable}>
               <div style={s.field}>
                 <label style={s.label}>Novo nome de usuário</label>
@@ -413,28 +451,40 @@ function EditUser() {
                   placeholder="@novo_usuario"
                 />
               </div>
-              <button
-                style={s.confirmBtn}
-                onClick={confirmarUsername}
-                disabled={salvando}
-              >
-                Confirmar
-              </button>
+              <div style={s.expandRow}>
+                <button
+                  style={s.confirmBtn}
+                  onClick={confirmarUsername}
+                  disabled={salvando}
+                >
+                  Confirmar
+                </button>
+              </div>
             </div>
           )}
 
           {/* Bloco Senha */}
-          <button
-            style={s.toggleBtn}
-            onClick={() => {
-              setBlocoSenha(!blocoSenha);
-              setBlocoUsername(false);
-            }}
-          >
-            {blocoSenha ? "✕ Cancelar" : "Alterar senha"}
-          </button>
+          <div style={s.toggleWrap}>
+            <button
+              style={{
+                ...s.toggleBtn,
+                borderRadius: blocoAberto === "senha" ? "8px 8px 0 0" : "8px",
+              }}
+              onClick={() => toggleBloco("senha")}
+            >
+              Alterar senha
+            </button>
+            {blocoAberto === "senha" && (
+              <button
+                style={s.cancelBloco}
+                onClick={() => setBlocoAberto(null)}
+              >
+                Cancelar alteração
+              </button>
+            )}
+          </div>
 
-          {blocoSenha && (
+          {blocoAberto === "senha" && (
             <div style={s.expandable}>
               <div style={s.field}>
                 <label style={s.label}>Senha atual</label>
@@ -454,7 +504,6 @@ function EditUser() {
                   </button>
                 </div>
               </div>
-
               <div style={s.field}>
                 <label style={s.label}>Nova senha</label>
                 <div style={s.senhaWrap}>
@@ -473,7 +522,6 @@ function EditUser() {
                   </button>
                 </div>
               </div>
-
               <div style={s.field}>
                 <label style={s.label}>Confirmar nova senha</label>
                 <div style={s.senhaWrap}>
@@ -492,19 +540,20 @@ function EditUser() {
                   </button>
                 </div>
               </div>
-
-              <button
-                style={s.confirmBtn}
-                onClick={confirmarSenhaFn}
-                disabled={salvando}
-              >
-                Confirmar
-              </button>
+              <div style={s.expandRow}>
+                <button
+                  style={s.confirmBtn}
+                  onClick={confirmarSenhaFn}
+                  disabled={salvando}
+                >
+                  Confirmar
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Rodapé */}
+        {/* Rodapé fixo */}
         <div style={s.footer}>
           <button style={s.cancelBtn} onClick={() => navigate(-1)}>
             Cancelar
