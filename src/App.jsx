@@ -16,6 +16,7 @@ import AdminPage from './pages/admin'
 import FAQ from "./pages/FAQ/FAQ";
 import SobreNos from "./pages/SobreNos/SobreNos";
 import TermosServico from "./pages/TermosServico/TermosServico";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade/PoliticaPrivacidade";
 
 
 function AppRoutes(){
@@ -49,6 +50,7 @@ function AppRoutes(){
           <Route path="/faq" element={<FAQ />} />
           <Route path="/sobre" element={<SobreNos />} />
           <Route path="/termos" element={<TermosServico />} />
+          <Route path="/privacidade" element={<PoliticaPrivacidade />} />
         </Routes>
       </main>
 
