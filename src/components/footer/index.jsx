@@ -1,6 +1,5 @@
 import './index.css';
 import { Link } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 
 function Footer() {
@@ -32,8 +31,8 @@ function Footer() {
         {/* Coluna 3: Institucional */}
         <div className="footer-links">
           <h3>Institucional</h3>
-          <ul>
-            <Link to="/sobre-nos">Sobre nós</Link>
+          <ul>      
+            <Link to="/sobre">Sobre nós</Link>
             <li><a href="#termos">Termos de serviço</a></li>
             <li><a href="#privacidade">Política de privacidade</a></li>
             <li><a href="#reembolso">Política de reembolso</a></li>
