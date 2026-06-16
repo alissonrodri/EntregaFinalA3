@@ -4,9 +4,9 @@ import axios from 'axios';
 import "./login.css";
 
 const Login = () => {
-    // Estados para controlar formulário, erro e carregamento
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // Novo estado
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     
@@ -17,7 +17,6 @@ const Login = () => {
         setError('');
         setIsLoading(true);
 
-        // Validação simples de preenchimento
         if (!email || !password) {
             setError('Por favor, preencha todos os campos.');
             setIsLoading(false);
@@ -25,24 +24,19 @@ const Login = () => {
         }
 
         try {
-            // Integração com API utilizando Axios
-            const response = await axios.post('https://localhost:3000/api/v1/auth/login', {
+            const response = await axios.post('http://localhost:3000/api/v1/auth/login', {
                 email,
                 password
             });
 
-            // Se o login for bem-sucedido
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 navigate('/home'); 
             }
         } catch (err) {
-            // Tratamento de erro específico do Axios
             if (err.response) {
-                // Erro retornado pelo servidor (ex: 401, 404)
                 setError(err.response.data.message || 'E-mail ou senha incorretos.');
             } else {
-                // Erro de rede ou outro problema
                 setError('Erro de conexão com o servidor. Tente novamente mais tarde.');
             }
         } finally {
@@ -69,17 +63,38 @@ const Login = () => {
                     />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group" style={{ position: 'relative' }}>
                     <label htmlFor="password">Senha</label>
                     <input 
-                        type="password" 
+                        // O tipo muda dinamicamente
+                        type={showPassword ? "text" : "password"} 
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Sua senha" 
                         disabled={isLoading}
                     />
-                    <a href="/recuperar-senha" className="forgot-link">Esqueci minha senha</a>
+                    {/* Botão para alternar visibilidade */}
+                    <button 
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                            position: 'absolute',
+                            right: '10px',
+                            top: '35px',
+                            background: 'none',
+                            border: 'none',
+                            color: '#007bff',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem'
+                        }}
+                    >
+                        {showPassword ? "Ocultar" : "Exibir"}
+                    </button>
+                    
+                    <a href="/recuperar-senha" className="forgot-link" style={{ display: 'block', marginTop: '10px' }}>
+                        Esqueci minha senha
+                    </a>
                 </div>
 
                 <button type="submit" className="btn-signin" disabled={isLoading}>
