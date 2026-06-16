@@ -1,56 +1,48 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import api from "../../services/api";
-import "./index.css";
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import api from '../../services/api';
+import './index.css';
 
 const formatPrice = (v) => {
   const n = parseFloat(v);
-  return isNaN(n) ? "0,00" : n.toFixed(2).replace(".", ",");
+  return isNaN(n) ? '0,00' : n.toFixed(2).replace('.', ',');
 };
 
 const maskCard = (v) =>
-  v
-    .replace(/\D/g, "")
-    .slice(0, 16)
-    .replace(/(.{4})/g, "$1 ")
-    .trim();
+  v.replace(/\D/g, '')
+   .slice(0, 16)
+   .replace(/(.{4})/g, '$1 ')
+   .trim();
 
 const maskExpiry = (v) =>
-  v
-    .replace(/\D/g, "")
-    .slice(0, 4)
-    .replace(/^(\d{2})(\d)/, "$1/$2");
+  v.replace(/\D/g, '')
+   .slice(0, 4)
+   .replace(/^(\d{2})(\d)/, '$1/$2');
 
-const maskCVV = (v) => v.replace(/\D/g, "").slice(0, 3);
-const maskCPF = (v) =>
-  v
-    .replace(/\D/g, "")
-    .slice(0, 11)
-    .replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, (_, a, b, c, d) =>
-      d ? `${a}.${b}.${c}-${d}` : c ? `${a}.${b}.${c}` : b ? `${a}.${b}` : a,
-    );
+const maskCVV  = (v) => v.replace(/\D/g, '').slice(0, 3);
+const maskCPF  = (v) =>
+  v.replace(/\D/g, '')
+   .slice(0, 11)
+   .replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, (_, a, b, c, d) =>
+     d ? `${a}.${b}.${c}-${d}` : c ? `${a}.${b}.${c}` : b ? `${a}.${b}` : a
+   );
+
 
 function CardForm({ onSubmit, loading }) {
-  const [numero, setNumero] = useState("");
-  const [nome, setNome] = useState("");
-  const [validade, setValidade] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [parcelas, setParcelas] = useState("1");
+  const [numero, setNumero]   = useState('');
+  const [nome, setNome]       = useState('');
+  const [validade, setValidade] = useState('');
+  const [cvv, setCvv]         = useState('');
+  const [parcelas, setParcelas] = useState('1');
 
   const handleSubmit = () => {
     if (!numero || !nome || !validade || !cvv) {
-      alert("Preencha todos os campos do cartão.");
+      alert('Preencha todos os campos do cartão.');
       return;
     }
     onSubmit({
-      metodo: "cartao",
-      dados: {
-        numero: numero.replace(/\s/g, ""),
-        nome,
-        validade,
-        cvv,
-        parcelas,
-      },
+      metodo: 'cartao',
+      dados: { numero: numero.replace(/\s/g, ''), nome, validade, cvv, parcelas },
     });
   };
 
@@ -61,7 +53,7 @@ function CardForm({ onSubmit, loading }) {
         <input
           placeholder="0000 0000 0000 0000"
           value={numero}
-          onChange={(e) => setNumero(maskCard(e.target.value))}
+          onChange={e => setNumero(maskCard(e.target.value))}
         />
       </div>
       <div className="pay-field">
@@ -69,7 +61,7 @@ function CardForm({ onSubmit, loading }) {
         <input
           placeholder="Como aparece no cartão"
           value={nome}
-          onChange={(e) => setNome(e.target.value.toUpperCase())}
+          onChange={e => setNome(e.target.value.toUpperCase())}
         />
       </div>
       <div className="pay-row">
@@ -78,7 +70,7 @@ function CardForm({ onSubmit, loading }) {
           <input
             placeholder="MM/AA"
             value={validade}
-            onChange={(e) => setValidade(maskExpiry(e.target.value))}
+            onChange={e => setValidade(maskExpiry(e.target.value))}
           />
         </div>
         <div className="pay-field">
@@ -86,90 +78,72 @@ function CardForm({ onSubmit, loading }) {
           <input
             placeholder="123"
             value={cvv}
-            onChange={(e) => setCvv(maskCVV(e.target.value))}
+            onChange={e => setCvv(maskCVV(e.target.value))}
             type="password"
           />
         </div>
       </div>
       <div className="pay-field">
         <label>Parcelas</label>
-        <select value={parcelas} onChange={(e) => setParcelas(e.target.value)}>
-          {[1, 2, 3].map((n) => (
+        <select value={parcelas} onChange={e => setParcelas(e.target.value)}>
+          {[1,2,3].map(n => (
             <option key={n} value={n}>
-              {n}x {n === 1 ? "(à vista)" : "sem juros"}
+              {n}x {n === 1 ? '(à vista)' : 'sem juros'}
             </option>
           ))}
         </select>
       </div>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
-        {loading ? (
-          <>
-            <span className="pay-spinner" /> Processando…
-          </>
-        ) : (
-          <>
-            <span className="material-symbols-outlined">lock</span> Pagar agora
-          </>
-        )}
+        {loading ? <><span className="pay-spinner" /> Processando…</> : '🔒 Pagar agora'}
       </button>
     </div>
   );
 }
 
+
 function BoletoForm({ onSubmit, loading }) {
-  const [cpf, setCpf] = useState("");
+  const [cpf, setCpf] = useState('');
 
   const handleSubmit = () => {
-    if (cpf.replace(/\D/g, "").length < 11) {
-      alert("Informe um CPF válido.");
+    if (cpf.replace(/\D/g, '').length < 11) {
+      alert('Informe um CPF válido.');
       return;
     }
-    onSubmit({ metodo: "boleto", dados: { cpf } });
+    onSubmit({ metodo: 'boleto', dados: { cpf } });
   };
 
   return (
     <div className="pay-form">
       <div className="pay-info-box">
         <span className="pay-info-icon">ℹ️</span>
-        <p>
-          O boleto será gerado após a confirmação. O pagamento compensa em até 3
-          dias úteis e os jogos serão liberados automaticamente.
-        </p>
+        <p>O boleto será gerado após a confirmação. O pagamento compensa em até 3 dias úteis e os jogos serão liberados automaticamente.</p>
       </div>
       <div className="pay-field">
         <label>CPF do pagador</label>
         <input
           placeholder="000.000.000-00"
           value={cpf}
-          onChange={(e) => setCpf(maskCPF(e.target.value))}
+          onChange={e => setCpf(maskCPF(e.target.value))}
         />
       </div>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
-        {loading ? (
-          <>
-            <span className="pay-spinner" /> Gerando boleto…
-          </>
-        ) : (
-          "📄 Gerar boleto"
-        )}
+        {loading ? <><span className="pay-spinner" /> Gerando boleto…</> : '📄 Gerar boleto'}
       </button>
     </div>
   );
 }
 
+
 function PixForm({ onSubmit, loading }) {
   const handleSubmit = () => {
-    onSubmit({ metodo: "pix", dados: {} });
+    onSubmit({ metodo: 'pix', dados: {} });
   };
 
   return (
     <div className="pay-form">
       <div className="pay-info-box">
         <span className="pay-info-icon">⚡</span>
-        <p>
-          Pague instantaneamente via Pix. Após a confirmação, os jogos são
-          liberados em segundos.
-        </p>
+        <p>Pague instantaneamente via Pix. Após a confirmação, os jogos são liberados em segundos.</p>
       </div>
       <div className="pay-pix-preview">
         <div className="pay-pix-qr">
@@ -183,48 +157,26 @@ function PixForm({ onSubmit, loading }) {
           <code className="pay-pix-key">clt-gaming@pagamentos.pix</code>
           <button
             className="pay-pix-copy-btn"
-            onClick={() =>
-              navigator.clipboard?.writeText("clt-gaming@pagamentos.pix")
-            }
+            onClick={() => navigator.clipboard?.writeText('clt-gaming@pagamentos.pix')}
           >
             Copiar
           </button>
         </div>
       </div>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
-        {loading ? (
-          <>
-            <span className="pay-spinner" /> Confirmando…
-          </>
-        ) : (
-          <>
-            <span className="material-symbols-outlined">check_circle</span>{" "}
-            Confirmar pagamento Pix
-          </>
-        )}
+        {loading ? <><span className="pay-spinner" /> Confirmando…</> : '✅ Confirmar pagamento Pix'}
       </button>
     </div>
   );
 }
 
+
 function SuccessScreen({ metodo }) {
   const navigate = useNavigate();
   const messages = {
-    cartao: {
-      icon: "credit_card",
-      title: "Pagamento aprovado!",
-      sub: "Seu cartão foi debitado com sucesso.",
-    },
-    boleto: {
-      icon: "📄",
-      title: "Boleto gerado!",
-      sub: "Pague até o vencimento para liberar os jogos.",
-    },
-    pix: {
-      icon: "⚡",
-      title: "Pix confirmado!",
-      sub: "Seus jogos já estão na biblioteca.",
-    },
+    cartao: { icon: '💳', title: 'Pagamento aprovado!', sub: 'Seu cartão foi debitado com sucesso.' },
+    boleto: { icon: '📄', title: 'Boleto gerado!',       sub: 'Pague até o vencimento para liberar os jogos.' },
+    pix:    { icon: '⚡', title: 'Pix confirmado!',      sub: 'Seus jogos já estão na biblioteca.' },
   };
   const { icon, title, sub } = messages[metodo] || messages.cartao;
 
@@ -233,71 +185,61 @@ function SuccessScreen({ metodo }) {
       <span className="pay-success-icon">{icon}</span>
       <h2>{title}</h2>
       <p>{sub}</p>
-      <button
-        className="pay-btn pay-btn--success"
-        onClick={() => navigate("/library")}
-      >
+      <button className="pay-btn pay-btn--success" onClick={() => navigate('/library')}>
         Ir para a Biblioteca
       </button>
     </div>
   );
 }
 
+
 function Checkout() {
   const navigate = useNavigate();
-  const [method, setMethod] = useState("cartao");
+  const [method, setMethod]   = useState('cartao');
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [usedMethod, setUsedMethod] = useState("");
+  const [done, setDone]       = useState(false);
+  const [usedMethod, setUsedMethod] = useState('');
 
   const [cartItems, setCartItems] = useState([]);
   const [cartLoading, setCartLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+    const token = localStorage.getItem('token');
+    if (!token) { navigate('/login'); return; }
 
     const load = async () => {
       try {
-        const cartRes = await api.get("/carrinho/ativo");
+        const cartRes = await api.get('/carrinho/ativo');
 
-        if (
-          cartRes.data.message === "Carrinho vazio." ||
-          !cartRes.data.carrinho
-        ) {
-          navigate("/cart");
+        if (cartRes.data.message === 'Carrinho vazio.' || !cartRes.data.carrinho) {
+          navigate('/cart');
           return;
-        }
+        } 
 
         const itens = cartRes.data.carrinho.itens || [];
         const [publicRes, authRes] = await Promise.all([
-          api.get("/public/jogos"),
-          api.get("/jogos"),
+          api.get('/public/jogos'),
+          api.get('/jogos'),
         ]);
         const publicGames = Array.isArray(publicRes.data) ? publicRes.data : [];
-        const authGames = Array.isArray(authRes.data) ? authRes.data : [];
+        const authGames   = Array.isArray(authRes.data)   ? authRes.data   : [];
 
-        const enriched = itens.map((item) => {
-          const auth = authGames.find((g) => g.id === item.fkJogo);
-          const pub = auth
-            ? publicGames.find((g) => g.nome === auth.nome)
-            : null;
+        const enriched = itens.map(item => {
+          const auth   = authGames.find(g => g.id === item.fkJogo);
+          const pub    = auth ? publicGames.find(g => g.nome === auth.nome) : null;
           return {
             ...item,
-            nome: auth?.nome || `Jogo #${item.fkJogo}`,
+            nome:  auth?.nome  || `Jogo #${item.fkJogo}`,
             preco: auth?.preco ?? 0,
             desconto: auth?.desconto ?? 0,
-            categoria: pub?.categoria || "—",
+            categoria: pub?.categoria || '—',
           };
         });
 
         setCartItems(enriched);
       } catch (err) {
-        console.error("Erro ao carregar carrinho para checkout:", err);
-        navigate("/cart");
+        console.error('Erro ao carregar carrinho para checkout:', err);
+        navigate('/cart');
       } finally {
         setCartLoading(false);
       }
@@ -315,29 +257,25 @@ function Checkout() {
   const handlePay = async ({ metodo, dados }) => {
     setLoading(true);
     try {
-      await api.post("/vendas/pay", { metodo, dados });
+      
+      await api.post('/vendas/pay', { metodo, dados });
 
-      await api.post("/vendas/checkout");
+      
+      await api.post('/vendas/checkout');
 
-      window.dispatchEvent(
-        new CustomEvent("notify", {
-          detail: {
-            text: "Compra aprovada! Verifique na sua biblioteca.",
-            link: "/library",
-          },
-        }),
-      );
+      window.dispatchEvent(new CustomEvent('notify', { 
+        detail: { text: 'Compra aprovada! Verifique na sua biblioteca. 🎮', link: '/library' } 
+      }));
 
-      localStorage.setItem("cartCount", "0");
-      window.dispatchEvent(new Event("cartUpdated"));
+      
+      localStorage.setItem('cartCount', '0');
+      window.dispatchEvent(new Event('cartUpdated'));
 
       setUsedMethod(metodo);
       setDone(true);
     } catch (err) {
-      console.error("Erro no pagamento:", err);
-      alert(
-        `Erro ao processar pagamento: ${err.response?.data?.message || err.message}`,
-      );
+      console.error('Erro no pagamento:', err);
+      alert(`Erro ao processar pagamento: ${err.response?.data?.message || err.message}`);
     } finally {
       setLoading(false);
     }
@@ -357,18 +295,19 @@ function Checkout() {
   return (
     <div className="pay-page">
       <div className="pay-page-inner">
+
         <section className="pay-section">
           <h1 className="pay-title">Finalizar compra</h1>
 
           <div className="pay-method-tabs">
             {[
-              { id: "cartao", label: "Cartão" },
-              { id: "pix", label: "⚡ Pix" },
-              { id: "boleto", label: "📄 Boleto" },
-            ].map((m) => (
+              { id: 'cartao', label: '💳 Cartão' },
+              { id: 'pix',    label: '⚡ Pix' },
+              { id: 'boleto', label: '📄 Boleto' },
+            ].map(m => (
               <button
                 key={m.id}
-                className={`pay-method-tab ${method === m.id ? "active" : ""}`}
+                className={`pay-method-tab ${method === m.id ? 'active' : ''}`}
                 onClick={() => setMethod(m.id)}
               >
                 {m.label}
@@ -376,39 +315,29 @@ function Checkout() {
             ))}
           </div>
 
-          {method === "cartao" && (
-            <CardForm onSubmit={handlePay} loading={loading} />
-          )}
-          {method === "pix" && (
-            <PixForm onSubmit={handlePay} loading={loading} />
-          )}
-          {method === "boleto" && (
-            <BoletoForm onSubmit={handlePay} loading={loading} />
-          )}
+          {method === 'cartao' && <CardForm  onSubmit={handlePay} loading={loading} />}
+          {method === 'pix'    && <PixForm   onSubmit={handlePay} loading={loading} />}
+          {method === 'boleto' && <BoletoForm onSubmit={handlePay} loading={loading} />}
         </section>
 
         <aside className="pay-summary">
           <h2 className="pay-summary-title">Resumo do pedido</h2>
 
           <div className="pay-summary-items">
-            {cartItems.map((item) => {
+            {cartItems.map(item => {
               const p = parseFloat(item.preco) || 0;
               const d = parseFloat(item.desconto) || 0;
               const final = d > 0 ? p * (1 - d / 100) : p;
               return (
                 <div key={item.id} className="pay-summary-item">
-                  <span className="pay-summary-item-icon material-symbols-outlined">
-                    sports_esports
-                  </span>
+                  <span className="pay-summary-item-icon">🎮</span>
                   <div className="pay-summary-item-info">
                     <p className="pay-summary-item-name">{item.nome}</p>
                     <p className="pay-summary-item-cat">{item.categoria}</p>
                   </div>
                   <div className="pay-summary-item-price">
                     {d > 0 && (
-                      <span className="pay-summary-original">
-                        R$ {formatPrice(p)}
-                      </span>
+                      <span className="pay-summary-original">R$ {formatPrice(p)}</span>
                     )}
                     <span>R$ {formatPrice(final)}</span>
                   </div>
@@ -424,9 +353,7 @@ function Checkout() {
             <span>R$ {formatPrice(subtotal)}</span>
           </div>
 
-          <Link to="/cart" className="pay-back-link">
-            Voltar ao carrinho
-          </Link>
+          <Link to="/cart" className="pay-back-link">← Voltar ao carrinho</Link>
         </aside>
       </div>
     </div>

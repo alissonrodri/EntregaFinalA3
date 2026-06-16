@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import api from "../../services/api";
-import "./index.css";
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import './index.css';
 
 function SearchPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const query = searchParams.get("q") || "";
+  const query = searchParams.get('q') || '';
   const [exactResults, setExactResults] = useState([]);
   const [recommendedGames, setRecommendedGames] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,74 +18,53 @@ function SearchPage() {
   const [ownedItems, setOwnedItems] = useState(new Set());
 
   useEffect(() => {
+    
     setTimeout(() => {
       setLoading(true);
     }, 0);
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
 
-    api
-      .get("/public/jogos")
+    api.get('/public/jogos')
       .then(async (response) => {
         let allGames = response.data;
 
         if (token) {
           try {
-            const [authResponse, cartRes, wishRes, myGamesRes] =
-              await Promise.all([
-                api.get("/jogos", {
-                  headers: { Authorization: `Bearer ${token}` },
-                }),
-                api
-                  .get("/carrinho/ativo", {
-                    headers: { Authorization: `Bearer ${token}` },
-                  })
-                  .catch((err) => {
-                    console.warn(err.message);
-                    return { data: {} };
-                  }),
-                api
-                  .get("/lista-desejo", {
-                    headers: { Authorization: `Bearer ${token}` },
-                  })
-                  .catch((err) => {
-                    console.warn(err.message);
-                    return { data: [] };
-                  }),
-                api
-                  .get("/usuarios/my/games", {
-                    headers: { Authorization: `Bearer ${token}` },
-                  })
-                  .catch((err) => {
-                    console.warn(err.message);
-                    return { data: [] };
-                  }),
-              ]);
+            const [authResponse, cartRes, wishRes, myGamesRes] = await Promise.all([
+              api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } }),
+              api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+                console.warn(err.message);
+                return { data: {} };
+              }),
+              api.get('/lista-desejo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+                console.warn(err.message);
+                return { data: [] };
+              }),
+              api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+                console.warn(err.message);
+                return { data: [] };
+              })
+            ]);
 
             const authGamesList = Array.isArray(authResponse.data)
               ? authResponse.data
-              : authResponse.data.jogos || [];
+              : (authResponse.data.jogos || []);
 
-            allGames = allGames.map((gPublic) => {
-              const match = authGamesList.find(
-                (gAuth) => gAuth.nome === gPublic.nome,
-              );
+            allGames = allGames.map(gPublic => {
+              const match = authGamesList.find(gAuth => gAuth.nome === gPublic.nome);
               return match ? { ...gPublic, id: match.id } : gPublic;
             });
 
             const cData = cartRes.data?.carrinho?.itens || [];
-            setCartItems(new Set(cData.map((i) => i.fkJogo)));
+            setCartItems(new Set(cData.map(i => i.fkJogo)));
 
             const wData = Array.isArray(wishRes.data) ? wishRes.data : [];
-            setWishlistItems(new Set(wData.map((i) => i.id || i.fkJogo)));
+            setWishlistItems(new Set(wData.map(i => i.id || i.fkJogo)));
 
-            const myGamesData = Array.isArray(myGamesRes.data)
-              ? myGamesRes.data
-              : [];
-            const comprados = myGamesData.filter(
-              (item) => item.chaveAtivacao && item.chaveAtivacao.trim() !== "",
-            );
-            setOwnedItems(new Set(comprados.map((item) => item.jogo?.id)));
+            const myGamesData = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+            const comprados = myGamesData.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+            setOwnedItems(new Set(comprados.map(item => item.jogo?.id)));
           } catch (err) {
             console.error(err.message);
           }
@@ -99,8 +78,8 @@ function SearchPage() {
         } else {
           setIsLimitedResult(false);
 
-          const filtrados = allGames.filter((jogo) =>
-            jogo.nome.toLowerCase().includes(query.toLowerCase()),
+          const filtrados = allGames.filter(jogo =>
+            jogo.nome.toLowerCase().includes(query.toLowerCase())
           );
           setExactResults(filtrados);
 
@@ -110,12 +89,12 @@ function SearchPage() {
               ? String(jogoPrincipal.categoria).trim().toLowerCase()
               : "";
 
-            const recomendados = allGames.filter((jogo) => {
+            const recomendados = allGames.filter(jogo => {
               const categoriaAtual = jogo.categoria
                 ? String(jogo.categoria).trim().toLowerCase()
                 : "";
-              const isJaBuscado = filtrados.some((f) => f.nome === jogo.nome);
-              return categoriaAtual === categoriaAlvo && !isJaBuscado;
+              const isJaBuscado = filtrados.some(f => f.nome === jogo.nome);
+              return (categoriaAtual === categoriaAlvo) && !isJaBuscado;
             });
 
             setRecommendedGames(recomendados.slice(0, 4));
@@ -132,141 +111,100 @@ function SearchPage() {
       });
   }, [query]);
 
-  const handleAddToCart = useCallback(
-    async (jogoId) => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/signin");
-        return;
-      }
+  const handleAddToCart = useCallback(async (jogoId) => {
+    const token = localStorage.getItem('token');
+    if (!token) { navigate('/signin'); return; }
 
-      if (cartItems.has(jogoId)) {
-        navigate("/cart");
-        return;
-      }
+    if (cartItems.has(jogoId)) {
+      navigate('/cart');
+      return;
+    }
 
-      try {
-        await api.post(
-          "/carrinho/add",
-          { jogoId },
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
-        setAddedItems((prev) => ({ ...prev, [jogoId]: true }));
-        window.dispatchEvent(new Event("cartUpdated"));
+    try {
+      await api.post('/carrinho/add', { jogoId }, { headers: { Authorization: `Bearer ${token}` } });
+      setAddedItems(prev => ({ ...prev, [jogoId]: true }));
+      window.dispatchEvent(new Event('cartUpdated'));
 
-        setCartItems((prev) => {
+      setCartItems(prev => {
+        const next = new Set(prev);
+        next.add(jogoId);
+        return next;
+      });
+
+      setTimeout(() => {
+        setAddedItems(prev => {
+          const next = { ...prev };
+          delete next[jogoId];
+          return next;
+        });
+      }, 2000);
+    } catch (err) {
+      if (err.response?.status === 400) {
+        setCartItems(prev => {
           const next = new Set(prev);
           next.add(jogoId);
           return next;
         });
-
-        setTimeout(() => {
-          setAddedItems((prev) => {
-            const next = { ...prev };
-            delete next[jogoId];
-            return next;
-          });
-        }, 2000);
-      } catch (err) {
-        if (err.response?.status === 400) {
-          setCartItems((prev) => {
-            const next = new Set(prev);
-            next.add(jogoId);
-            return next;
-          });
-        } else {
-          console.error(err.message);
-        }
-      }
-    },
-    [cartItems, navigate],
-  );
-
-  const handleWishlistToggle = useCallback(
-    async (jogoId) => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/signin");
-        return;
-      }
-
-      if (wishlistItems.has(jogoId)) {
-        try {
-          await api.delete("/lista-desejo", {
-            headers: { Authorization: `Bearer ${token}` },
-            data: { jogoId },
-          });
-          setWishlistItems((prev) => {
-            const next = new Set(prev);
-            next.delete(jogoId);
-            return next;
-          });
-        } catch (err) {
-          console.error(err.message);
-        }
       } else {
-        try {
-          await api.post(
-            "/lista-desejo",
-            { jogoId },
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
-          setWishlistItems((prev) => {
-            const next = new Set(prev);
-            next.add(jogoId);
-            return next;
-          });
-          window.dispatchEvent(
-            new CustomEvent("notify", {
-              detail: {
-                text: "Item adicionado à sua Lista de Desejos!",
-                link: "/wishlist",
-              },
-            }),
-          );
-        } catch (err) {
-          console.error(err.message);
-        }
+        console.error(err.message);
       }
-    },
-    [wishlistItems, navigate],
-  );
+    }
+  }, [cartItems, navigate]);
+
+  const handleWishlistToggle = useCallback(async (jogoId) => {
+    const token = localStorage.getItem('token');
+    if (!token) { navigate('/signin'); return; }
+
+    if (wishlistItems.has(jogoId)) {
+      try {
+        await api.delete('/lista-desejo', { headers: { Authorization: `Bearer ${token}` }, data: { jogoId } });
+        setWishlistItems(prev => {
+          const next = new Set(prev);
+          next.delete(jogoId);
+          return next;
+        });
+      } catch (err) {
+        console.error(err.message);
+      }
+    } else {
+      try {
+        await api.post('/lista-desejo', { jogoId }, { headers: { Authorization: `Bearer ${token}` } });
+        setWishlistItems(prev => {
+          const next = new Set(prev);
+          next.add(jogoId);
+          return next;
+        });
+        window.dispatchEvent(new CustomEvent('notify', {
+          detail: { text: 'Item adicionado à sua Lista de Desejos! ❤️', link: '/wishlist' }
+        }));
+      } catch (err) {
+        console.error(err.message);
+      }
+    }
+  }, [wishlistItems, navigate]);
 
   const formatPrice = (price) => {
     const num = parseFloat(price);
-    return isNaN(num) ? "0,00" : num.toFixed(2).replace(".", ",");
+    return isNaN(num) ? "0,00" : num.toFixed(2).replace('.', ',');
   };
 
   if (loading) {
-    return (
-      <div className="search-page-loading">
-        Buscando jogos no banco de dados...
-      </div>
-    );
+    return <div className="search-page-loading">Buscando jogos no banco de dados...</div>;
   }
 
   return (
     <div className="search-page-container">
+      
       <header className="search-page-header">
         {isLimitedResult ? (
           <>
             <h1>Explorando o Catálogo</h1>
-            <p>
-              <strong>Resultado limitado:</strong> Use a barra de pesquisa para
-              buscar um título específico.
-            </p>
+            <p><strong>Resultado limitado:</strong> Use a barra de pesquisa para buscar um título específico.</p>
           </>
         ) : (
           <>
-            <h1>
-              Resultados para: <span>"{query}"</span>
-            </h1>
-            <p>
-              {exactResults.length}{" "}
-              {exactResults.length === 1
-                ? "jogo encontrado"
-                : "jogos encontrados"}
-            </p>
+            <h1>Resultados para: <span>"{query}"</span></h1>
+            <p>{exactResults.length} {exactResults.length === 1 ? 'jogo encontrado' : 'jogos encontrados'}</p>
           </>
         )}
       </header>
@@ -281,80 +219,46 @@ function SearchPage() {
               const inWishlist = wishlistItems.has(jogo.id);
 
               return (
-                <div key={jogo.id} className="game-row-card">
-                  <div className="game-row-thumb material-symbols-outlined">
-                    sports_esports
+              <div key={jogo.id} className="game-row-card">
+                <div className="game-row-thumb">🎮</div>
+                <div className="game-row-details">
+                  <div className="game-row-main-info">
+                    <h2 className="game-row-title">{jogo.nome}</h2>
+                    <span className="game-row-badge">{jogo.categoria?.trim()}</span>
+                    <p className="game-row-description">{jogo.descricao || 'Sem descrição disponível para este título.'}</p>
                   </div>
-                  <div className="game-row-details">
-                    <div className="game-row-main-info">
-                      <h2 className="game-row-title">{jogo.nome}</h2>
-                      <span className="game-row-badge">
-                        {jogo.categoria?.trim()}
-                      </span>
-                      <p className="game-row-description">
-                        {jogo.descricao ||
-                          "Sem descrição disponível para este título."}
-                      </p>
-                    </div>
-                    <div className="game-row-side-info">
-                      <span className="game-row-price">
-                        R$ {formatPrice(jogo.preco)}
-                      </span>
-                      <div className="game-row-actions">
-                        {isOwned ? (
-                          <button
-                            className="btn-row-add-cart btn-row-owned"
-                            onClick={() => navigate("/library")}
-                          >
-                            <span className="material-symbols-outlined">
-                              check
-                            </span>{" "}
-                            Na biblioteca
-                          </button>
-                        ) : (
-                          <button
-                            className={`btn-row-add-cart ${justAdded ? "btn-row-success" : inCart ? "btn-row-in-cart" : ""}`}
-                            onClick={() => handleAddToCart(jogo.id)}
-                            disabled={justAdded}
-                          >
-                            {justAdded ? (
-                              <>
-                                <span className="material-symbols-outlined">
-                                  check
-                                </span>{" "}
-                                Adicionado!
-                              </>
-                            ) : inCart ? (
-                              "No carrinho"
-                            ) : (
-                              <>
-                                <span className="material-symbols-outlined">
-                                  shopping_cart
-                                </span>{" "}
-                                Adicionar ao carrinho
-                              </>
-                            )}
-                          </button>
-                        )}
-
-                        <button
-                          className={`btn-row-wishlist ${inWishlist ? "btn-row-wishlist--active" : ""}`}
-                          onClick={() => handleWishlistToggle(jogo.id)}
-                          title="Lista de Desejos"
-                        >
-                          {inWishlist ? "♥" : "♡"}
+                  <div className="game-row-side-info">
+                    <span className="game-row-price">R$ {formatPrice(jogo.preco)}</span>
+                    <div className="game-row-actions">
+                      {isOwned ? (
+                        <button className="btn-row-add-cart btn-row-owned" onClick={() => navigate('/library')}>
+                          ✓ Na biblioteca
                         </button>
-
-                        <Link
-                          to={`/game/${encodeURIComponent(jogo.nome)}`}
-                          className="btn-row-details"
+                      ) : (
+                        <button
+                          className={`btn-row-add-cart ${justAdded ? 'btn-row-success' : inCart ? 'btn-row-in-cart' : ''}`}
+                          onClick={() => handleAddToCart(jogo.id)}
+                          disabled={justAdded}
                         >
-                          Ver detalhes
-                        </Link>
-                      </div>
+                          {justAdded ? '✓ Adicionado!' : inCart ? 'No carrinho' : 'Adicionar ao carrinho'}
+                        </button>
+                      )}
+
+                      <button
+                        className={`btn-row-wishlist ${inWishlist ? 'btn-row-wishlist--active' : ''}`}
+                        onClick={() => handleWishlistToggle(jogo.id)}
+                        title="Lista de Desejos"
+                      >
+                        {inWishlist ? '♥' : '♡'}
+                      </button>
+
+                      <Link to={`/game/${encodeURIComponent(jogo.nome)}`} className="btn-row-details">
+                        Ver detalhes
+                      </Link>
                     </div>
                   </div>
                 </div>
+              </div>
               );
             })}
           </div>
@@ -362,10 +266,7 @@ function SearchPage() {
           <div className="no-results-box">
             <span className="no-results-icon">🔍</span>
             <h3>Nenhum jogo encontrado</h3>
-            <p>
-              Não encontramos nenhum título correspondente a sua busca. Tente
-              digitar outras palavras-chave.
-            </p>
+            <p>Não encontramos nenhum título correspondente a sua busca. Tente digitar outras palavras-chave.</p>
           </div>
         )}
       </section>
@@ -376,25 +277,14 @@ function SearchPage() {
           <div className="recommendations-grid">
             {recommendedGames.map((jogo) => (
               <div key={jogo.id} className="game-thumb-card">
-                <div className="thumb-media material-symbols-outlined">
-                  sports_esports
-                </div>
+                <div className="thumb-media">🎮</div>
                 <div className="thumb-info">
                   <h3>{jogo.nome}</h3>
                   <div className="thumb-footer">
-                    <span className="thumb-category">
-                      {jogo.categoria?.trim()}
-                    </span>
-                    <span className="thumb-price">
-                      R$ {formatPrice(jogo.preco)}
-                    </span>
+                    <span className="thumb-category">{jogo.categoria?.trim()}</span>
+                    <span className="thumb-price">R$ {formatPrice(jogo.preco)}</span>
                   </div>
-                  <Link
-                    to={`/game/${encodeURIComponent(jogo.nome)}`}
-                    className="btn-thumb-view"
-                  >
-                    Ver detalhes
-                  </Link>
+                  <Link to={`/game/${encodeURIComponent(jogo.nome)}`} className="btn-thumb-view">Ver detalhes</Link>
                 </div>
               </div>
             ))}
