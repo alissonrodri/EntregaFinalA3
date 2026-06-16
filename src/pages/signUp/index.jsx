@@ -189,6 +189,7 @@ function SignUp() {
               className={errors.dataNascimento ? "input-error" : ""}
               value={formData.dataNascimento}
               onChange={handleChange}
+              min="1900-01-01"
               max={hoje}
               required
             />
