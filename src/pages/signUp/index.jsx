@@ -82,9 +82,12 @@ function SignUp() {
     }
   }
 
-  const passLengthOk = formData.senha.length >= 8;
-  if (formData.senha.length > 0 && !passLengthOk) {
+  const passLengthOk = 
+    formData.senha.length >= 8 && formData.senha.length <= 15;
+  if (formData.senha.length > 0 && formData.senha.length < 8) {
     errors.senha = "Mínimo de 8 caracteres.";
+  } else if (formData.senha.length > 15) {
+    errors.senha = "Máximo de 15 caracteres.";
   }
 
   const passwordsMatch =
@@ -98,7 +101,7 @@ function SignUp() {
     (val) => val.trim() !== "",
   );
   const isFormValid =
-    nicknameOk && emailOk && passLengthOk && passwordsMatch && allFieldsFilled;
+    nicknameOk && emailOk && dataNascimentoOk && passLengthOk && passwordsMatch && allFieldsFilled;
 
   // ─── Envio ──────────────────────────────────────────────────────
   const handleSubmit = async (e) => {
