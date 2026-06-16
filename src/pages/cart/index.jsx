@@ -1,31 +1,35 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import api from '../../services/api';
-import './index.css';
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../../services/api";
+import "./index.css";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [coupon, setCoupon] = useState('');
+  const [coupon, setCoupon] = useState("");
   const [couponMsg, setCouponMsg] = useState(null);
-  
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToRemove, setItemToRemove] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) { navigate('/signin'); return; }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/signin");
+      return;
+    }
 
     const fetchCart = async () => {
       try {
-        const cartRes = await api.get('/carrinho/ativo', {
-          headers: { Authorization: `Bearer ${token}` }
+        const cartRes = await api.get("/carrinho/ativo", {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (cartRes.data.message === 'Carrinho vazio.' || !cartRes.data.carrinho) {
+        if (
+          cartRes.data.message === "Carrinho vazio." ||
+          !cartRes.data.carrinho
+        ) {
           setCartItems([]);
           setLoading(false);
           return;
@@ -34,27 +38,26 @@ function CartPage() {
         const itens = cartRes.data.carrinho.itens || [];
 
         const [publicRes, authRes] = await Promise.all([
-          api.get('/public/jogos'),
-          api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } })
+          api.get("/public/jogos"),
+          api.get("/jogos", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
         const publicGames = Array.isArray(publicRes.data) ? publicRes.data : [];
-        const authGames   = Array.isArray(authRes.data)   ? authRes.data   : [];
+        const authGames = Array.isArray(authRes.data) ? authRes.data : [];
 
-        const enriched = itens.map(item => {
-          const authGame   = authGames.find(g => g.id === item.fkJogo);
+        const enriched = itens.map((item) => {
+          const authGame = authGames.find((g) => g.id === item.fkJogo);
           const publicGame = authGame
-            ? publicGames.find(g => g.nome === authGame.nome)
+            ? publicGames.find((g) => g.nome === authGame.nome)
             : null;
-
           return {
             ...item,
-            nome:      authGame?.nome        || `Jogo #${item.fkJogo}`,
-            descricao: authGame?.descricao   || '—',
-            preco:     authGame?.preco       ?? null,
-            desconto:  authGame?.desconto    ?? null,
-            categoria: publicGame?.categoria    || '—',
-            empresa:   publicGame?.empresa_nome || '—',
+            nome: authGame?.nome || `Jogo #${item.fkJogo}`,
+            descricao: authGame?.descricao || "—",
+            preco: authGame?.preco ?? null,
+            desconto: authGame?.desconto ?? null,
+            categoria: publicGame?.categoria || "—",
+            empresa: publicGame?.empresa_nome || "—",
           };
         });
 
@@ -69,7 +72,6 @@ function CartPage() {
     fetchCart();
   }, [navigate]);
 
-  
   const handleRemoveClick = (item) => {
     setItemToRemove(item);
     setIsModalOpen(true);
@@ -82,35 +84,37 @@ function CartPage() {
 
   const handleConfirmRemove = () => {
     if (!itemToRemove) return;
-    
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     const gameId = itemToRemove.fkJogo;
-
-    api.delete(`/carrinho/${gameId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(() => {
-      setCartItems(prev => prev.filter(i => i.fkJogo !== gameId));
-      window.dispatchEvent(new Event('cartUpdated'));
-    }).catch((err) => {
-      console.error("Erro ao remover item:", err);
-    }).finally(() => {
-      setIsModalOpen(false);
-      setItemToRemove(null);
-    });
+    api
+      .delete(`/carrinho/${gameId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        setCartItems((prev) => prev.filter((i) => i.fkJogo !== gameId));
+        window.dispatchEvent(new Event("cartUpdated"));
+      })
+      .catch((err) => {
+        console.error("Erro ao remover item:", err);
+      })
+      .finally(() => {
+        setIsModalOpen(false);
+        setItemToRemove(null);
+      });
   };
 
   const handleCoupon = () => {
     if (!coupon.trim()) return;
-    setCouponMsg({ type: 'error', text: 'Cupom inválido ou expirado.' });
+    setCouponMsg({ type: "error", text: "Cupom inválido ou expirado." });
   };
 
   const handleCheckout = () => {
-    navigate('/checkout');
+    navigate("/checkout");
   };
 
   const formatPrice = (price) => {
     const num = parseFloat(price);
-    return isNaN(num) ? '0,00' : num.toFixed(2).replace('.', ',');
+    return isNaN(num) ? "0,00" : num.toFixed(2).replace(".", ",");
   };
 
   const subtotal = cartItems.reduce((acc, item) => {
@@ -122,7 +126,11 @@ function CartPage() {
   const isCartEmpty = cartItems.length === 0;
 
   if (loading) {
-    return <div className="cart-page-loading">Carregando as informações do seu carrinho...</div>;
+    return (
+      <div className="cart-page-loading">
+        Carregando as informações do seu carrinho...
+      </div>
+    );
   }
 
   return (
@@ -130,16 +138,22 @@ function CartPage() {
       <h1 className="page-title">Meu Carrinho</h1>
 
       <div className="cart-layout">
-
         <section className="cart-items-section">
           <div id="cart-list">
             {!isCartEmpty ? (
-              cartItems.map(item => (
+              cartItems.map((item) => (
                 <div key={item.id} className="cart-item">
-                  <div className="item-img-placeholder">🎮</div>
+                  <div className="item-img-placeholder">
+                    <span className="material-symbols-outlined">
+                      sports_esports
+                    </span>
+                  </div>
 
                   <div className="item-details">
-                     <Link to={`/game/${encodeURIComponent(item.nome)}`} className="item-name-link">
+                    <Link
+                      to={`/game/${encodeURIComponent(item.nome)}`}
+                      className="item-name-link"
+                    >
                       <h3 className="item-name">{item.nome}</h3>
                     </Link>
                     <span className="item-category">{item.categoria}</span>
@@ -149,15 +163,22 @@ function CartPage() {
                   <div className="item-price-area">
                     {item.desconto ? (
                       <>
-                        <p className="item-price-original">R$ {formatPrice(item.preco)}</p>
-                        <p className="item-price">
-                          R$ {formatPrice(item.preco * (1 - item.desconto / 100))}
+                        <p className="item-price-original">
+                          R$ {formatPrice(item.preco)}
                         </p>
-                        <span className="item-discount-badge">-{item.desconto}%</span>
+                        <p className="item-price">
+                          R${" "}
+                          {formatPrice(item.preco * (1 - item.desconto / 100))}
+                        </p>
+                        <span className="item-discount-badge">
+                          -{item.desconto}%
+                        </span>
                       </>
                     ) : (
                       <p className="item-price">
-                        {item.preco !== null ? `R$ ${formatPrice(item.preco)}` : '—'}
+                        {item.preco !== null
+                          ? `R$ ${formatPrice(item.preco)}`
+                          : "—"}
                       </p>
                     )}
                     <button
@@ -165,17 +186,24 @@ function CartPage() {
                       onClick={() => handleRemoveClick(item)}
                       title="Remover item"
                     >
-                      🗑️
+                      <span className="material-symbols-outlined">delete</span>
                     </button>
                   </div>
                 </div>
               ))
             ) : (
               <div className="cart-empty-box">
-                <span className="cart-empty-icon">🛒</span>
+                <span className="cart-empty-icon material-symbols-outlined">
+                  shopping_cart
+                </span>
                 <h3>Seu carrinho está vazio</h3>
-                <p>Parece que você ainda não adicionou nenhum jogo à sua lista de compras.</p>
-                <Link to="/" className="btn-browse-store">Explorar a Loja</Link>
+                <p>
+                  Parece que você ainda não adicionou nenhum jogo à sua lista de
+                  compras.
+                </p>
+                <Link to="/" className="btn-browse-store">
+                  Explorar a Loja
+                </Link>
               </div>
             )}
           </div>
@@ -186,7 +214,10 @@ function CartPage() {
 
           <div className="summary-details">
             <div className="summary-line">
-              <span>Subtotal ({cartItems.length} {cartItems.length === 1 ? 'item' : 'itens'})</span>
+              <span>
+                Subtotal ({cartItems.length}{" "}
+                {cartItems.length === 1 ? "item" : "itens"})
+              </span>
               <span>R$ {formatPrice(subtotal)}</span>
             </div>
             <div className="summary-line">
@@ -202,15 +233,20 @@ function CartPage() {
                   className="coupon-input"
                   placeholder="Insira seu cupom"
                   value={coupon}
-                  onChange={e => { setCoupon(e.target.value); setCouponMsg(null); }}
-                  onKeyDown={e => e.key === 'Enter' && handleCoupon()}
+                  onChange={(e) => {
+                    setCoupon(e.target.value);
+                    setCouponMsg(null);
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleCoupon()}
                 />
                 <button className="btn-apply-coupon" onClick={handleCoupon}>
                   Aplicar
                 </button>
               </div>
               {couponMsg && (
-                <p className={`coupon-msg coupon-msg--${couponMsg.type}`}>{couponMsg.text}</p>
+                <p className={`coupon-msg coupon-msg--${couponMsg.type}`}>
+                  {couponMsg.text}
+                </p>
               )}
             </div>
 
@@ -227,24 +263,32 @@ function CartPage() {
             onClick={handleCheckout}
             disabled={isCartEmpty}
           >
-             Ir para o pagamento
+            Ir para o pagamento
           </button>
-          <Link to="/" className="btn-continue">Continuar Comprando</Link>
+          <Link to="/" className="btn-continue">
+            Continuar Comprando
+          </Link>
         </aside>
-
       </div>
 
-    
       {isModalOpen && itemToRemove && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2 className="modal-title">Remover do Carrinho?</h2>
             <p className="modal-desc">
-              Tem certeza que deseja remover <strong>{itemToRemove.nome}</strong> do carrinho?
+              Tem certeza que deseja remover{" "}
+              <strong>{itemToRemove.nome}</strong> do carrinho?
             </p>
             <div className="modal-actions">
-              <button className="btn-modal-cancel" onClick={handleCancelRemove}>Cancelar</button>
-              <button className="btn-modal-confirm" onClick={handleConfirmRemove}>Remover</button>
+              <button className="btn-modal-cancel" onClick={handleCancelRemove}>
+                Cancelar
+              </button>
+              <button
+                className="btn-modal-confirm"
+                onClick={handleConfirmRemove}
+              >
+                Remover
+              </button>
             </div>
           </div>
         </div>

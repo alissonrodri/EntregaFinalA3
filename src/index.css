@@ -1,55 +1,65 @@
 :root {
-    /*Variáveis de cores - definidas utilizando a ferramenta Canva*/
-    --bg-dark: #08090b; /*Fundo da página*/
-    --bg-card: #1c1f26; /*Fundo secundários*/
-    --contrast: #386dbd; /*Regiões de destaque como botão de comprar e adicionar ao carrinho*/
-    --text-main: #e8eaf0; /*Texto principal da página*/
-    --text-muted: #9194a6; /*Informações secundárias, ex: descrições*/
-    --border: #2a2d3a; /*Cor de borda*/
+  /*Variáveis de cores - definidas utilizando a ferramenta Canva*/
+  --bg-dark: #08090b; /*Fundo da página*/
+  --bg-card: #1c1f26; /*Fundo secundários*/
+  --contrast: #386dbd; /*Regiões de destaque como botão de comprar e adicionar ao carrinho*/
+  --text-main: #e8eaf0; /*Texto principal da página*/
+  --text-muted: #9194a6; /*Informações secundárias, ex: descrições*/
+  --border: #2a2d3a; /*Cor de borda*/
 
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 :root[data-theme="light"] {
-    --bg-dark: #adadad; 
-    --bg-card: #d8d8d8; 
-    --contrast: #386dbd;
-    --text-main: #1a1a1a; 
-    --text-muted: #5a5c69; 
-    --border: #d1d3e2; 
+  --bg-dark: #adadad;
+  --bg-card: #d8d8d8;
+  --contrast: #386dbd;
+  --text-main: #1a1a1a;
+  --text-muted: #5a5c69;
+  --border: #d1d3e2;
 }
 
-body, .navbar, .category-card, .banner-home, .footer-container, .search-bar, .user-dropdown {
-    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+body,
+.navbar,
+.category-card,
+.banner-home,
+.footer-container,
+.search-bar,
+.user-dropdown {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease;
 }
 
-*{
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html, body {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    overflow-x: hidden; /*Evita scroll horizontal*/
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    font-family: 'Ubuntu', sans-serif;
-    -webkit-font-smoothing: alialiased;
+html,
+body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden; /*Evita scroll horizontal*/
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Roboto Condensed', sans-serif;
+  -webkit-font-smoothing: alialiased;
 }
 
 main {
-    flex: 1;
-    width: 100%;
+  flex: 1;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
-    body {
-        font-size: 14px;
-    }
+  body {
+    font-size: 14px;
+  }
 }

@@ -17,7 +17,6 @@ function EditUser() {
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  // Valores originais para comparação
   const [usernameOriginal, setUsernameOriginal] = useState("");
   const [dataNascimentoOriginal, setDataNascimentoOriginal] = useState("");
 
@@ -101,8 +100,11 @@ function EditUser() {
   }, []);
 
   const getInicial = () => {
-    const limpo = username.trim();
-    return limpo.length > 0 ? limpo[0].toUpperCase() : "--";
+    const partes = username.trim().split(/\s+/).filter(Boolean);
+    if (partes.length >= 2) {
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+    return username.trim().slice(0, 2).toUpperCase() || "--";
   };
 
   const mostrarFeedback = (tipo, msg) => {
