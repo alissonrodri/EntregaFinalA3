@@ -115,10 +115,11 @@ function SignUp() {
       await api.post("/auth/register", {
         nome: formData.nickname,
         email: formData.email,
+        dataNascimento: formData.dataNascimento,
         senha: formData.senha,
       });
 
-      navigate("/signin");
+      navigate("/");
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
