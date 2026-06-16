@@ -20,7 +20,9 @@
 }
 
 @keyframes cat-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cat-page-topbar {
@@ -39,7 +41,6 @@
 }
 
 .cat-page-heading {
-  font-family: 'Georgia', serif;
   font-size: 2rem;
   font-weight: 500;
   color: var(--text-main);
@@ -100,7 +101,10 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .cat-game-card:hover {
@@ -120,7 +124,8 @@
 }
 
 .cat-card-thumb-icon {
-  font-size: 3.5rem;
+  font-size: 2.8rem;
+  color: var(--text-muted);
   opacity: 0.7;
 }
 
@@ -176,7 +181,8 @@
 }
 
 .cat-star.filled {
-  color:var(--contrast);
+  font-variation-settings: \'FILL\' 1, \'wght\' 400, \'GRAD\' 0, \'opsz\' 20;
+  color: var(--contrast);
 }
 
 .cat-card-rating-num {
@@ -264,7 +270,9 @@
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: filter 0.2s, transform 0.15s;
+  transition:
+    filter 0.2s,
+    transform 0.15s;
 
   white-space: normal;
   display: flex;
@@ -297,7 +305,7 @@
 }
 
 .cat-btn-owned {
- /* flex: 1; REMOVIDO */
+  /* flex: 1; REMOVIDO */
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
@@ -323,7 +331,7 @@
 }
 
 .cat-btn-details {
-/* flex: 1; */
+  /* flex: 1; */
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
@@ -334,7 +342,7 @@
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s;
-  
+
   white-space: normal;
   display: flex;
   align-items: center;
@@ -361,7 +369,8 @@
 }
 
 .cat-empty-icon {
-  font-size: 3.5rem;
+  font-size: 2.8rem;
+  color: var(--text-muted);
   margin-bottom: 8px;
 }
 

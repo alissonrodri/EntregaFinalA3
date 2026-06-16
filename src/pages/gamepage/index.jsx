@@ -100,9 +100,17 @@ function GamePage() {
   };
 
   const wishConfig = {
-    idle: { text: "♡ Lista de desejos", className: "" },
-    added: { text: "♥ Na lista de desejos", className: "btn-wish-added" },
-    already: { text: "♥ Na lista de desejos", className: "btn-wish-added" },
+    idle: { icon: "favorite_border", label: "Lista de desejos", className: "" },
+    added: {
+      icon: "favorite",
+      label: "Na lista de desejos",
+      className: "btn-wish-added",
+    },
+    already: {
+      icon: "favorite",
+      label: "Na lista de desejos",
+      className: "btn-wish-added",
+    },
   };
 
   const fetchReviewerNames = useCallback(async (reviewsList, token) => {
@@ -652,7 +660,10 @@ function GamePage() {
                     className={`btn btn-secondary btn-wishlist ${wishConfig[wishState].className}`}
                     onClick={handleWishlist}
                   >
-                    {wishConfig[wishState].text}
+                    <span className="material-symbols-outlined">
+                      {wishConfig[wishState].icon}
+                    </span>
+                    {wishConfig[wishState].label}
                   </button>
                 </>
               )}
