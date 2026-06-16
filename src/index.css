@@ -42,6 +42,7 @@ body,
 
 html,
 body {
+  font-size: 17px;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -49,7 +50,7 @@ body {
   overflow-x: hidden; /*Evita scroll horizontal*/
   background-color: var(--bg-dark);
   color: var(--text-main);
-  font-family: "Sofia Sans", sans-serif;
+  font-family: "Pliant", sans-serif;
   -webkit-font-smoothing: alialiased;
 }
 

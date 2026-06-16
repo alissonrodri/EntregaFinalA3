@@ -388,7 +388,11 @@ function Navbar() {
               )}
             </div>
 
-            <Link to="/cart" className="cart-btn">
+            <Link
+              to="/cart"
+              className="cart-btn"
+              style={{ color: "var(--text-main)" }}
+            >
               <div
                 className={`action-icon cart ${cartCount > 0 ? "has-items" : ""}`}
                 id="nav-cart"

@@ -4,7 +4,6 @@
   padding: 35px 20px 20px;
   margin-top: 50px;
   color: var(--text-muted);
-  font-family: sans-serif;
 }
 
 .footer-content {
@@ -75,7 +74,6 @@
 }
 
 .social-icon {
-  text-decoration: none;
   width: 35px;
   height: 35px;
   background: var(--bg-dark);
@@ -87,6 +85,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   color: var(--text-main);
+  font-weight: bold;
+  font-size: 0.8rem;
 }
 
 .social-icon:hover {

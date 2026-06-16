@@ -14,7 +14,6 @@
 .search-page-header h1 {
   font-size: 2.2rem;
   color: var(--text-main);
-
   margin: 0 0 5px 0;
 }
 
@@ -58,8 +57,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.5rem;
-  color: var(--text-muted);
+  font-size: 4rem;
   border-right: 1px solid var(--border);
 }
 
@@ -242,7 +240,6 @@
 
 .no-results-icon {
   font-size: 3.5rem;
-  color: var(--text-muted);
   display: block;
   margin-bottom: 15px;
 }
@@ -294,7 +291,6 @@
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
-  color: var(--text-muted);
 }
 
 .thumb-info {

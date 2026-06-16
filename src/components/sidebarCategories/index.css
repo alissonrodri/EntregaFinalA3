@@ -22,7 +22,6 @@
 }
 
 .cat-sidebar-title {
-  font-family: "Georgia", serif;
   font-size: 1.25rem;
   font-weight: 500;
   color: var(--text-main);
@@ -107,7 +106,7 @@
   font-size: 1.1rem;
   display: flex;
   align-items: center;
-  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .cat-dual-range {
@@ -180,7 +179,6 @@
   pointer-events: none;
 }
 
-/* ── Responsividade ───────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .cat-sidebar {
     width: 220px;
