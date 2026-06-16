@@ -179,6 +179,24 @@ function SignUp() {
             )}
           </div>
 
+          {/* Data de Nascimento */} 
+          <div className="form-field">
+            <label htmlFor="dataNascimento">Data de nascimento</label>
+            <input
+              type="date"
+              id="dataNascimento"
+              name="dataNascimento"
+              className={errors.dataNascimento ? "input-error" : ""}
+              value={formData.dataNascimento}
+              onChange={handleChange}
+              max={hoje}
+              required
+            />
+            {errors.dataNascimento && (
+              <small className="error-message">{errors.dataNascimento}</small>
+            )}
+          </div> 
+
           {/* Senha + Confirmar lado a lado */}
           <div className="form-row">
             <div className="form-field">
