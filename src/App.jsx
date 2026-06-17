@@ -15,6 +15,7 @@ import History from './pages/history'
 import AdminPage from './pages/admin'
 import ForgotPassword from './pages/forgotPassword';
 import FAQ from "./pages/FAQ/FAQ";
+import SobreNos from "./pages/SobreNos/SobreNos";
 
 
 function AppRoutes(){
@@ -47,6 +48,8 @@ function AppRoutes(){
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/sobre" element={<SobreNos />} />
+          
         </Routes>
       </main>
 
