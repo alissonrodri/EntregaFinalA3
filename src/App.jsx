@@ -16,6 +16,7 @@ import AdminPage from './pages/admin'
 import ForgotPassword from './pages/forgotPassword';
 import FAQ from "./pages/FAQ/FAQ";
 import SobreNos from "./pages/SobreNos/SobreNos";
+import TermosServico from "./pages/TermosServico/TermosServico";
 
 
 function AppRoutes(){
@@ -49,7 +50,7 @@ function AppRoutes(){
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/sobre" element={<SobreNos />} />
-          
+          <Route path="/termos" element={<TermosServico />} />
         </Routes>
       </main>
 
