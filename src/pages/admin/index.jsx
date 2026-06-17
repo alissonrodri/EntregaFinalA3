@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import api from '../../services/api';
 import './index.css';
@@ -19,10 +18,6 @@ function getAdminStatus() {
   }
 }
 
-// ─── Cores para gráficos ───────────────────────────────────────────────
-const CHART_COLORS = ['#6c63ff', '#ff6b6b', '#ffd166', '#06d6a0', '#118ab2', '#f77f00', '#a8dadc'];
-
-// ─── Tooltip customizado para gráfico de barras ───────────────────────
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -40,36 +35,26 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-// ─── Componente MiniBar inline para rankings ──────────────────────────
-const MiniBar = ({ value, max }) => (
-  <div style={{ width: '100%', background: 'var(--border)', borderRadius: 4, height: 6, marginTop: 4 }}>
-    <div style={{
-      width: `${Math.round((value / max) * 100)}%`,
-      background: 'var(--contrast)', borderRadius: 4, height: 6,
-      transition: 'width 0.5s ease'
-    }} />
-  </div>
-);
-
 function AdminPanel() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('jogos');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
 
-  // ── Dados principais ──────────────────────────────────────────────
+
   const [games, setGames] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [profiles, setProfiles] = useState([]);
 
-  // ── Dashboard ─────────────────────────────────────────────────────
+ 
   const [dashLoading, setDashLoading] = useState(false);
   const [topGames, setTopGames] = useState([]);
-  const [topByCompany, setTopByCompany] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState('');
+  const [topCompaniesDash, setTopCompaniesDash] = useState([]);
+  const [topCategoriesDash, setTopCategoriesDash] = useState([]);
+  const [topRatedDash, setTopRatedDash] = useState([]);
 
-  // ── Modais gerais ─────────────────────────────────────────────────
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [modalEntity, setModalEntity] = useState('jogo');
@@ -77,20 +62,15 @@ function AdminPanel() {
     id: null, nome: '', preco: '', ano: '', descricao: '', fkEmpresa: '', fkCategoria: ''
   });
 
-  // ── Modal de usuário ──────────────────────────────────────────────
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [userForm, setUserForm] = useState({ id: null, nome: '', dataNascimento: '', fkPerfil: '' });
   const [userModalError, setUserModalError] = useState(null);
 
-  // ── Modal de exclusão ─────────────────────────────────────────────
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteEntity, setDeleteEntity] = useState('jogo');
   const [deleteError, setDeleteError] = useState(null);
 
-  // ─────────────────────────────────────────────────────────────────
-  // Carga de dados — funções estáveis
-  // ─────────────────────────────────────────────────────────────────
   const loadAllData = useCallback(async () => {
     setLoading(true);
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
@@ -118,51 +98,86 @@ function AdminPanel() {
     setDashLoading(true);
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     try {
-      const topRes = await api
-        .get('/relatorios/jogos-mais-vendidos?top=10', { headers })
-        .catch(() => ({ data: [] }));
-        
-      const data = Array.isArray(topRes.data) ? topRes.data : [];
       
-      const formattedData = data.map(item => ({
-        ...item,
-        jogo: item.nome || item.jogo || 'Desconhecido',
-        totalVendas: item.quantidade || item.totalVendas || item.total_vendas || 0,
-        empresa: item.empresa_nome || item.empresa || '—'
-      }));
+      const [topRes, publicGamesRes, authGamesRes] = await Promise.all([
+         api.get('/relatorios/jogos-mais-vendidos?top=200', { headers }).catch(() => ({ data: [] })),
+         api.get('/public/jogos').catch(() => ({ data: [] })),
+         api.get('/jogos', { headers }).catch(() => ({ data: [] }))
+      ]);
 
-      setTopGames(formattedData);
+      const data = Array.isArray(topRes.data) ? topRes.data : [];
+      const publicGames = Array.isArray(publicGamesRes.data) ? publicGamesRes.data : [];
+      const authGames = Array.isArray(authGamesRes.data) ? authGamesRes.data : (authGamesRes.data.jogos || []);
+
+      const gamesWithId = publicGames.map(gPublic => {
+        const match = authGames.find(gAuth => gAuth.nome === gPublic.nome);
+        return match ? { ...gPublic, id: match.id } : gPublic;
+      });
+
+      
+      const formattedSales = data.map(item => ({
+        jogo: item.nome || item.jogo || 'Desconhecido',
+        empresa: item.empresa_nome || item.empresa || '—',
+        totalVendas: Number(item.total_vendas) || Number(item.totalVendas) || Number(item.quantidade) || Number(item.vendas) || Number(item.total) || 0,
+      }));
+      formattedSales.sort((a, b) => b.totalVendas - a.totalVendas);
+      setTopGames(formattedSales.slice(0, 10));
+
+    
+      const compMap = {};
+      formattedSales.forEach(s => {
+        if (!compMap[s.empresa]) compMap[s.empresa] = 0;
+        compMap[s.empresa] += s.totalVendas;
+      });
+      const compRanking = Object.keys(compMap)
+        .map(k => ({ name: k, vendas: compMap[k] }))
+        .sort((a, b) => b.vendas - a.vendas).slice(0, 10);
+      setTopCompaniesDash(compRanking);
+
+   
+      const catMap = {};
+      formattedSales.forEach(s => {
+         const gObj = gamesWithId.find(g => g.nome === s.jogo);
+         const cat = gObj?.categoria || 'Diversos';
+         if (!catMap[cat]) catMap[cat] = 0;
+         catMap[cat] += s.totalVendas;
+      });
+      const catRanking = Object.keys(catMap)
+        .map(k => ({ name: k, vendas: catMap[k] }))
+        .sort((a, b) => b.vendas - a.vendas);
+      setTopCategoriesDash(catRanking);
+
+    
+      const ratingsPromises = gamesWithId.map(async (g) => {
+         if(!g.id) return { ...g, media: 0, total: 0 };
+         try {
+           const rRes = await api.get(`/avaliacoes/media/${g.id}`, { headers });
+           if (rRes.status !== 204 && rRes.data?.media) {
+             return { ...g, media: Number(rRes.data.media), total: Number(rRes.data.totalAvaliacoes) };
+           }
+         } catch (err) {
+          console.error("Erro ao retornar os 3 melhores avaliados: ", err)
+         }
+         return { ...g, media: 0, total: 0 };
+      });
+      
+      const gamesWithRatings = await Promise.all(ratingsPromises);
+      const topRated = gamesWithRatings
+          .filter(g => g.total > 0)
+          .sort((a, b) => {
+             if (b.media === a.media) return b.total - a.total;
+             return b.media - a.media;
+          })
+          .slice(0, 3);
+      setTopRatedDash(topRated);
+
     } catch (err) {
-      console.error(err.message);
+      console.error("Erro ao carregar Dashboard:", err.message);
     } finally {
       setDashLoading(false);
     }
   }, []);
 
-  const loadTopByCompany = useCallback(async (empresaId) => {
-    if (!empresaId) { setTopByCompany([]); return; }
-    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-    try {
-      const res = await api.get(
-        `/relatorios/jogos-mais-vendidos?top=10&empresa=${empresaId}`,
-        { headers }
-      );
-      const data = Array.isArray(res.data) ? res.data : [];
-      
-      const formattedData = data.map(item => ({
-        ...item,
-        jogo: item.nome || item.jogo || 'Desconhecido',
-        totalVendas: item.quantidade || item.totalVendas || item.total_vendas || 0,
-        empresa: item.empresa_nome || item.empresa || '—'
-      }));
-      
-      setTopByCompany(formattedData);
-    } catch {
-      setTopByCompany([]);
-    }
-  }, []);
-
-  // ── useEffects Atualizados ──────────────────────────────
   useEffect(() => {
     if (!getAdminStatus()) { navigate('/'); return; }
     
@@ -181,16 +196,7 @@ function AdminPanel() {
     fetchDashboardData();
   }, [activeTab, loadDashboard]);
 
-  useEffect(() => {
-    const fetchCompanyRanking = async () => {
-      await loadTopByCompany(selectedCompany);
-    };
-    fetchCompanyRanking();
-  }, [selectedCompany, loadTopByCompany]);
 
-  // ─────────────────────────────────────────────────────────────────
-  // Helpers
-  // ─────────────────────────────────────────────────────────────────
   const formatPrice = (price) => {
     const n = parseFloat(price);
     return isNaN(n) ? '0,00' : n.toFixed(2).replace('.', ',');
@@ -199,20 +205,14 @@ function AdminPanel() {
   const getCategoryName = (id) => categories.find(c => c.id === id)?.nome || '—';
   const getProfileName = (id) => profiles.find(p => p.id === id)?.nome || '—';
 
-  // ─────────────────────────────────────────────────────────────────
-  // Modal genérico (jogo / empresa / categoria)
-  // ─────────────────────────────────────────────────────────────────
   const handleOpenModal = (entity, mode, item = null) => {
     setModalEntity(entity);
     setModalMode(mode);
     if (mode === 'edit' && item) {
       if (entity === 'jogo') {
-        const compId = item.fkEmpresa || item.fk_empresa
-          || companies.find(c => c.nome === item.empresa_nome || c.nome === item.empresa)?.id || '';
-        const catId = item.fkCategoria || item.fk_categoria
-          || categories.find(c => c.nome === item.categoria_nome || c.nome === item.categoria)?.id || '';
-        setFormData({ id: item.id, nome: item.nome || '', preco: item.preco || '',
-          ano: item.ano || '', descricao: item.descricao || '', fkEmpresa: compId, fkCategoria: catId });
+        const compId = item.fkEmpresa || item.fk_empresa || companies.find(c => c.nome === item.empresa_nome || c.nome === item.empresa)?.id || '';
+        const catId = item.fkCategoria || item.fk_categoria || categories.find(c => c.nome === item.categoria_nome || c.nome === item.categoria)?.id || '';
+        setFormData({ id: item.id, nome: item.nome || '', preco: item.preco || '', ano: item.ano || '', descricao: item.descricao || '', fkEmpresa: compId, fkCategoria: catId });
       } else {
         setFormData({ id: item.id, nome: item.nome || '' });
       }
@@ -227,21 +227,15 @@ function AdminPanel() {
     setFormData({ id: null, nome: '', preco: '', ano: '', descricao: '', fkEmpresa: '', fkCategoria: '' });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSave = async (e) => {
     e.preventDefault();
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-    let payload = {};
-    let endpoint = '';
+    let payload = {}, endpoint = '';
     if (modalEntity === 'jogo') {
       endpoint = '/jogos';
-      payload = { nome: formData.nome, descricao: formData.descricao,
-        preco: parseFloat(formData.preco), ano: parseInt(formData.ano, 10),
-        fkEmpresa: parseInt(formData.fkEmpresa, 10), fkCategoria: parseInt(formData.fkCategoria, 10) };
+      payload = { nome: formData.nome, descricao: formData.descricao, preco: parseFloat(formData.preco), ano: parseInt(formData.ano, 10), fkEmpresa: parseInt(formData.fkEmpresa, 10), fkCategoria: parseInt(formData.fkCategoria, 10) };
     } else if (modalEntity === 'empresa') {
       endpoint = '/empresas';
       payload = { nome: formData.nome };
@@ -251,9 +245,7 @@ function AdminPanel() {
       else await api.put(`${endpoint}/${formData.id}`, payload, { headers });
       handleCloseModal();
       loadAllData();
-    } catch (err) {
-      alert(`Erro ao salvar: ${err.response?.data?.message || err.message}`);
-    }
+    } catch (err) { alert(`Erro ao salvar: ${err.response?.data?.message || err.message}`); }
   };
 
   const getModalTitle = () => {
@@ -262,17 +254,9 @@ function AdminPanel() {
     return `${action} ${names[modalEntity] || ''}`;
   };
 
-  // ─────────────────────────────────────────────────────────────────
-  // Modal de usuário
-  // ─────────────────────────────────────────────────────────────────
   const handleOpenUserModal = (user) => {
     setUserModalError(null);
-    setUserForm({
-      id: user.id,
-      nome: user.nome || '',
-      dataNascimento: user.dataNascimento || '',
-      fkPerfil: user.fkPerfil || ''
-    });
+    setUserForm({ id: user.id, nome: user.nome || '', dataNascimento: user.dataNascimento || '', fkPerfil: user.fkPerfil || '' });
     setIsUserModalOpen(true);
   };
 
@@ -282,31 +266,19 @@ function AdminPanel() {
     setUserModalError(null);
   };
 
-  const handleUserChange = (e) => {
-    const { name, value } = e.target;
-    setUserForm(prev => ({ ...prev, [name]: value }));
-  };
+  const handleUserChange = (e) => setUserForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSaveUser = async (e) => {
     e.preventDefault();
     setUserModalError(null);
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     try {
-      await api.put(`/usuarios/${userForm.id}`, {
-        nome: userForm.nome,
-        dataNascimento: userForm.dataNascimento,
-        fkPerfil: parseInt(userForm.fkPerfil, 10)
-      }, { headers });
+      await api.put(`/usuarios/${userForm.id}`, { nome: userForm.nome, dataNascimento: userForm.dataNascimento, fkPerfil: parseInt(userForm.fkPerfil, 10) }, { headers });
       handleCloseUserModal();
       loadAllData();
-    } catch (err) {
-      setUserModalError(err.response?.data?.message || 'Erro ao atualizar usuário.');
-    }
+    } catch (err) { setUserModalError(err.response?.data?.message || 'Erro ao atualizar usuário.'); }
   };
 
-  // ─────────────────────────────────────────────────────────────────
-  // Modal de exclusão
-  // ─────────────────────────────────────────────────────────────────
   const confirmDelete = (entity, item) => {
     setDeleteError(null);
     setDeleteEntity(entity);
@@ -317,21 +289,15 @@ function AdminPanel() {
   const handleDelete = async () => {
     if (!itemToDelete) return;
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-    const endpoints = { jogo: '/jogos', empresa: '/empresas' };
-    const endpoint = endpoints[deleteEntity];
+    const endpoint = deleteEntity === 'jogo' ? '/jogos' : '/empresas';
     try {
       await api.delete(`${endpoint}/${itemToDelete.id}`, { headers });
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
       loadAllData();
-    } catch {
-      setDeleteError('Não é possível excluir. Este registro já está vinculado a outras áreas do sistema.');
-    }
+    } catch { setDeleteError('Não é possível excluir. Este registro já está vinculado a outras áreas do sistema.'); }
   };
 
-  // ─────────────────────────────────────────────────────────────────
-  // Loading global
-  // ─────────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="admin-loading">
@@ -341,23 +307,9 @@ function AdminPanel() {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────
-  // Derivados para gráfico de pizza (distribuição por empresa)
-  // ─────────────────────────────────────────────────────────────────
-  const gamesByCompany = companies.map(c => ({
-    name: c.nome,
-    value: games.filter(g => (g.fkEmpresa || g.fk_empresa) === c.id).length
-  })).filter(c => c.value > 0);
-
-  const maxVendas = topGames.length > 0 ? topGames[0].totalVendas || topGames[0].total_vendas || 1 : 1;
-
-  // ─────────────────────────────────────────────────────────────────
-  // Render
-  // ─────────────────────────────────────────────────────────────────
   return (
     <div className="admin-container">
-
-      {/* ── Sidebar ─────────────────────────────────────────────── */}
+      
       <aside className="admin-sidebar">
         <h2 className="admin-sidebar-title">Painel de Controle</h2>
         <nav className="admin-nav">
@@ -372,7 +324,6 @@ function AdminPanel() {
               key={key}
               className={`admin-nav-btn ${activeTab === key ? 'active' : ''}`}
               onClick={() => setActiveTab(key)}
-              aria-current={activeTab === key ? 'page' : undefined}
             >
               {icon} {label}
             </button>
@@ -380,75 +331,107 @@ function AdminPanel() {
         </nav>
       </aside>
 
-      {/* ── Main ────────────────────────────────────────────────── */}
+      
       <main className="admin-main">
 
-        {/* ════ DASHBOARD ════════════════════════════════════════ */}
+        
         {activeTab === 'dashboard' && (
           <section className="admin-section">
             <div className="admin-header">
               <div>
-                <h1 className="admin-title">Dashboard & Rankings</h1>
-                <p className="admin-subtitle">Relatórios de vendas e métricas do catálogo.</p>
+                <h1 className="admin-title">Dashboard</h1>
+                <p className="admin-subtitle">Desempenho de vendas, categorias e avaliações.</p>
               </div>
             </div>
 
             {dashLoading ? (
               <div className="admin-loading" style={{ height: 300 }}>
                 <span className="admin-spinner" />
-                <p>Carregando relatórios...</p>
+                <p>Calculando métricas e agrupamentos...</p>
               </div>
             ) : (
               <>
-                {/* KPI cards */}
                 <div className="dash-kpi-row">
                   <div className="dash-kpi-card">
                     <span className="dash-kpi-icon">🎮</span>
-                    <div>
-                      <p className="dash-kpi-value">{games.length}</p>
-                      <p className="dash-kpi-label">Jogos cadastrados</p>
-                    </div>
+                    <div><p className="dash-kpi-value">{games.length}</p><p className="dash-kpi-label">Jogos cadastrados</p></div>
                   </div>
                   <div className="dash-kpi-card">
                     <span className="dash-kpi-icon">🏢</span>
-                    <div>
-                      <p className="dash-kpi-value">{companies.length}</p>
-                      <p className="dash-kpi-label">Empresas</p>
-                    </div>
+                    <div><p className="dash-kpi-value">{companies.length}</p><p className="dash-kpi-label">Empresas</p></div>
                   </div>
                   <div className="dash-kpi-card">
                     <span className="dash-kpi-icon">🏷️</span>
-                    <div>
-                      <p className="dash-kpi-value">{categories.length}</p>
-                      <p className="dash-kpi-label">Categorias</p>
-                    </div>
+                    <div><p className="dash-kpi-value">{categories.length}</p><p className="dash-kpi-label">Categorias</p></div>
                   </div>
                   <div className="dash-kpi-card">
                     <span className="dash-kpi-icon">👥</span>
-                    <div>
-                      <p className="dash-kpi-value">{users.length}</p>
-                      <p className="dash-kpi-label">Usuários</p>
-                    </div>
+                    <div><p className="dash-kpi-value">{users.length}</p><p className="dash-kpi-label">Usuários</p></div>
                   </div>
                 </div>
 
-                <div className="dash-grid">
-                  {/* ── Gráfico: Top 10 jogos mais vendidos ── */}
-                  <div className="dash-card dash-card-wide">
-                    <h3 className="dash-card-title">🏆 Top 10 Jogos Mais Vendidos</h3>
+                {/* 1. Secão de Melhores Avaliados */}
+                <div className="top-rated-section">
+                  <h3 className="dash-card-title">⭐ Top 3 Jogos Mais Bem Avaliados</h3>
+                  {topRatedDash.length === 0 ? (
+                    <p className="admin-empty-state" style={{ padding: 20 }}>Nenhuma avaliação registrada ainda.</p>
+                  ) : (
+                    <div className="top-rated-grid">
+                      {topRatedDash.map((g, i) => (
+                        <div key={g.id} className="top-rated-card">
+                          <div className="tr-medal">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>
+                          <div className="tr-info">
+                            <h4>{g.nome}</h4>
+                            <p>{g.empresa_nome || g.empresa || '—'}</p>
+                          </div>
+                          <div className="tr-rating">
+                            <span className="tr-star">★</span> {g.media.toFixed(1)}
+                            <small>({g.total} avaliações)</small>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                
+                <div className="top-rated-section">
+                  <h3 className="dash-card-title">🏆 Top 3 Jogos Mais Vendidos</h3>
+                  {topGames.length === 0 ? (
+                    <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados de vendas.</p>
+                  ) : (
+                    <div className="top-rated-grid">
+                      {topGames.slice(0, 3).map((g, i) => (
+                        <div key={g.jogo} className="top-rated-card">
+                          <div className="tr-medal">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>
+                          <div className="tr-info">
+                            <h4>{g.jogo}</h4>
+                            <p>{g.empresa}</p>
+                          </div>
+                          <div className="tr-rating" style={{ color: '#06d6a0' }}>
+                            <span className="tr-star" style={{ color: '#06d6a0', marginRight: '3px' }}>🛒</span> 
+                            {g.totalVendas}
+                            <small style={{ color: 'var(--text-muted)' }}>{g.totalVendas === 1 ? 'venda' : 'vendas'}</small>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                
+                <div className="dash-grid-3">
+                  
+                  
+                  <div className="dash-card">
+                    <h3 className="dash-card-title">🎮 Jogos Mais Vendidos</h3>
                     {topGames.length === 0 ? (
-                      <p className="admin-empty-state" style={{ padding: 20 }}>
-                        Sem dados de vendas registrados ainda.
-                      </p>
+                      <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
                       <ResponsiveContainer width="100%" height={280}>
                         <BarChart data={topGames} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                          <XAxis
-                            dataKey="jogo"
-                            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                            angle={-35} textAnchor="end" interval={0}
-                          />
+                          <XAxis dataKey="jogo" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                           <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 12 }} allowDecimals={false} />
                           <Tooltip content={<CustomTooltip />} />
                           <Bar dataKey="totalVendas" name="Vendas" fill="var(--contrast)" radius={[4, 4, 0, 0]} />
@@ -457,105 +440,48 @@ function AdminPanel() {
                     )}
                   </div>
 
-                  {/* ── Pizza: Jogos por empresa ── */}
+                 
                   <div className="dash-card">
-                    <h3 className="dash-card-title">🏢 Jogos por Empresa</h3>
-                    {gamesByCompany.length === 0 ? (
+                    <h3 className="dash-card-title">🏢 Empresas com Mais Vendas</h3>
+                    {topCompaniesDash.length === 0 ? (
                       <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
-                      <ResponsiveContainer width="100%" height={260}>
-                        <PieChart>
-                          <Pie 
-                            data={gamesByCompany} 
-                            dataKey="value" 
-                            nameKey="name"
-                            cx="50%" 
-                            cy="50%" 
-                            outerRadius={90} 
-                            /* A propriedade label foi removida para limpar a visualização */
-                          >
-                            {gamesByCompany.map((_, i) => (
-                              <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Legend wrapperStyle={{ fontSize: 12, color: 'var(--text-muted)' }} />
-                          <Tooltip formatter={(v) => [`${v} jogo(s)`, 'Quantidade']} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    )}
-                  </div>
-
-                  {/* ── Ranking geral (tabela) ── */}
-                  <div className="dash-card">
-                    <h3 className="dash-card-title">📋 Ranking Geral de Vendas</h3>
-                    {topGames.length === 0 ? (
-                      <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados de vendas.</p>
-                    ) : (
-                      <ol className="dash-ranking-list">
-                        {topGames.slice(0, 7).map((g, i) => {
-                          const vendas = g.totalVendas || g.total_vendas || 0;
-                          return (
-                            <li key={i} className="dash-ranking-item">
-                              <span className={`dash-rank-badge rank-${i < 3 ? i + 1 : 'other'}`}>
-                                {i + 1}
-                              </span>
-                              <div className="dash-ranking-info">
-                                <p className="dash-ranking-name">{g.jogo}</p>
-                                <p className="dash-ranking-sub">{g.empresa} · {vendas} vendas</p>
-                                <MiniBar value={vendas} max={maxVendas} />
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ol>
-                    )}
-                  </div>
-
-                  {/* ── Ranking por empresa (filtro) ── */}
-                  <div className="dash-card dash-card-wide">
-                    <div className="dash-card-header">
-                      <h3 className="dash-card-title">🏅 Ranking por Empresa</h3>
-                      <select
-                        className="dash-select"
-                        value={selectedCompany}
-                        onChange={e => setSelectedCompany(e.target.value)}
-                        aria-label="Filtrar por empresa"
-                      >
-                        <option value="">Selecione uma empresa...</option>
-                        {companies.map(c => (
-                          <option key={c.id} value={c.id}>{c.nome}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {!selectedCompany ? (
-                      <p className="admin-empty-state" style={{ padding: 20 }}>
-                        Selecione uma empresa para ver o ranking.
-                      </p>
-                    ) : topByCompany.length === 0 ? (
-                      <p className="admin-empty-state" style={{ padding: 20 }}>
-                        Nenhuma venda registrada para esta empresa.
-                      </p>
-                    ) : (
-                      <ResponsiveContainer width="100%" height={260}>
-                        <BarChart data={topByCompany} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
+                      <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={topCompaniesDash} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                          <XAxis dataKey="jogo" tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                            angle={-35} textAnchor="end" interval={0} />
+                          <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                           <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 12 }} allowDecimals={false} />
                           <Tooltip content={<CustomTooltip />} />
-                          <Bar dataKey="totalVendas" name="Vendas" fill="#06d6a0" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="vendas" name="Vendas" fill="#06d6a0" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     )}
                   </div>
+
+                  <div className="dash-card">
+                    <h3 className="dash-card-title">🏷️ Vendas por Categoria</h3>
+                    {topCategoriesDash.length === 0 ? (
+                      <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
+                    ) : (
+                      <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={topCategoriesDash} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
+                          <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 12 }} allowDecimals={false} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar dataKey="vendas" name="Vendas" fill="#ffd166" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
+                  </div>
+
                 </div>
               </>
             )}
           </section>
         )}
 
-        {/* ════ JOGOS ════════════════════════════════════════════ */}
+        
         {activeTab === 'jogos' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -598,7 +524,7 @@ function AdminPanel() {
           </section>
         )}
 
-        {/* ════ EMPRESAS ═════════════════════════════════════════ */}
+        
         {activeTab === 'empresas' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -634,7 +560,7 @@ function AdminPanel() {
           </section>
         )}
 
-        {/* ════ CATEGORIAS ═══════════════════════════════════════ */}
+       
         {activeTab === 'categorias' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -663,7 +589,7 @@ function AdminPanel() {
           </section>
         )}
 
-        {/* ════ USUÁRIOS ═════════════════════════════════════════ */}
+        
         {activeTab === 'usuarios' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -715,7 +641,7 @@ function AdminPanel() {
         )}
       </main>
 
-      {/* ════ MODAL: Jogo / Empresa ═══════════════════════════════ */}
+     
       {isModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true">
           <div className="admin-modal-box">
@@ -774,7 +700,7 @@ function AdminPanel() {
         </div>
       )}
 
-      {/* ════ MODAL: Editar Usuário ════════════════════════════════ */}
+      
       {isUserModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true" aria-label="Editar usuário">
           <div className="admin-modal-box">
@@ -811,7 +737,7 @@ function AdminPanel() {
         </div>
       )}
 
-      {/* ════ MODAL: Confirmar Exclusão ════════════════════════════ */}
+     
       {isDeleteModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true">
           <div className="admin-modal-box admin-modal-alert">

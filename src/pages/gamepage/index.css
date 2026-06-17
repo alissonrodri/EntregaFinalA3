@@ -143,7 +143,6 @@
     margin-top: 10px;
 }
 
-
 .btn {
     width: 100%;
     padding: 12px;
@@ -164,7 +163,7 @@
 }
 
 .btn-cart.btn-success {
-    background-color: #28a745; /* Ajustado para padrão verde do sistema */
+    background-color: #28a745;
     color: white;
     border-color: #28a745;
     cursor: not-allowed;
@@ -173,7 +172,7 @@
 
 .btn-primary {
     background-color: var(--contrast);
-    color: var(--bg-dark);
+    color: var(--text-main);
 }
 
 .btn-secondary {
@@ -187,10 +186,10 @@
     box-shadow: 0 4px 10px var(--contrast);
 }
 
-/* CORREÇÃO DO HOVER PARA BOTÕES SECUNDÁRIOS */
+
 .btn-secondary:hover {
     border-color: var(--contrast);
-    color: var(--contrast); /* Agora o texto vai ficar azul/destaque no hover */
+    color: var(--contrast); 
 }
 
 .btn-wishlist:hover {
@@ -446,7 +445,7 @@
 
 .btn-owned-play {
     background: var(--contrast);
-    color: var(--bg-dark); /* Garante visibilidade no hover e idle */
+    color: var(--text-main); 
     position: relative;
     overflow: hidden;
 }
@@ -459,7 +458,7 @@
     pointer-events: none;
 }
 
-/* NOVO ESTILO DO BADGE DE POSSE (Igual as outras abas) */
+
 .btn-owned-badge {
     background-color: rgba(34, 197, 94, 0.1);
     color: #22c55e;
