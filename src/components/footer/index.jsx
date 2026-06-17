@@ -7,6 +7,9 @@ function Footer() {
     <footer className="footer-container">
       <div className="footer-content">
 
+
+
+        {/* Coluna 1 do rodapé */}
         <div className="footer-brand">
           <h2 className="footer-logo">CLT <span>Gaming</span></h2>
           <p className="footer-description">
@@ -14,6 +17,18 @@ function Footer() {
           </p>
         </div>
 
+        {/* Coluna 2 Links */}
+        <div className="footer-links">
+          <h3>Links Rápidos</h3>
+          <ul>
+            <li><Link to="/">Página inicial</Link></li>
+            <li><Link to="/library">Biblioteca</Link></li>
+            <li><Link to="/categorias">Catálogo</Link></li>
+            <li><Link to="/wishlist">Lista de desejos</Link></li>
+          </ul>
+        </div>
+
+        {/* Coluna 3: Institucional */}
         <div className="footer-links">
           <h3>Institucional</h3>
           <ul>      
@@ -25,9 +40,9 @@ function Footer() {
 
           </ul>
         </div>
+      
        </div>
 
-       
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} CLT Gaming. Todos os direitos reservados.</p>
         <div className="footer-socials">

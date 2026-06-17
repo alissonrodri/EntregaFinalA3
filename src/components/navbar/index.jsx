@@ -263,9 +263,9 @@ function Navbar() {
       </div>
 
         <div className={`navbar-menu ${isMobileMenuOpen ? 'active' : ''}`}>
-          <Link to="/" className={`navbar-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Loja</Link>
+          <Link to="/" className={`navbar-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Início</Link>
           <Link to="/library" className={`navbar-item ${location.pathname === '/library' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Biblioteca</Link>
-          <Link to="/categorias" className={`navbar-item ${location.pathname === '/categorias' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Categorias</Link>
+          <Link to="/categorias" className={`navbar-item ${location.pathname === '/categorias' ? 'active' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Catálogo</Link>
                     
         </div>
       </div>
