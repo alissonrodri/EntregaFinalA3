@@ -3,18 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-// Decodifica o payload do JWT para obter o ID do usuário logado
-function getUserId() {
-  try {
-    const token   = localStorage.getItem('token');
-    if (!token) return 'guest';
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? 'guest';
-  } catch {
-    return 'guest';
-  }
-}
-
 function getInstallState(jogoId) {
   try {
     return localStorage.getItem(`install_${jogoId}`) || 'not_installed';
@@ -144,39 +132,29 @@ function Library() {
   const fetchLibrary = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 
     try {
-      const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${getUserId()}`) || '[]');
-
-      if (purchasedIds.length === 0) {
-        setGames([]);
-        setLoading(false);
-        return;
-      }
-
-      const [publicRes, authRes] = await Promise.all([
+      
+      const [myGamesRes, publicRes] = await Promise.all([
+        api.get('/usuarios/my/games'),
         api.get('/public/jogos'),
-        api.get('/jogos'),
       ]);
 
-      const publicGames = Array.isArray(publicRes.data) ? publicRes.data : [];
-      const authGames   = Array.isArray(authRes.data)   ? authRes.data   : (authRes.data?.jogos || []);
+      const myGames    = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+      const publicGames = Array.isArray(publicRes.data)  ? publicRes.data  : [];
+      const jogosComprados = myGames.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
 
-      const libraryGames = purchasedIds
-        .map(id => {
-          const authGame   = authGames.find(g => g.id === id);
-          if (!authGame) return null;
-          const publicGame = publicGames.find(g => g.nome === authGame.nome);
-          return {
-            ...authGame,
-            categoria:    publicGame?.categoria    || '—',
-            empresa_nome: publicGame?.empresa_nome || '—',
-          };
-        })
-        .filter(Boolean);
+      const libraryGames = jogosComprados.map(({ jogo }) => {
+        const publicGame = publicGames.find(g => g.nome === jogo.nome);
+        return {
+          ...jogo,
+          categoria:    publicGame?.categoria    || '—',
+          empresa_nome: publicGame?.empresa_nome || '—',
+        };
+      });
 
       setGames(libraryGames);
     } catch (err) {
@@ -187,10 +165,12 @@ function Library() {
   }, [navigate]);
 
   useEffect(() => {
-     setTimeout(() => { 
+    setTimeout(() => { 
       fetchLibrary();
     }, 0);
   }, [fetchLibrary]);
+
+  
 
   const filtered = games.filter(g =>
     g.nome.toLowerCase().includes(search.toLowerCase())

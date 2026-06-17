@@ -1,7 +1,12 @@
+.game-page * {
+    box-sizing: border-box;
+}
+
 .game-page {
     max-width: 1200px;
     margin: 0 auto;
     padding: 30px 30px 60px;
+    box-sizing: border-box;
 }
 
 .game-page-loading, .game-page-error {
@@ -34,6 +39,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    min-width: 0;
+      
 }
 
 .media-main {
@@ -58,6 +65,7 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: 4px;
+    padding-right: 15px;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
 }
@@ -91,6 +99,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-width: 0;
 }
 
 .game-card {
@@ -134,7 +143,6 @@
     margin-top: 10px;
 }
 
-
 .btn {
     width: 100%;
     padding: 12px;
@@ -155,16 +163,16 @@
 }
 
 .btn-cart.btn-success {
-    background-color: #2ecc71;
+    background-color: #28a745;
     color: white;
-    border-color: #2ecc71;
+    border-color: #28a745;
     cursor: not-allowed;
     opacity: 0.9;
 }
 
 .btn-primary {
     background-color: var(--contrast);
-    color: var(--bg-dark);
+    color: var(--text-main);
 }
 
 .btn-secondary {
@@ -178,16 +186,16 @@
     box-shadow: 0 4px 10px var(--contrast);
 }
 
+
 .btn-secondary:hover {
     border-color: var(--contrast);
-    color: var(--text-main);
+    color: var(--contrast); 
 }
 
 .btn-wishlist:hover {
     border-color: #ff4d6d;
     color: #ff4d6d;
 }
-
 
 .game-info-table {
     width: 100%;
@@ -206,8 +214,15 @@
 }
 
 .game-info-label { color: var(--text-muted); }
-.game-info-value { color: var(--text-main); font-weight: 500; text-align: right; }
 
+.game-info-value {
+    color: var(--text-main);
+    font-weight: 500;
+    text-align: right;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 65%; 
+}
 
 .section { margin-bottom: 30px; }
 .section-title {
@@ -223,7 +238,6 @@
     border-radius: 10px;
     padding: 25px;
 }
-
 
 .review-form {
     display: flex;
@@ -431,6 +445,7 @@
 
 .btn-owned-play {
     background: var(--contrast);
+    color: var(--text-main); 
     position: relative;
     overflow: hidden;
 }
@@ -443,15 +458,19 @@
     pointer-events: none;
 }
 
+
 .btn-owned-badge {
-    cursor: default;
-    opacity: 0.75;
-    border-color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.1);
     color: #22c55e;
-    background-color: rgba(34, 197, 94, 0.08);
+    border: 1px solid #22c55e;
+    border-radius: 8px;
+    padding: 12px;
     text-align: center;
-    font-size: 0.88rem;
-    letter-spacing: 0.02em;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: default;
+    width: 100%;
+    margin-top: 5px;
 }
 
 .game-card-meta {
@@ -595,4 +614,6 @@
     .review-form { flex-direction: column; align-items: center; }
     .review-form-footer { flex-direction: column; gap: 15px; width: 100%; }
     .btn-publish { width: 100%; }
+    .star-rating {justify-content: center;}
+    .section-title {display: flex; align-items: center; justify-content: center; flex-wrap: wrap;}
 }

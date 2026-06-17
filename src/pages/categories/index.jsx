@@ -20,18 +20,6 @@ const ICON_MAP = {
 
 const CURRENT_YEAR = new Date().getFullYear();
 
-function getUserId() {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? null;
-  } catch (err) {
-    console.warn(err.message);
-    return null;
-  }
-}
-
 function CategoriesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -41,6 +29,7 @@ function CategoriesPage() {
   );
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [yearRange, setYearRange] = useState([2000, CURRENT_YEAR]);
+  const [sortBy, setSortBy] = useState(''); 
 
   const [allGames, setAllGames] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -51,9 +40,8 @@ function CategoriesPage() {
   const [wishlistItems, setWishlistItems] = useState(new Set());
   const [addedItems, setAddedItems] = useState({});
   const [avgRatings, setAvgRatings] = useState({});
-
-  const userId = getUserId();
-  const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
+  const [salesRanking, setSalesRanking] = useState({}); 
+  const [ownedItems, setOwnedItems] = useState(new Set()); 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -64,13 +52,17 @@ function CategoriesPage() {
 
         if (token) {
           try {
-            const [authResponse, cartRes, wishRes] = await Promise.all([
+            const [authResponse, cartRes, wishRes, myGamesRes] = await Promise.all([
               api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } }),
               api.get('/carrinho/ativo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
                 console.warn(err.message);
                 return { data: {} };
               }),
               api.get('/lista-desejo', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
+                console.warn(err.message);
+                return { data: [] };
+              }),
+              api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } }).catch((err) => {
                 console.warn(err.message);
                 return { data: [] };
               })
@@ -83,12 +75,20 @@ function CategoriesPage() {
               return match ? { ...gPublic, id: match.id } : gPublic;
             });
 
+           
             const cData = cartRes.data?.carrinho?.itens || [];
             setCartItems(new Set(cData.map(i => i.fkJogo)));
 
+            
             const wData = Array.isArray(wishRes.data) ? wishRes.data : [];
             setWishlistItems(new Set(wData.map(i => i.id || i.fkJogo)));
 
+            
+            const myGamesData = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+            const comprados = myGamesData.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+            setOwnedItems(new Set(comprados.map(item => item.jogo?.id)));
+
+            
             const ratingsMap = {};
             await Promise.all(gamesWithId.map(async (g) => {
               if (!g.id) return;
@@ -108,6 +108,21 @@ function CategoriesPage() {
           }
         }
 
+        
+        try {
+          const salesRes = await api.get('/relatorios/jogos-mais-vendidos?top=100');
+          const salesData = Array.isArray(salesRes.data) ? salesRes.data : [];
+          const salesMap = {};
+         
+          salesData.forEach((item, index) => {
+            const key = item.nome || item.id;
+            salesMap[key] = item.quantidade || (salesData.length - index);
+          });
+          setSalesRanking(salesMap);
+        } catch (err) {
+          console.info("Aviso: Dados de mais vendidos não puderam ser carregados.", err);
+        }
+
         setAllGames(gamesWithId);
         
         const seen = new Set();
@@ -124,10 +139,11 @@ function CategoriesPage() {
         console.error(err.message);
         setLoading(false);
       });
-  }, [navigate, purchasedIds, userId]);
+  }, [navigate]);
 
-  const filteredGames = useMemo(() => {
-    return allGames.filter(jogo => {
+  
+  const filteredAndSortedGames = useMemo(() => {
+    let result = allGames.filter(jogo => {
       const preco = parseFloat(jogo.preco) || 0;
       const ano   = parseInt(jogo.ano) || 0;
       const cat   = jogo.categoria?.trim() || '';
@@ -138,7 +154,24 @@ function CategoriesPage() {
 
       return matchCat && matchPrice && matchYear;
     });
-  }, [allGames, selectedCategory, priceRange, yearRange]);
+
+    
+    if (sortBy === 'priceAsc') {
+      result.sort((a, b) => (parseFloat(a.preco) || 0) - (parseFloat(b.preco) || 0));
+    } else if (sortBy === 'priceDesc') {
+      result.sort((a, b) => (parseFloat(b.preco) || 0) - (parseFloat(a.preco) || 0));
+    } else if (sortBy === 'rating') {
+      result.sort((a, b) => (avgRatings[b.id]?.media || 0) - (avgRatings[a.id]?.media || 0));
+    } else if (sortBy === 'sales') {
+      result.sort((a, b) => {
+        const valA = salesRanking[a.nome] || salesRanking[a.id] || 0;
+        const valB = salesRanking[b.nome] || salesRanking[b.id] || 0;
+        return valB - valA;
+      });
+    }
+
+    return result;
+  }, [allGames, selectedCategory, priceRange, yearRange, sortBy, avgRatings, salesRanking]);
 
   const handleCategoryClick = useCallback((cat) => {
     const next = selectedCategory === cat ? '' : cat;
@@ -150,6 +183,7 @@ function CategoriesPage() {
     setSelectedCategory('');
     setPriceRange([0, 500]);
     setYearRange([2000, CURRENT_YEAR]);
+    setSortBy('');
     setSearchParams({});
   };
 
@@ -216,6 +250,9 @@ function CategoriesPage() {
           next.add(jogoId);
           return next;
         });
+        window.dispatchEvent(new CustomEvent('notify', { 
+       detail: { text: 'Item adicionado à sua Lista de Desejos! ❤️', link: '/wishlist' } 
+        }));
       } catch (err) { 
         console.error(err.message); 
       }
@@ -239,7 +276,7 @@ function CategoriesPage() {
   return (
     <div className="cat-page">
       <div className="cat-page-topbar">
-        <div className="cat-page-topbar-inner">
+        <div className="cat-page-topbar-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           <div>
             <h1 className="cat-page-heading">
               {selectedCategory
@@ -247,15 +284,30 @@ function CategoriesPage() {
                 : 'Catálogo completo'}
             </h1>
             <p className="cat-page-subheading">
-              {filteredGames.length} {filteredGames.length === 1 ? 'jogo encontrado' : 'jogos encontrados'}
+              {filteredAndSortedGames.length} {filteredAndSortedGames.length === 1 ? 'jogo encontrado' : 'jogos encontrados'}
             </p>
           </div>
-          <button
-            className="cat-mobile-filter-btn"
-            onClick={() => setSidebarOpen(o => !o)}
-          >
-            {sidebarOpen ? '✕ Fechar' : '⚙ Filtros'}
-          </button>
+          
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-dark)', color: 'var(--text-main)', outline: 'none' }}
+            >
+              <option value="">Ordenar por: Relevância</option>
+              <option value="priceAsc">Menor Preço</option>
+              <option value="priceDesc">Maior Preço</option>
+              <option value="rating">Melhor Avaliado</option>
+              <option value="sales">Mais Vendidos</option>
+            </select>
+
+            <button
+              className="cat-mobile-filter-btn"
+              onClick={() => setSidebarOpen(o => !o)}
+            >
+              {sidebarOpen ? '✕ Fechar' : '⚙ Filtros'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -277,7 +329,7 @@ function CategoriesPage() {
         )}
 
         <main className="cat-main">
-          {filteredGames.length === 0 ? (
+          {filteredAndSortedGames.length === 0 ? (
             <div className="cat-empty">
               <span className="cat-empty-icon">🔭</span>
               <h3>Nenhum jogo encontrado</h3>
@@ -288,8 +340,8 @@ function CategoriesPage() {
             </div>
           ) : (
             <div className="cat-games-grid">
-              {filteredGames.map(jogo => {
-                const isOwned = purchasedIds.includes(jogo.id);
+              {filteredAndSortedGames.map(jogo => {
+                const isOwned = ownedItems.has(jogo.id);
                 const ratingObj = avgRatings[jogo.id] || { media: 0, total: 0 };
                 const ratingMedia = ratingObj.media;
                 const ratingTotal = ratingObj.total;
@@ -337,6 +389,7 @@ function CategoriesPage() {
                           <button
                             className="cat-btn-owned"
                             onClick={() => navigate('/library')}
+                            style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderColor: '#22c55e' }}
                           >
                             ✓ Na biblioteca
                           </button>

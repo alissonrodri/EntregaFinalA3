@@ -3,18 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './index.css';
 
-function getUserId() {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id ?? payload.sub ?? payload.userId ?? null;
-  } catch (err) { 
-    console.warn('Falha ao decodificar ID do token:', err.message);
-    return null; 
-  }
-}
-
 function getUserName() {
   try {
     const token = localStorage.getItem('token');
@@ -92,7 +80,7 @@ function GamePage() {
     idle:      { text: 'Adicionar ao carrinho', disabled: false, className: '' },
     success:   { text: 'Adicionado! ✓',         disabled: true,  className: 'btn-success' },
     duplicate: { text: 'Já adicionado',         disabled: true,  className: 'btn-added' },
-    already:   { text: 'No carrinho',           disabled: true,  className: 'btn-added' },
+    already:   { text: 'No carrinho',           disabled: false, className: 'btn-added' },
   };
 
   const wishConfig = {
@@ -174,9 +162,19 @@ function GamePage() {
                 const wishGames = Array.isArray(wishRes.data) ? wishRes.data : [];
                 if (wishGames.some(g => g.id === gameWithId.id)) setWishState('already');
 
-                const userId       = getUserId();
-                const purchasedIds = JSON.parse(localStorage.getItem(`purchasedGameIds_${userId}`) || '[]');
-                if (purchasedIds.includes(gameWithId.id)) setIsOwned(true);
+                try {
+                  const myGamesRes = await api.get('/usuarios/my/games', { headers: { Authorization: `Bearer ${token}` } });
+                  const myGames = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+                  
+                
+                  const comprados = myGames.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+
+                  if (comprados.some(item => item.jogo?.id === gameWithId.id)) {
+                    setIsOwned(true);
+                  }
+                } catch (err) {
+                  console.warn('Aviso: Não foi possível verificar a biblioteca do usuário:', err.message);
+                }
 
                 try {
                   const myReviewRes = await api.get(`/avaliacoes?jogoId=${gameWithId.id}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -275,6 +273,7 @@ function GamePage() {
   const handleAddToCart = async () => {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/login'); return; }
+    if (btnState === 'already') { navigate('/cart'); return; }
     let finalGameId = game?.id;
     if (!finalGameId) {
       try {
@@ -335,6 +334,7 @@ function GamePage() {
       try {
         await api.delete('/lista-desejo', { headers: { Authorization: `Bearer ${token}` }, data: { jogoId: game.id } });
         setWishState('idle');
+       
       } catch (err) { 
         console.error('Falha na remoção da lista de desejos:', err.message); 
       }
@@ -356,6 +356,10 @@ function GamePage() {
     try {
       await api.post('/lista-desejo', { jogoId: finalGameId }, { headers: { Authorization: `Bearer ${token}` } });
       setWishState('added');
+
+       window.dispatchEvent(new CustomEvent('notify', { 
+        detail: { text: 'Item adicionado à sua Lista de Desejos! ❤️', link: '/wishlist' } 
+      }));
     } catch (err) { 
       if (err.response?.status === 409) setWishState('already'); 
       else console.error('Erro ao adicionar à lista de desejos:', err.message);

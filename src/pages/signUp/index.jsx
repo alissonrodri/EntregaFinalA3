@@ -18,7 +18,7 @@ function SignUp() {
   const [verSenha, setVerSenha] = useState(false);
   const [verConfirmar, setVerConfirmar] = useState(false);
 
-  // ─── Manipulador de inputs ──────────────────────────────────────
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -28,7 +28,6 @@ function SignUp() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ─── Validações em tempo real ───────────────────────────────────
   const errors = {};
 
   const nicknameOk = formData.nickname.trim().length >= 3;
@@ -63,7 +62,7 @@ function SignUp() {
   const isFormValid =
     nicknameOk && emailOk && passLengthOk && passwordsMatch && allFieldsFilled;
 
-  // ─── Envio ──────────────────────────────────────────────────────
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid) return;

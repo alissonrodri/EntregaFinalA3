@@ -28,7 +28,7 @@
     font-size: 1rem;
 }
 
-/* LISTAGEM EM RETÂNGULOS */
+
 .results-list {
     display: flex;
     flex-direction: column;
@@ -122,10 +122,9 @@
     width: 100%;
 }
 
-/* Botão 1: Adicionar ao Carrinho */
 .btn-row-add-cart {
     background-color: var(--contrast);
-    color: var(--bg-dark);
+    color: var(--text-main);
     border: 1px solid transparent; 
     padding: 0 25px;
     border-radius: 8px;
@@ -146,7 +145,39 @@
     box-shadow: 0 4px 10px var(--contrast); 
 }
 
-/* Botão 2: Lista de Desejos */
+.btn-row-success {
+    background-color: #28a745;
+    color: #ffffff;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-row-in-cart {
+    background-color: #ff4d4d;
+    color: #ffffff;
+    border-color: transparent;
+}
+
+.btn-row-in-cart:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4);
+}
+
+
+.btn-row-owned {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid #22c55e;
+}
+
+.btn-row-owned:hover {
+    background-color: rgba(34, 197, 94, 0.2); 
+    border-color: #22c55e;
+    color: #22c55e;
+    box-shadow: none;
+}
+
+
 .btn-row-wishlist {
     background: transparent;
     border: 1px solid var(--border);
@@ -171,7 +202,12 @@
     color: #ff4d6d;
 }
 
-/* Botão 3: Ver Detalhes */
+.btn-row-wishlist--active {
+    border-color: #ff4d6d;
+    color: #ff4d6d;
+}
+
+
 .btn-row-details {
     background: transparent;
     border: 1px solid var(--border);
@@ -190,12 +226,14 @@
     box-sizing: border-box;
 }
 
+
 .btn-row-details:hover {
     transform: translateY(-2px);
     border-color: var(--contrast);
+    color: var(--contrast); 
 }
 
-/* CAIXA DE "NENHUM RESULTADO" */
+
 .no-results-box {
     text-align: center;
     padding: 60px 20px;
@@ -224,7 +262,7 @@
     font-size: 0.95rem;
 }
 
-/* VITRINE DE RECOMENDAÇÕES */
+
 .recommendations-section {
     border-top: 1px solid var(--border);
     padding-top: 40px;
@@ -315,6 +353,7 @@
 .btn-thumb-view:hover {
     background-color: var(--bg-dark);
     border-color: var(--contrast);
+    color: var(--contrast);
 }
 
 .search-page-loading {
@@ -324,7 +363,7 @@
     font-style: italic;
 }
 
-/* RESPONSIVIDADE */
+
 @media (max-width: 900px) {
     .game-row-card { flex-direction: column; }
     .game-row-thumb { width: 100%; height: 120px; font-size: 2.5rem; border-right: none; border-bottom: 1px solid var(--border); }

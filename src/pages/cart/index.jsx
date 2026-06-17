@@ -8,6 +8,11 @@ function CartPage() {
   const [loading, setLoading] = useState(true);
   const [coupon, setCoupon] = useState('');
   const [couponMsg, setCouponMsg] = useState(null);
+  
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,7 +21,6 @@ function CartPage() {
 
     const fetchCart = async () => {
       try {
-      
         const cartRes = await api.get('/carrinho/ativo', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -29,7 +33,6 @@ function CartPage() {
 
         const itens = cartRes.data.carrinho.itens || [];
 
-   
         const [publicRes, authRes] = await Promise.all([
           api.get('/public/jogos'),
           api.get('/jogos', { headers: { Authorization: `Bearer ${token}` } })
@@ -66,22 +69,38 @@ function CartPage() {
     fetchCart();
   }, [navigate]);
 
-  const handleRemove = (gameId) => {
+  
+  const handleRemoveClick = (item) => {
+    setItemToRemove(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCancelRemove = () => {
+    setIsModalOpen(false);
+    setItemToRemove(null);
+  };
+
+  const handleConfirmRemove = () => {
+    if (!itemToRemove) return;
+    
     const token = localStorage.getItem('token');
+    const gameId = itemToRemove.fkJogo;
+
     api.delete(`/carrinho/${gameId}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(() => {
       setCartItems(prev => prev.filter(i => i.fkJogo !== gameId));
-      // Atualiza o contador da navbar
       window.dispatchEvent(new Event('cartUpdated'));
     }).catch((err) => {
       console.error("Erro ao remover item:", err);
+    }).finally(() => {
+      setIsModalOpen(false);
+      setItemToRemove(null);
     });
   };
 
   const handleCoupon = () => {
     if (!coupon.trim()) return;
-    // Por enquanto apenas visual — nenhum cupom é válido
     setCouponMsg({ type: 'error', text: 'Cupom inválido ou expirado.' });
   };
 
@@ -112,7 +131,6 @@ function CartPage() {
 
       <div className="cart-layout">
 
-        {/* Lista de itens */}
         <section className="cart-items-section">
           <div id="cart-list">
             {!isCartEmpty ? (
@@ -144,7 +162,7 @@ function CartPage() {
                     )}
                     <button
                       className="btn-remove-item"
-                      onClick={() => handleRemove(item.fkJogo)}
+                      onClick={() => handleRemoveClick(item)}
                       title="Remover item"
                     >
                       🗑️
@@ -163,7 +181,6 @@ function CartPage() {
           </div>
         </section>
 
-        {/* Resumo do pedido */}
         <aside className="cart-summary">
           <h2 className="summary-title">Resumo do Pedido</h2>
 
@@ -177,7 +194,6 @@ function CartPage() {
               <span className="discount">- R$ 0,00</span>
             </div>
 
-            {/* Cupom de desconto */}
             <div className="coupon-section">
               <p className="coupon-label">Cupom de desconto</p>
               <div className="coupon-input-row">
@@ -217,6 +233,22 @@ function CartPage() {
         </aside>
 
       </div>
+
+    
+      {isModalOpen && itemToRemove && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 className="modal-title">Remover do Carrinho?</h2>
+            <p className="modal-desc">
+              Tem certeza que deseja remover <strong>{itemToRemove.nome}</strong> do carrinho?
+            </p>
+            <div className="modal-actions">
+              <button className="btn-modal-cancel" onClick={handleCancelRemove}>Cancelar</button>
+              <button className="btn-modal-confirm" onClick={handleConfirmRemove}>Remover</button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

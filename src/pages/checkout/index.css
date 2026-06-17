@@ -232,6 +232,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  max-width: 30vh;
   transition: filter 0.18s, transform 0.12s;
   margin-top: 4px;
 }

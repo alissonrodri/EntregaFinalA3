@@ -79,7 +79,7 @@
     border-radius: 10px;
     color: var(--contrast);
     text-transform: uppercase; 
-    }
+}
 
 .item-meta {
     font-size: 0.9rem;
@@ -248,7 +248,7 @@
     opacity: 0.6;
 }
 
-/* Preço com desconto */
+
 .item-price-original {
     font-size: 0.85rem;
     color: var(--text-muted);
@@ -273,7 +273,7 @@
     align-self: flex-end;
 }
 
-/* Cupom */
+
 .coupon-section {
     margin-top: 20px;
 }
@@ -342,6 +342,89 @@
     color: var(--contrast);
 }
 
+.modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-title {
+    color: var(--text-main);
+    margin: 0 0 10px 0;
+    font-size: 1.5rem;
+}
+
+.modal-desc {
+    color: var(--text-muted);
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modal-desc strong {
+    color: var(--text-main);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-modal-cancel {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: border-color 0.2s;
+}
+
+.btn-modal-cancel:hover {
+    border-color: var(--text-muted);
+}
+
+.btn-modal-confirm {
+    padding: 10px 20px;
+    background: #ff4d4d;
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: filter 0.2s;
+}
+
+.btn-modal-confirm:hover {
+    filter: brightness(1.1);
+}
+
 @media (max-width: 900px) {
     .cart-layout { 
         grid-template-columns: 1fr; 
@@ -360,5 +443,4 @@
         align-items: center;
     }
 }
-
 
