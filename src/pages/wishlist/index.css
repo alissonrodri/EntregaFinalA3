@@ -229,21 +229,23 @@
 .btn-owned {
   flex-grow: 1;
   padding: 10px;
-  background-color: rgba(34, 197, 94, 0.1) !important;
-  color: #22c55e !important;
-  border: 1px solid #22c55e !important;
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e ;
+  border: 1px solid #22c55e ;
   border-radius: 6px;
   font-weight: bold;
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
+  display: flex;
+  align-items: center;
 }
 
 .btn-owned:hover {
-  background-color: rgba(34, 197, 94, 0.2) !important;
-  border-color: #22c55e !important;
-  color: #22c55e !important;
+  background-color: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e ;
+  color: #22c55e;
 }
 
 .btn-details {
