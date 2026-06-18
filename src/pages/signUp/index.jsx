@@ -9,6 +9,7 @@ function SignUp() {
   const [formData, setFormData] = useState({
     nickname: "",
     email: "",
+    dataNascimento: "",
     senha: "",
     confirmarSenha: "",
   });
@@ -18,7 +19,10 @@ function SignUp() {
   const [verSenha, setVerSenha] = useState(false);
   const [verConfirmar, setVerConfirmar] = useState(false);
 
-  
+  // Data máxima permitida é a de hoje
+  const hoje = new Date().toISOString().split("T")[0];
+
+  // ─── Manipulador de inputs ──────────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -44,9 +48,45 @@ function SignUp() {
     errors.email = "E-mail inválido.";
   }
 
-  const passLengthOk = formData.senha.length >= 8;
-  if (formData.senha.length > 0 && !passLengthOk) {
+  // ─── Validação de data de nascimento ───────────────────────────
+  let dataNascimentoOk = false;
+  if (formData.dataNascimento.length > 0) {
+    const dataSelecionada = new Date(formData.dataNascimento + "T00:00:00");
+    const agora = new Date();
+    agora.setHours(0, 0, 0, 0);
+
+    // Verifica se a data é válida (ex: 31/02 vira uma data diferente ao ser parseada)
+    const [ano, mes, dia] = formData.dataNascimento.split("-").map(Number);
+    const dataValida =
+      dataSelecionada.getFullYear() === ano &&
+      dataSelecionada.getMonth() + 1 === mes &&
+      dataSelecionada.getDate() === dia;
+
+    // Verifica se não é data futura
+    const naoEFutura = dataSelecionada <= agora;
+
+    // Verifica idade mínima de 13 anos
+    const idadeMinima = new Date(agora);
+    idadeMinima.setFullYear(idadeMinima.getFullYear() - 13);
+    const temIdadeMinima = dataSelecionada <= idadeMinima;
+
+    if (!dataValida) {
+      errors.dataNascimento = "Data inválida.";
+    } else if (!naoEFutura) {
+      errors.dataNascimento = "A data não pode ser no futuro.";
+    } else if (!temIdadeMinima) {
+      errors.dataNascimento = "Você deve ter pelo menos 13 anos.";
+    } else {
+      dataNascimentoOk = true;
+    }
+  }
+
+  const passLengthOk =
+    formData.senha.length >= 8 && formData.senha.length <= 15;
+  if (formData.senha.length > 0 && formData.senha.length < 8) {
     errors.senha = "Mínimo de 8 caracteres.";
+  } else if (formData.senha.length > 15) {
+    errors.senha = "Máximo de 15 caracteres.";
   }
 
   const passwordsMatch =
@@ -60,9 +100,13 @@ function SignUp() {
     (val) => val.trim() !== "",
   );
   const isFormValid =
-    nicknameOk && emailOk && passLengthOk && passwordsMatch && allFieldsFilled;
+    nicknameOk &&
+    emailOk &&
+    dataNascimentoOk &&
+    passLengthOk &&
+    passwordsMatch &&
+    allFieldsFilled;
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid) return;
@@ -74,10 +118,11 @@ function SignUp() {
       await api.post("/auth/register", {
         nome: formData.nickname,
         email: formData.email,
+        dataNascimento: formData.dataNascimento,
         senha: formData.senha,
       });
 
-      navigate("/signin");
+      navigate("/");
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
@@ -134,6 +179,25 @@ function SignUp() {
             />
             {errors.email && (
               <small className="error-message">{errors.email}</small>
+            )}
+          </div>
+
+          {/* Data de Nascimento */}
+          <div className="form-field">
+            <label htmlFor="dataNascimento">Data de nascimento</label>
+            <input
+              type="date"
+              id="dataNascimento"
+              name="dataNascimento"
+              className={errors.dataNascimento ? "input-error" : ""}
+              value={formData.dataNascimento}
+              onChange={handleChange}
+              min="1900-01-01"
+              max={hoje}
+              required
+            />
+            {errors.dataNascimento && (
+              <small className="error-message">{errors.dataNascimento}</small>
             )}
           </div>
 
