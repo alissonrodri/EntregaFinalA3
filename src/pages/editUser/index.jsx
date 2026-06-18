@@ -17,7 +17,6 @@ function EditUser() {
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  // Valores originais para comparação
   const [usernameOriginal, setUsernameOriginal] = useState("");
   const [dataNascimentoOriginal, setDataNascimentoOriginal] = useState("");
 
@@ -81,7 +80,6 @@ function EditUser() {
         setUsername(nomeCarregado);
         setUsernameOriginal(nomeCarregado);
         setEmail(res.data.email || "");
-
         if (res.data.dataNascimento) {
           const d = new Date(res.data.dataNascimento);
           const dd = String(d.getUTCDate()).padStart(2, "0");
@@ -100,9 +98,12 @@ function EditUser() {
       });
   }, []);
 
-  const getInicial = () => {
-    const limpo = username.trim();
-    return limpo.length > 0 ? limpo[0].toUpperCase() : "--";
+  const getIniciais = () => {
+    const partes = username.trim().split(/\s+/).filter(Boolean);
+    if (partes.length >= 2) {
+      return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
+    return username.trim().slice(0, 2).toUpperCase() || "--";
   };
 
   const mostrarFeedback = (tipo, msg) => {
@@ -204,7 +205,6 @@ function EditUser() {
   };
 
   async function salvarPerfil() {
-    // Verifica se houve alguma alteração
     if (
       username === usernameOriginal &&
       dataNascimento === dataNascimentoOriginal
@@ -222,7 +222,6 @@ function EditUser() {
     setSalvando(true);
     try {
       await api.put(`/usuarios/${userId}`, { nome: username, dataNascimento });
-      // Atualiza os originais após salvar com sucesso
       setUsernameOriginal(username);
       setDataNascimentoOriginal(dataNascimento);
       mostrarFeedback("sucesso", "Alterações salvas!");
@@ -240,6 +239,8 @@ function EditUser() {
     if (!novaSenha) novosErros.novaSenha = "Digite a nova senha.";
     else if (novaSenha.length < 8)
       novosErros.novaSenha = "Mínimo de 8 caracteres.";
+    else if (novaSenha.length > 15)
+      novosErros.novaSenha = "Máximo de 15 caracteres.";
     if (!confirmarSenha) novosErros.confirmarSenha = "Confirme a nova senha.";
     else if (novaSenha !== confirmarSenha)
       novosErros.confirmarSenha = "As senhas não coincidem.";
@@ -295,10 +296,9 @@ function EditUser() {
           )}
 
           <div className="eu-avatar-wrap">
-            <div className="eu-avatar">{getInicial()}</div>
+            <div className="eu-avatar">{getIniciais()}</div>
           </div>
 
-          {/* Email */}
           <div className="eu-field">
             <label className="eu-label">Email</label>
             <input
@@ -310,7 +310,6 @@ function EditUser() {
             <span className="eu-hint">O email não pode ser alterado.</span>
           </div>
 
-          {/* Username + Data */}
           <div className="eu-row">
             <div className="eu-field">
               <label className="eu-label">
@@ -366,7 +365,6 @@ function EditUser() {
             </div>
           </div>
 
-          {/* Bloco Senha */}
           <button
             className="eu-toggle-btn"
             onClick={() => toggleBloco("senha")}
@@ -375,6 +373,7 @@ function EditUser() {
           </button>
           {blocoAberto === "senha" && (
             <div className="eu-expandable">
+              {/* Senha atual */}
               <div className="eu-field">
                 <label className="eu-label">Senha atual</label>
                 <div className="eu-senha-wrap">
@@ -405,6 +404,7 @@ function EditUser() {
                   </span>
                 )}
               </div>
+              {/* Nova senha */}
               <div className="eu-field">
                 <label className="eu-label">Nova senha</label>
                 <div className="eu-senha-wrap">
@@ -435,6 +435,7 @@ function EditUser() {
                   </span>
                 )}
               </div>
+              {/* Confirmar senha */}
               <div className="eu-field">
                 <label className="eu-label">Confirmar nova senha</label>
                 <div className="eu-senha-wrap">
