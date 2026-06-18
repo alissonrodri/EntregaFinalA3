@@ -220,7 +220,7 @@ function SearchPage() {
 
               return (
               <div key={jogo.id} className="game-row-card">
-                <div className="game-row-thumb">🎮</div>
+                <div className="game-row-thumb"><span className="material-symbols-outlined">sports_esports</span></div>
                 <div className="game-row-details">
                   <div className="game-row-main-info">
                     <h2 className="game-row-title">{jogo.nome}</h2>
@@ -232,7 +232,7 @@ function SearchPage() {
                     <div className="game-row-actions">
                       {isOwned ? (
                         <button className="btn-row-add-cart btn-row-owned" onClick={() => navigate('/library')}>
-                          ✓ Na biblioteca
+                          <span className="material-symbols-outlined">check</span> Na biblioteca
                         </button>
                       ) : (
                         <button
@@ -240,7 +240,7 @@ function SearchPage() {
                           onClick={() => handleAddToCart(jogo.id)}
                           disabled={justAdded}
                         >
-                          {justAdded ? '✓ Adicionado!' : inCart ? 'No carrinho' : 'Adicionar ao carrinho'}
+                          {justAdded ? <><span className="material-symbols-outlined">check</span> Adicionado!</> : inCart ? 'No carrinho' : 'Adicionar ao carrinho'}
                         </button>
                       )}
 
@@ -249,7 +249,7 @@ function SearchPage() {
                         onClick={() => handleWishlistToggle(jogo.id)}
                         title="Lista de Desejos"
                       >
-                        {inWishlist ? '♥' : '♡'}
+                        {inWishlist ? <span className="material-symbols-outlined">favorite</span> : <span className="material-symbols-outlined">favorite_border</span>}
                       </button>
 
                       <Link to={`/game/${encodeURIComponent(jogo.nome)}`} className="btn-row-details">
@@ -264,7 +264,7 @@ function SearchPage() {
           </div>
         ) : (
           <div className="no-results-box">
-            <span className="no-results-icon">🔍</span>
+            <span className="no-results-icon"><span className="material-symbols-outlined">search_off</span></span>
             <h3>Nenhum jogo encontrado</h3>
             <p>Não encontramos nenhum título correspondente a sua busca. Tente digitar outras palavras-chave.</p>
           </div>
@@ -277,7 +277,7 @@ function SearchPage() {
           <div className="recommendations-grid">
             {recommendedGames.map((jogo) => (
               <div key={jogo.id} className="game-thumb-card">
-                <div className="thumb-media">🎮</div>
+                <div className="thumb-media"><span className="material-symbols-outlined">sports_esports</span></div>
                 <div className="thumb-info">
                   <h3>{jogo.nome}</h3>
                   <div className="thumb-footer">

@@ -3,17 +3,17 @@ import './index.css';
 const CURRENT_YEAR = new Date().getFullYear();
 
 const ICON_MAP = {
-  'RPG': '🐲',
-  'Ação': '⚔️',
-  'Aventura': '🗺️',
-  'Social': '👥',
-  'Sandbox': '🧱',
-  'Plataforma': '🏃',
-  'Puzzle': '🧩',
-  'Horror': '👻',
-  'Tiro': '🎯',
-  'Simulação': '🚜',
-  'VR': '🥽',
+  'RPG': 'castle',
+  'Ação': 'sports_martial_arts',
+  'Aventura': 'explore',
+  'Social': 'groups',
+  'Sandbox': 'construction',
+  'Plataforma': 'directions_run',
+  'Puzzle': 'extension',
+  'Horror': 'skull',
+  'Tiro': 'gps_fixed',
+  'Simulação': 'agriculture',
+  'VR': 'view_in_ar',
 };
 
 function Sidebar({
@@ -55,7 +55,7 @@ function Sidebar({
                 className={`cat-filter-item ${selectedCategory === cat ? 'cat-filter-item--active' : ''}`}
                 onClick={() => onCategoryClick(cat)}
               >
-                <span className="cat-filter-icon">{ICON_MAP[cat] || '🎮'}</span>
+                <span className="cat-filter-icon"><span className="material-symbols-outlined">{ICON_MAP[cat] || 'sports_esports'}</span></span>
                 {cat}
               </button>
             </li>

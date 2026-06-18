@@ -236,7 +236,7 @@ function Banner() {
           <div className="banner-btns">
             {isOwned ? (
               <button className="btn-cart btn-cart--owned" onClick={() => navigate('/library')}>
-                ✓ Na biblioteca
+                <span className="material-symbols-outlined">check</span> Na biblioteca
               </button>
             ) : (
               <button
@@ -244,7 +244,7 @@ function Banner() {
                 onClick={() => handleAddToCart(currentGame.id)}
                 disabled={justAdded}
               >
-                {justAdded ? '✓ Adicionado!' : inCart ? 'No carrinho' : 'Adicionar ao carrinho'}
+                {justAdded ? <><span className="material-symbols-outlined">check</span> Adicionado!</> : inCart ? 'No carrinho' : 'Adicionar ao carrinho'}
               </button>
             )}
 
@@ -252,7 +252,7 @@ function Banner() {
               className={`btn-wishlist ${inWishlist ? 'btn-wishlist--active' : ''}`}
               onClick={() => handleWishlistToggle(currentGame.id)}
             >
-              {inWishlist ? '♥ Na lista' : '♡ Lista de desejos'}
+              {inWishlist ? <><span className="material-symbols-outlined">favorite</span> Na lista</> : <><span className="material-symbols-outlined">favorite_border</span> Lista de desejos</>}
             </button>
 
            
@@ -291,7 +291,7 @@ function Banner() {
 
         <div className="banner-media">
           <div className="media-card">
-            <div className="media-placeholder">🎮</div>
+            <div className="media-placeholder"><span className="material-symbols-outlined">sports_esports</span></div>
             <div className="media-stats">
               
               <div className="banner-card-rating">

@@ -314,18 +314,18 @@ function AdminPanel() {
         <h2 className="admin-sidebar-title">Painel de Controle</h2>
         <nav className="admin-nav">
           {[
-            { key: 'dashboard', icon: '📊', label: 'Dashboard' },
-            { key: 'jogos',     icon: '🎮', label: 'Gerenciar Jogos' },
-            { key: 'empresas',  icon: '🏢', label: 'Gerenciar Empresas' },
-            { key: 'categorias',icon: '🏷️', label: 'Categorias' },
-            { key: 'usuarios',  icon: '👥', label: 'Gerenciar Usuários' },
+            { key: 'dashboard', icon: 'dashboard',   label: 'Dashboard' },
+            { key: 'jogos',     icon: 'sports_esports', label: 'Gerenciar Jogos' },
+            { key: 'empresas',  icon: 'business',    label: 'Gerenciar Empresas' },
+            { key: 'categorias',icon: 'label',       label: 'Categorias' },
+            { key: 'usuarios',  icon: 'group',       label: 'Gerenciar Usuários' },
           ].map(({ key, icon, label }) => (
             <button
               key={key}
               className={`admin-nav-btn ${activeTab === key ? 'active' : ''}`}
               onClick={() => setActiveTab(key)}
             >
-              {icon} {label}
+              <span className="material-symbols-outlined">{icon}</span> {label}
             </button>
           ))}
         </nav>
@@ -353,33 +353,33 @@ function AdminPanel() {
               <>
                 <div className="dash-kpi-row">
                   <div className="dash-kpi-card">
-                    <span className="dash-kpi-icon">🎮</span>
+                    <span className="dash-kpi-icon"><span className="material-symbols-outlined">sports_esports</span></span>
                     <div><p className="dash-kpi-value">{games.length}</p><p className="dash-kpi-label">Jogos cadastrados</p></div>
                   </div>
                   <div className="dash-kpi-card">
-                    <span className="dash-kpi-icon">🏢</span>
+                    <span className="dash-kpi-icon"><span className="material-symbols-outlined">business</span></span>
                     <div><p className="dash-kpi-value">{companies.length}</p><p className="dash-kpi-label">Empresas</p></div>
                   </div>
                   <div className="dash-kpi-card">
-                    <span className="dash-kpi-icon">🏷️</span>
+                    <span className="dash-kpi-icon"><span className="material-symbols-outlined">label</span></span>
                     <div><p className="dash-kpi-value">{categories.length}</p><p className="dash-kpi-label">Categorias</p></div>
                   </div>
                   <div className="dash-kpi-card">
-                    <span className="dash-kpi-icon">👥</span>
+                    <span className="dash-kpi-icon"><span className="material-symbols-outlined">group</span></span>
                     <div><p className="dash-kpi-value">{users.length}</p><p className="dash-kpi-label">Usuários</p></div>
                   </div>
                 </div>
 
                 {/* 1. Secão de Melhores Avaliados */}
                 <div className="top-rated-section">
-                  <h3 className="dash-card-title">⭐ Top 3 Jogos Mais Bem Avaliados</h3>
+                  <h3 className="dash-card-title"><span className="material-symbols-outlined">star</span> Top 3 Jogos Mais Bem Avaliados</h3>
                   {topRatedDash.length === 0 ? (
                     <p className="admin-empty-state" style={{ padding: 20 }}>Nenhuma avaliação registrada ainda.</p>
                   ) : (
                     <div className="top-rated-grid">
                       {topRatedDash.map((g, i) => (
                         <div key={g.id} className="top-rated-card">
-                          <div className="tr-medal">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>
+                          <div className="tr-medal">{i === 0 ? '1°' : i === 1 ? '2°' : '3°'}</div>
                           <div className="tr-info">
                             <h4>{g.nome}</h4>
                             <p>{g.empresa_nome || g.empresa || '—'}</p>
@@ -396,20 +396,20 @@ function AdminPanel() {
 
                 
                 <div className="top-rated-section">
-                  <h3 className="dash-card-title">🏆 Top 3 Jogos Mais Vendidos</h3>
+                  <h3 className="dash-card-title"><span className="material-symbols-outlined">emoji_events</span> Top 3 Jogos Mais Vendidos</h3>
                   {topGames.length === 0 ? (
                     <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados de vendas.</p>
                   ) : (
                     <div className="top-rated-grid">
                       {topGames.slice(0, 3).map((g, i) => (
                         <div key={g.jogo} className="top-rated-card">
-                          <div className="tr-medal">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>
+                          <div className="tr-medal">{i === 0 ? '1°' : i === 1 ? '2°' : '3°'}</div>
                           <div className="tr-info">
                             <h4>{g.jogo}</h4>
                             <p>{g.empresa}</p>
                           </div>
                           <div className="tr-rating" style={{ color: '#06d6a0' }}>
-                            <span className="tr-star" style={{ color: '#06d6a0', marginRight: '3px' }}>🛒</span> 
+                            <span className="material-symbols-outlined" style={{ color: '#06d6a0', marginRight: '3px', fontSize: '1rem' }}>shopping_cart</span> 
                             {g.totalVendas}
                             <small style={{ color: 'var(--text-muted)' }}>{g.totalVendas === 1 ? 'venda' : 'vendas'}</small>
                           </div>
@@ -424,7 +424,7 @@ function AdminPanel() {
                   
                   
                   <div className="dash-card">
-                    <h3 className="dash-card-title">🎮 Jogos Mais Vendidos</h3>
+                    <h3 className="dash-card-title"><span className="material-symbols-outlined">sports_esports</span> Jogos Mais Vendidos</h3>
                     {topGames.length === 0 ? (
                       <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
@@ -442,7 +442,7 @@ function AdminPanel() {
 
                  
                   <div className="dash-card">
-                    <h3 className="dash-card-title">🏢 Empresas com Mais Vendas</h3>
+                    <h3 className="dash-card-title"><span className="material-symbols-outlined">business</span> Empresas com Mais Vendas</h3>
                     {topCompaniesDash.length === 0 ? (
                       <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
@@ -459,7 +459,7 @@ function AdminPanel() {
                   </div>
 
                   <div className="dash-card">
-                    <h3 className="dash-card-title">🏷️ Vendas por Categoria</h3>
+                    <h3 className="dash-card-title"><span className="material-symbols-outlined">label</span> Vendas por Categoria</h3>
                     {topCategoriesDash.length === 0 ? (
                       <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
@@ -513,8 +513,8 @@ function AdminPanel() {
                       <td>{game.categoria || getCategoryName(game.fkCategoria || game.fk_categoria)}</td>
                       <td>R$ {formatPrice(game.preco)}</td>
                       <td className="admin-actions">
-                        <button className="admin-btn-icon edit" title="Editar" onClick={() => handleOpenModal('jogo', 'edit', game)}>✏️</button>
-                        <button className="admin-btn-icon delete" title="Excluir" onClick={() => confirmDelete('jogo', game)}>🗑️</button>
+                        <button className="admin-btn-icon edit" title="Editar" onClick={() => handleOpenModal('jogo', 'edit', game)}><span className="material-symbols-outlined">edit</span></button>
+                        <button className="admin-btn-icon delete" title="Excluir" onClick={() => confirmDelete('jogo', game)}><span className="material-symbols-outlined">delete</span></button>
                       </td>
                     </tr>
                   ))}
@@ -549,8 +549,8 @@ function AdminPanel() {
                       <td>#{comp.id}</td>
                       <td className="admin-td-bold">{comp.nome}</td>
                       <td className="admin-actions">
-                        <button className="admin-btn-icon edit" title="Editar" onClick={() => handleOpenModal('empresa', 'edit', comp)}>✏️</button>
-                        <button className="admin-btn-icon delete" title="Excluir" onClick={() => confirmDelete('empresa', comp)}>🗑️</button>
+                        <button className="admin-btn-icon edit" title="Editar" onClick={() => handleOpenModal('empresa', 'edit', comp)}><span className="material-symbols-outlined">edit</span></button>
+                        <button className="admin-btn-icon delete" title="Excluir" onClick={() => confirmDelete('empresa', comp)}><span className="material-symbols-outlined">delete</span></button>
                       </td>
                     </tr>
                   ))}
@@ -620,7 +620,7 @@ function AdminPanel() {
                         <td>{u.email}</td>
                         <td>
                           <span className={`user-badge ${isAdmin ? 'user-badge-admin' : 'user-badge-client'}`}>
-                            {isAdmin ? '🛡️ Admin' : '👤 Cliente'}
+                            {isAdmin ? <><span className="material-symbols-outlined">shield</span> Admin</> : <><span className="material-symbols-outlined">person</span> Cliente</>}
                           </span>
                         </td>
                         <td>{u.dataNascimento || '—'}</td>
@@ -629,7 +629,7 @@ function AdminPanel() {
                             className="admin-btn-icon edit"
                             title="Editar usuário"
                             onClick={() => handleOpenUserModal(u)}
-                          >✏️</button>
+                          ><span className="material-symbols-outlined">edit</span></button>
                         </td>
                       </tr>
                     );
@@ -704,7 +704,7 @@ function AdminPanel() {
       {isUserModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true" aria-label="Editar usuário">
           <div className="admin-modal-box">
-            <h2 className="admin-modal-title">✏️ Editar Usuário</h2>
+            <h2 className="admin-modal-title"><span className="material-symbols-outlined">edit</span> Editar Usuário</h2>
             <form onSubmit={handleSaveUser} className="admin-form">
               <div className="admin-form-group">
                 <label>Nome completo</label>
@@ -741,7 +741,7 @@ function AdminPanel() {
       {isDeleteModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true">
           <div className="admin-modal-box admin-modal-alert">
-            <h2 className="admin-modal-title">⚠️ Confirmar Exclusão</h2>
+            <h2 className="admin-modal-title"><span className="material-symbols-outlined">warning</span> Confirmar Exclusão</h2>
             <p>Você está prestes a excluir permanentemente <strong>{itemToDelete?.nome}</strong>.</p>
             {deleteError && (
               <div className="admin-error-message" role="alert">{deleteError}</div>

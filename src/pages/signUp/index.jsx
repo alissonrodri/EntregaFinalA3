@@ -270,6 +270,15 @@ function SignUp() {
           <p className="signup-login-link">
             Já tem uma conta? <Link to="/signin">Entrar</Link>
           </p>
+
+          <button
+            type="button"
+            className="btn-back"
+            onClick={() => navigate(-1)}
+          >
+            <span className="material-symbols-outlined">arrow_back</span>
+            Voltar
+          </button>
         </form>
       </div>
     </div>

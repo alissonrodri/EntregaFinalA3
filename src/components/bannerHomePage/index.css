@@ -80,6 +80,26 @@
 .banner-btns {
   display: flex;
   gap: 15px;
+  flex-wrap: wrap;
+}
+
+.banner-btns button,
+.banner-btns .btn-details {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.banner-btns .material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-size: 1.1rem;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+  user-select: none;
 }
 
 .btn-cart {

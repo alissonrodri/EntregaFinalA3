@@ -1,172 +1,190 @@
-
 .signin-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: var(--bg-dark); 
-    margin-top: -65px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  margin-top: -65px;
 }
 
-
 .signin-form {
-    background-color: var(--bg-card);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    max-width: 400px;
-    color: var(--text-main);
+  background-color: var(--bg-card);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+  color: var(--text-main);
 }
 
 .signin-form h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
 }
 
 .logo-text {
-    color: var(--contrast); 
-    font-weight: bold;
+  color: var(--contrast);
+  font-weight: bold;
 }
-
 
 .error-message {
-    background-color: rgba(255, 46, 46, 0.1);
-    color: #ff4e4e;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ff4e4e;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
-    text-align: center;
+  background-color: rgba(255, 46, 46, 0.1);
+  color: #ff4e4e;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ff4e4e;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
-
 .form-group {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    color: var(--text-muted);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
 .form-group input {
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
 }
 
 .form-group input:focus {
-    outline: none;
-    border-color: var(--contrast);
+  outline: none;
+  border-color: var(--contrast);
 }
 
-
 .btn-signin {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 6px;
-    background-color: var(--contrast);
-    color: var(--bg-dark); 
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: filter 0.3s ease, transform 0.1s ease;
-    margin-top: 10px;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--contrast);
+  color: var(--bg-dark);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    filter 0.3s ease,
+    transform 0.1s ease;
+  margin-top: 10px;
 }
 
 .btn-signin:hover {
-    filter: brightness(1.1); 
+  filter: brightness(1.1);
 }
 
 .btn-signin:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
-    
 .signin-footer {
-    margin-top: 25px;
-    text-align: center;
-    font-size: 0.9rem;
-    color: var(--text-muted);
+  margin-top: 25px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
 .signin-footer a {
-    color: var(--contrast);
-    text-decoration: none;
-    font-weight: bold;
+  color: var(--contrast);
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .signin-footer a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
-
 .forgot-link {
-    align-self: flex-end; 
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    text-decoration: none;
-    margin-top: 8px;
-    transition: color 0.3s ease;
+  align-self: flex-end;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-top: 8px;
+  transition: color 0.3s ease;
 }
 
 .forgot-link:hover {
-    color: var(--contrast);
-    text-decoration: underline;
+  color: var(--contrast);
+  text-decoration: underline;
 }
-
 
 .password-input-wrapper {
-    position: relative;
-    display: flex;
-    width: 100%;
+  position: relative;
+  display: flex;
+  width: 100%;
 }
 
-
 .password-input-wrapper input {
-    width: 100%;
-    padding-right: 48px !important; 
-    box-sizing: border-box;
+  width: 100%;
+  padding-right: 48px !important;
+  box-sizing: border-box;
 }
 
 .password-toggle-btn {
-    position: absolute;
-    right: 14px; 
-    top: 50%;
-    transform: translateY(-50%); 
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2; 
-    transition: transform 0.1s ease;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.1s ease;
 }
 
-
 .password-icon {
-    width: 22px; 
-    height: auto;
-    display: block;
-    opacity: 0.6; 
-    transition: opacity 0.7s ease, filter 0.3s ease;
-    opacity: 1;
-    filter: drop-shadow(0px 0px 3px var(--contrast));
+  width: 22px;
+  height: auto;
+  display: block;
+  opacity: 0.6;
+  transition:
+    opacity 0.7s ease,
+    filter 0.3s ease;
+  opacity: 1;
+  filter: drop-shadow(0px 0px 3px var(--contrast));
 }
 
 .password-toggle-btn:active {
-    transform: translateY(-50%) scale(0.9);
+  transform: translateY(-50%) scale(0.9);
+}
+/* Botão voltar */
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+.btn-back:hover {
+  border-color: var(--contrast);
+  color: var(--text-main);
+}
+.btn-back .material-symbols-outlined {
+  font-size: 1rem;
 }

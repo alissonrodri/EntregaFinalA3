@@ -78,23 +78,15 @@ function GamePage() {
 
   const btnConfig = {
     idle:      { text: 'Adicionar ao carrinho', disabled: false, className: '' },
-    success:   { text: 'Adicionado! ✓',         disabled: true,  className: 'btn-success' },
+    success:   { text: 'Adicionado!',         disabled: true,  className: 'btn-success' },
     duplicate: { text: 'Já adicionado',         disabled: true,  className: 'btn-added' },
     already:   { text: 'No carrinho',           disabled: false, className: 'btn-added' },
   };
 
   const wishConfig = {
-    idle: { icon: "favorite_border", label: "Lista de desejos", className: "" },
-    added: {
-      icon: "favorite",
-      label: "Na lista de desejos",
-      className: "btn-wish-added",
-    },
-    already: {
-      icon: "favorite",
-      label: "Na lista de desejos",
-      className: "btn-wish-added",
-    },
+    idle:    { icon: 'favorite_border', label: 'Lista de desejos',    className: '' },
+    added:   { icon: 'favorite',        label: 'Na lista de desejos', className: 'btn-wish-added' },
+    already: { icon: 'favorite',        label: 'Na lista de desejos', className: 'btn-wish-added' },
   };
 
   const fetchReviewerNames = useCallback(async (reviewsList, token) => {
@@ -407,7 +399,7 @@ function GamePage() {
 
           <aside className="game-sidebar">
             <div className="game-card">
-              <div className="game-cover">🎮</div>
+              <div className="game-cover"><span className="material-symbols-outlined">sports_esports</span></div>
               <h1 className="game-card-title">{game.nome}</h1>
 
               <div className="game-card-meta">
@@ -423,34 +415,15 @@ function GamePage() {
 
               {isOwned ? (
                 <>
-                  <button className="btn btn-primary btn-buy btn-owned-play" onClick={() => navigate('/library')}>▶ Jogar</button>
-                  <button className="btn btn-secondary btn-cart" onClick={() => document.getElementById('avaliacoes')?.scrollIntoView({ behavior: 'smooth' })}>★ Avaliar</button>
-                  <div className="btn-owned-badge">✓ Na sua biblioteca</div>
+                  <button className="btn btn-primary btn-buy btn-owned-play" onClick={() => navigate('/library')}><span className="material-symbols-outlined">play_arrow</span> Jogar</button>
+                  <button className="btn btn-secondary btn-cart" onClick={() => document.getElementById('avaliacoes')?.scrollIntoView({ behavior: 'smooth' })}><span className="material-symbols-outlined">star</span> Avaliar</button>
+                  <div className="btn-owned-badge"><span className="material-symbols-outlined">check_circle</span> Na sua biblioteca</div>
                 </>
               ) : (
                 <>
-                  <button
-                    className="btn btn-primary btn-buy"
-                    onClick={handleBuy}
-                  >
-                    Comprar
-                  </button>
-                  <button
-                    className={`btn btn-secondary btn-cart ${btn.className}`}
-                    onClick={handleAddToCart}
-                    disabled={btn.disabled}
-                  >
-                    {btn.text}
-                  </button>
-                  <button
-                    className={`btn btn-secondary btn-wishlist ${wishConfig[wishState].className}`}
-                    onClick={handleWishlist}
-                  >
-                    <span className="material-symbols-outlined">
-                      {wishConfig[wishState].icon}
-                    </span>
-                    {wishConfig[wishState].label}
-                  </button>
+                  <button className="btn btn-primary btn-buy" onClick={handleBuy}>Comprar</button>
+                  <button className={`btn btn-secondary btn-cart ${btn.className}`} onClick={handleAddToCart} disabled={btn.disabled}>{btn.text}</button>
+                  <button className={`btn btn-secondary btn-wishlist ${wishConfig[wishState].className}`} onClick={handleWishlist}><span className="material-symbols-outlined">{wishConfig[wishState].icon}</span> {wishConfig[wishState].label}</button>
                 </>
               )}
 

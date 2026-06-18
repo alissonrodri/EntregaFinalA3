@@ -199,7 +199,7 @@ function Navbar() {
           id="mobile-menu-btn"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? '✖' : '☰'}
+          {isMobileMenuOpen ? <span className="material-symbols-outlined">close</span> : <span className="material-symbols-outlined">menu</span>}
         </div>
     
         <Link to="/" className="navbar-logo" onClick={() => setIsMobileMenuOpen(false)}>
@@ -237,7 +237,7 @@ function Navbar() {
           }}
         />
         
-        <span className="search-icon" onClick={handleSearchSubmit}>🔎</span>
+        <span className="search-icon" onClick={handleSearchSubmit}><span className="material-symbols-outlined">search</span></span>
 
         {isSearchOpen && searchResults.length > 0 && (
           <div className="search-dropdown">
@@ -251,7 +251,7 @@ function Navbar() {
                   setIsSearchOpen(false);
                 }}
               >
-                <span className="search-item-icon">🎮</span>
+                <span className="search-item-icon"><span className="material-symbols-outlined">sports_esports</span></span>
                 <div className="search-item-info">
                   <p className="search-item-name">{jogo.nome}</p>
                   <p className="search-item-category">{jogo.categoria}</p>
@@ -273,7 +273,7 @@ function Navbar() {
       <div className="navbar-actions">
         
         <div className="action-icon" onClick={toggleTheme} title="Alternar Tema">
-          {theme === 'light' ? '🌙' : '☀️'}
+          {theme === 'light' ? <span className="material-symbols-outlined">dark_mode</span> : <span className="material-symbols-outlined">light_mode</span>}
         </div>
 
         {isLoggedIn ? (
@@ -287,7 +287,7 @@ function Navbar() {
                 className={`action-icon notification ${unreadCount > 0 ? 'has-items' : ''}`} 
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
               >
-                🔔 {unreadCount > 0 && <span className="badge-notification">{unreadCount}</span>}
+                <span className="material-symbols-outlined">notifications</span>{unreadCount > 0 && <span className="badge-notification">{unreadCount}</span>}
               </div>
 
               {isNotifOpen && (
@@ -324,25 +324,9 @@ function Navbar() {
               )}
             </div>
 
-<<<<<<< HEAD
-            <Link
-              to="/cart"
-              className="cart-btn"
-              style={{ color: "var(--text-main)" }}
-            >
-              <div
-                className={`action-icon cart ${cartCount > 0 ? "has-items" : ""}`}
-                id="nav-cart"
-              >
-                <span className="material-symbols-outlined">shopping_cart</span>
-                {cartCount > 0 && (
-                  <span className="badge-cart">{cartCount}</span>
-                )}
-=======
-            <Link to="/cart" className="cart-btn">
+            <Link to="/cart" className="cart-btn" style={{ color: "var(--text-main)" }}>
               <div className={`action-icon cart ${cartCount > 0 ? 'has-items' : ''}`} id="nav-cart">
-                🛒 {cartCount > 0 && <span className="badge-cart">{cartCount}</span>}
->>>>>>> 945a6b8270b1d0f791b9575c1ff8515509041db1
+                <span className="material-symbols-outlined">shopping_cart</span>{cartCount > 0 && <span className="badge-cart">{cartCount}</span>}
               </div>
             </Link>
 

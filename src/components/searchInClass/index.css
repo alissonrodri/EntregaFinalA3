@@ -72,18 +72,20 @@
 }
 
 .category-icon .material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
   font-size: 2rem;
   color: var(--contrast);
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+  user-select: none;
 }
 
 .category-card:hover .category-icon {
   transform: scale(1.1);
   background: rgba(56, 109, 189, 0.22);
-}
-
-.category-icon .material-symbols-outlined {
-  font-size: 2rem;
-  color: var(--contrast);
 }
 
 .category-name {
@@ -123,4 +125,23 @@
   .category-title {
     font-size: 1.5rem;
   }
+}
+
+/* Força Material Symbols — impede sistema operacional de renderizar como emoji */
+.category-icon span[translate="no"] {
+  font-family: "Material Symbols Outlined" !important;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  color: var(--contrast);
 }

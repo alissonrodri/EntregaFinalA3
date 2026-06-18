@@ -5,17 +5,17 @@ import Sidebar from '../../components/sidebarCategories';
 import './index.css';
 
 const ICON_MAP = {
-  'RPG': '🐲',
-  'Ação': '⚔️',
-  'Aventura': '🗺️',
-  'Social': '👥',
-  'Sandbox': '🧱',
-  'Plataforma': '🏃',
-  'Puzzle': '🧩',
-  'Horror': '👻',
-  'Tiro': '🎯',
-  'Simulação': '🚜',
-  'VR': '🥽',
+  'RPG': 'castle',
+  'Ação': 'sports_martial_arts',
+  'Aventura': 'explore',
+  'Social': 'groups',
+  'Sandbox': 'construction',
+  'Plataforma': 'directions_run',
+  'Puzzle': 'extension',
+  'Horror': 'skull',
+  'Tiro': 'gps_fixed',
+  'Simulação': 'agriculture',
+  'VR': 'view_in_ar',
 };
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -280,7 +280,7 @@ function CategoriesPage() {
           <div>
             <h1 className="cat-page-heading">
               {selectedCategory
-                ? <>{ICON_MAP[selectedCategory] || '🎮'} {selectedCategory}</>
+                ? <><span className="material-symbols-outlined">{ICON_MAP[selectedCategory] || 'sports_esports'}</span> {selectedCategory}</>
                 : 'Catálogo completo'}
             </h1>
             <p className="cat-page-subheading">
@@ -305,7 +305,7 @@ function CategoriesPage() {
               className="cat-mobile-filter-btn"
               onClick={() => setSidebarOpen(o => !o)}
             >
-              {sidebarOpen ? '✕ Fechar' : '⚙ Filtros'}
+              {sidebarOpen ? <><span className="material-symbols-outlined">close</span> Fechar</> : <><span className="material-symbols-outlined">tune</span> Filtros</>}
             </button>
           </div>
         </div>
@@ -331,7 +331,7 @@ function CategoriesPage() {
         <main className="cat-main">
           {filteredAndSortedGames.length === 0 ? (
             <div className="cat-empty">
-              <span className="cat-empty-icon">🔭</span>
+              <span className="cat-empty-icon"><span className="material-symbols-outlined">search_off</span></span>
               <h3>Nenhum jogo encontrado</h3>
               <p>Tente ajustar os filtros para ver mais resultados.</p>
               <button className="cat-clear-btn cat-clear-btn--center" onClick={handleClearFilters}>
@@ -350,7 +350,7 @@ function CategoriesPage() {
                   <div key={jogo.id} className="cat-game-card">
                     
                     <Link to={`/game/${encodeURIComponent(jogo.nome)}`} className="cat-card-thumb">
-                      <span className="cat-card-thumb-icon">🎮</span>
+                      <span className="cat-card-thumb-icon"><span className="material-symbols-outlined">sports_esports</span></span>
                       <span className="cat-card-badge">{jogo.categoria?.trim()}</span>
                     </Link>
 
@@ -380,7 +380,7 @@ function CategoriesPage() {
                           className={`cat-btn-wish ${wishlistItems.has(jogo.id) ? 'wish-added' : ''}`}
                           onClick={() => handleWishlistToggle(jogo.id)}
                         >
-                          {wishlistItems.has(jogo.id) ? '♥' : '♡'}
+                          {wishlistItems.has(jogo.id) ? <span className="material-symbols-outlined">favorite</span> : <span className="material-symbols-outlined">favorite_border</span>}
                         </button>
                       </div>
                       
@@ -391,7 +391,7 @@ function CategoriesPage() {
                             onClick={() => navigate('/library')}
                             style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderColor: '#22c55e' }}
                           >
-                            ✓ Na biblioteca
+                            <span className="material-symbols-outlined">check</span> Na biblioteca
                           </button>
                         ) : (
                           <button
@@ -399,7 +399,7 @@ function CategoriesPage() {
                             onClick={() => handleAddToCart(jogo.id)}
                             disabled={addedItems[jogo.id]}
                           >
-                            {addedItems[jogo.id] ? '✓ Adicionado!' : cartItems.has(jogo.id) ? 'No carrinho' : 'Adicionar ao carrinho'}
+                            {addedItems[jogo.id] ? <><span className="material-symbols-outlined">check</span> Adicionado!</> : cartItems.has(jogo.id) ? 'No carrinho' : 'Adicionar ao carrinho'}
                           </button>
                         )}
                         <Link

@@ -136,7 +136,7 @@ function CartPage() {
             {!isCartEmpty ? (
               cartItems.map(item => (
                 <div key={item.id} className="cart-item">
-                  <div className="item-img-placeholder">🎮</div>
+                  <div className="item-img-placeholder"><span className="material-symbols-outlined">sports_esports</span></div>
 
                   <div className="item-details">
                      <Link to={`/game/${encodeURIComponent(item.nome)}`} className="item-name-link">
@@ -165,14 +165,14 @@ function CartPage() {
                       onClick={() => handleRemoveClick(item)}
                       title="Remover item"
                     >
-                      🗑️
+                      <span className="material-symbols-outlined">delete</span>
                     </button>
                   </div>
                 </div>
               ))
             ) : (
               <div className="cart-empty-box">
-                <span className="cart-empty-icon">🛒</span>
+                <span className="cart-empty-icon"><span className="material-symbols-outlined">shopping_cart</span></span>
                 <h3>Seu carrinho está vazio</h3>
                 <p>Parece que você ainda não adicionou nenhum jogo à sua lista de compras.</p>
                 <Link to="/" className="btn-browse-store">Explorar a Loja</Link>

@@ -177,7 +177,7 @@ function Wishlist() {
 
       {wishlist.length === 0 ? (
         <div className="wishlist-empty">
-          <span className="wishlist-empty-icon">♡</span>
+          <span className="wishlist-empty-icon"><span className="material-symbols-outlined">favorite_border</span></span>
           <h3>Sua lista de desejos está vazia</h3>
           <p>Explore a loja e salve os jogos que você quer comprar depois.</p>
           <Link to="/" className="btn-browse-store">Explorar a Loja</Link>
@@ -193,7 +193,7 @@ function Wishlist() {
             return (
               <article key={game.id} className="wishlist-card">
                 <Link to={`/game/${encodeURIComponent(game.nome)}`} className="wishlist-media">
-                  🎮
+                  <span className="material-symbols-outlined">sports_esports</span>
                 </Link>
                 <div className="wishlist-info">
                   <h3 className="game-name">{game.nome}</h3>
@@ -227,7 +227,7 @@ function Wishlist() {
                 <div className="wishlist-actions">
                   {isOwned ? (
                     <button className="btn-owned" onClick={() => navigate('/library')}>
-                      ✓ Na sua biblioteca
+                      <span className="material-symbols-outlined">check</span> Na sua biblioteca
                     </button>
                   ) : (
                     <button
@@ -235,7 +235,7 @@ function Wishlist() {
                       onClick={() => handleMoveToCart(game)}
                       disabled={addedItems[game.id]}
                     >
-                      {addedItems[game.id] ? '✓ Adicionado!' : cartItems.has(game.id) ? 'No carrinho' : 'Adicionar ao carrinho'}
+                      {addedItems[game.id] ? <><span className="material-symbols-outlined">check</span> Adicionado!</> : cartItems.has(game.id) ? 'No carrinho' : 'Adicionar ao carrinho'}
                     </button>
                   )}
                   <Link to={`/game/${encodeURIComponent(game.nome)}`} className="btn-details">
@@ -247,7 +247,7 @@ function Wishlist() {
                     disabled={addedItems[game.id]}
                     title="Remover da lista de desejos"
                   >
-                    🗑️
+                    <span className="material-symbols-outlined">delete</span>
                   </button>
                 </div>
               </article>

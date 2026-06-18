@@ -94,7 +94,7 @@ function CardForm({ onSubmit, loading }) {
         </select>
       </div>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
-        {loading ? <><span className="pay-spinner" /> Processando…</> : '🔒 Pagar agora'}
+        {loading ? <><span className="pay-spinner" /> Processando…</> : 'Pagar agora'}
       </button>
     </div>
   );
@@ -115,7 +115,7 @@ function BoletoForm({ onSubmit, loading }) {
   return (
     <div className="pay-form">
       <div className="pay-info-box">
-        <span className="pay-info-icon">ℹ️</span>
+        <span className="pay-info-icon"><span className="material-symbols-outlined">info</span></span>
         <p>O boleto será gerado após a confirmação. O pagamento compensa em até 3 dias úteis e os jogos serão liberados automaticamente.</p>
       </div>
       <div className="pay-field">
@@ -127,7 +127,7 @@ function BoletoForm({ onSubmit, loading }) {
         />
       </div>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
-        {loading ? <><span className="pay-spinner" /> Gerando boleto…</> : '📄 Gerar boleto'}
+        {loading ? <><span className="pay-spinner" /> Gerando boleto…</> : 'Gerar boleto'}
       </button>
     </div>
   );
@@ -142,7 +142,7 @@ function PixForm({ onSubmit, loading }) {
   return (
     <div className="pay-form">
       <div className="pay-info-box">
-        <span className="pay-info-icon">⚡</span>
+        <span className="pay-info-icon"><span className="material-symbols-outlined">bolt</span></span>
         <p>Pague instantaneamente via Pix. Após a confirmação, os jogos são liberados em segundos.</p>
       </div>
       <div className="pay-pix-preview">
@@ -164,7 +164,7 @@ function PixForm({ onSubmit, loading }) {
         </div>
       </div>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
-        {loading ? <><span className="pay-spinner" /> Confirmando…</> : '✅ Confirmar pagamento Pix'}
+        {loading ? <><span className="pay-spinner" /> Confirmando…</> : 'Confirmar pagamento Pix'}
       </button>
     </div>
   );
@@ -174,15 +174,15 @@ function PixForm({ onSubmit, loading }) {
 function SuccessScreen({ metodo }) {
   const navigate = useNavigate();
   const messages = {
-    cartao: { icon: '💳', title: 'Pagamento aprovado!', sub: 'Seu cartão foi debitado com sucesso.' },
-    boleto: { icon: '📄', title: 'Boleto gerado!',       sub: 'Pague até o vencimento para liberar os jogos.' },
-    pix:    { icon: '⚡', title: 'Pix confirmado!',      sub: 'Seus jogos já estão na biblioteca.' },
+    cartao: { icon: 'credit_card', title: 'Pagamento aprovado!', sub: 'Seu cartão foi debitado com sucesso.' },
+    boleto: { icon: 'receipt', title: 'Boleto gerado!',       sub: 'Pague até o vencimento para liberar os jogos.' },
+    pix:    { icon: 'bolt', title: 'Pix confirmado!',      sub: 'Seus jogos já estão na biblioteca.' },
   };
   const { icon, title, sub } = messages[metodo] || messages.cartao;
 
   return (
     <div className="pay-success">
-      <span className="pay-success-icon">{icon}</span>
+      <span className="pay-success-icon"><span className="material-symbols-outlined">{icon}</span></span>
       <h2>{title}</h2>
       <p>{sub}</p>
       <button className="pay-btn pay-btn--success" onClick={() => navigate('/library')}>
@@ -301,16 +301,16 @@ function Checkout() {
 
           <div className="pay-method-tabs">
             {[
-              { id: 'cartao', label: '💳 Cartão' },
-              { id: 'pix',    label: '⚡ Pix' },
-              { id: 'boleto', label: '📄 Boleto' },
+              { id: 'cartao', label: 'Cartão', icon: 'credit_card' },
+              { id: 'pix',    label: 'Pix', icon: 'bolt' },
+              { id: 'boleto', label: 'Boleto', icon: 'receipt' },
             ].map(m => (
               <button
                 key={m.id}
                 className={`pay-method-tab ${method === m.id ? 'active' : ''}`}
                 onClick={() => setMethod(m.id)}
               >
-                {m.label}
+                <span className="material-symbols-outlined">{m.icon}</span> {m.label}
               </button>
             ))}
           </div>
@@ -330,7 +330,7 @@ function Checkout() {
               const final = d > 0 ? p * (1 - d / 100) : p;
               return (
                 <div key={item.id} className="pay-summary-item">
-                  <span className="pay-summary-item-icon">🎮</span>
+                  <span className="pay-summary-item-icon"><span className="material-symbols-outlined">sports_esports</span></span>
                   <div className="pay-summary-item-info">
                     <p className="pay-summary-item-name">{item.nome}</p>
                     <p className="pay-summary-item-cat">{item.categoria}</p>
