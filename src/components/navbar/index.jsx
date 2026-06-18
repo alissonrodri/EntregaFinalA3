@@ -64,6 +64,7 @@ function Navbar() {
     setIsMenuOpen(false);
     setNotifications([]);
     navigate('/');
+    window.location.reload();
   }
 
   const getInitials = (fullName) => {
