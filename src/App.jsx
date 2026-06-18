@@ -4,6 +4,7 @@ import Footer from "./components/footer";
 import Home from "./pages/home";
 import SignIn from "./pages/signIn";
 import SignUp from "./pages/signUp";
+import EditUser from "./pages/editUser";
 import SearchPage from "./pages/search";
 import GamePage from "./pages/gamepage";
 import CategoriesPage from "./pages/categories";
@@ -13,8 +14,12 @@ import Library from "./pages/library";
 import Checkout from "./pages/checkout";
 import History from "./pages/history";
 import AdminPage from "./pages/admin";
-import EditUser from "./pages/editUser";
 import ForgotPassword from "./pages/forgotPassword";
+import FAQ from "./pages/FAQ/FAQ";
+import SobreNos from "./pages/SobreNos/SobreNos";
+import TermosServico from "./pages/TermosServico/TermosServico";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade/PoliticaPrivacidade";
+import PoliticaReembolso from "./pages/PoliticaReembolso/PoliticaReembolso";
 
 function AppRoutes() {
   const location = useLocation();
@@ -35,6 +40,7 @@ function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/edit-profile" element={<EditUser />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/game/:id" element={<GamePage />} />
           <Route path="/categorias" element={<CategoriesPage />} />
@@ -44,8 +50,12 @@ function AppRoutes() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/history" element={<History />} />
           <Route path="/admin" element={<AdminPage />} />
-          <Route path="/edit-profile" element={<EditUser />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/sobre" element={<SobreNos />} />
+          <Route path="/termos" element={<TermosServico />} />
+          <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+          <Route path="/reembolso" element={<PoliticaReembolso />} />
         </Routes>
       </main>
 

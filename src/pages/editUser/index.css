@@ -22,7 +22,6 @@
   scrollbar-color: #2a2d3a #1c1f26;
 }
 
-
 .eu-footer {
   display: flex;
   justify-content: flex-end;
@@ -32,7 +31,6 @@
   border-top: 1px solid #2a2d3a;
   flex-shrink: 0;
 }
-
 
 .eu-avatar-wrap {
   display: flex;
@@ -54,7 +52,6 @@
   color: #386dbd;
 }
 
-
 .eu-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -66,7 +63,6 @@
   flex-direction: column;
   gap: 4px;
 }
-
 
 .eu-label {
   font-size: 0.7rem;
@@ -92,7 +88,6 @@
   align-items: center;
   gap: 4px;
 }
-
 
 .eu-input {
   background: #08090b;
@@ -202,7 +197,6 @@
   margin-top: 4px;
 }
 
-
 .eu-senha-wrap {
   position: relative;
   display: flex;
@@ -272,7 +266,6 @@
 .eu-continuar-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
-
 
 .eu-btn-cancel-small {
   background: transparent;

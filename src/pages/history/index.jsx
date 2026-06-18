@@ -36,7 +36,7 @@ function ActivationKeyBadge({ chave }) {
     <div className="hist-key-row">
       <code className="hist-key">{chave || 'XXXX-XXXX-XXXX-XXXX'}</code>
       <button className="hist-key-copy" onClick={handleCopy} title="Copiar chave">
-        {copied ? <span className="material-symbols-outlined">check</span> : <span className="material-symbols-outlined">content_copy</span>}
+        {copied ? '✓' : '⧉'}
       </button>
     </div>
   );
@@ -51,12 +51,12 @@ function VendaCard({ venda, jogos }) {
         <div className="hist-card-header-left">
           <span className="hist-order-id">Pedido #{String(venda.id).padStart(5, '0')}</span>
           <div className="hist-meta-row">
-            <span className="hist-meta-item"><span className="material-symbols-outlined">calendar_today</span> {formatDate(venda.data)}</span>
+            <span className="hist-meta-item">📅 {formatDate(venda.data)}</span>
             <span className="hist-meta-sep">·</span>
-            <span className="hist-meta-item"><span className="material-symbols-outlined">schedule</span> {formatTime(venda.data)}</span>
+            <span className="hist-meta-item">🕐 {formatTime(venda.data)}</span>
             <span className="hist-meta-sep">·</span>
             <span className="hist-meta-item">
-              <span className="material-symbols-outlined">sports_esports</span> {venda.quantidade} {venda.quantidade === 1 ? 'jogo' : 'jogos'}
+              🎮 {venda.quantidade} {venda.quantidade === 1 ? 'jogo' : 'jogos'}
             </span>
           </div>
         </div>
@@ -74,7 +74,7 @@ function VendaCard({ venda, jogos }) {
           ) : (
             jogos.map((item, i) => (
               <div key={i} className="hist-item">
-                <div className="hist-item-icon material-symbols-outlined">sports_esports</div>
+                <div className="hist-item-icon">🎮</div>
                 <div className="hist-item-info">
                   {item.isDeleted ? (
                     <span className="hist-item-name" style={{ color: 'var(--text-muted)' }}>
@@ -183,7 +183,7 @@ export default function History() {
 
       {vendas.length === 0 ? (
         <div className="hist-empty">
-          <span className="hist-empty-icon material-symbols-outlined">receipt_long</span>
+          <span className="hist-empty-icon">🧾</span>
           <h3>Nenhuma compra ainda</h3>
           <p>Quando você finalizar um pedido, ele aparecerá aqui com todos os detalhes.</p>
           <Link to="/" className="hist-empty-btn">Explorar a Loja</Link>

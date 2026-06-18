@@ -1,116 +1,108 @@
-import { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import api from "../../services/api";
-import "./index.css";
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import './index.css';
 
 function getInstallState(jogoId) {
   try {
-    return localStorage.getItem(`install_${jogoId}`) || "not_installed";
+    return localStorage.getItem(`install_${jogoId}`) || 'not_installed';
   } catch {
-    return "not_installed";
+    return 'not_installed';
   }
 }
 
 function setInstallState(jogoId, state) {
   try {
     localStorage.setItem(`install_${jogoId}`, state);
-  } catch {}
+  } catch {
+    // silencioso
+  }
 }
 
 function LibraryCard({ game }) {
   const [installState, setInstall] = useState(() => getInstallState(game.id));
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [menuOpen, setMenuOpen]     = useState(false);
+  const [progress, setProgress]     = useState(0);
 
   const handleInstall = () => {
-    if (installState !== "not_installed") return;
-    setInstall("installing");
-    setInstallState(game.id, "installing");
+    if (installState !== 'not_installed') return;
+    setInstall('installing');
+    setInstallState(game.id, 'installing');
     setProgress(0);
-    const start = Date.now(),
-      duration = 7000;
+
+    const start    = Date.now();
+    const duration = 7000;
     const tick = setInterval(() => {
       const pct = Math.min(((Date.now() - start) / duration) * 100, 100);
       setProgress(pct);
       if (pct >= 100) {
         clearInterval(tick);
-        setInstall("installed");
-        setInstallState(game.id, "installed");
+        setInstall('installed');
+        setInstallState(game.id, 'installed');
       }
     }, 80);
   };
 
   const handleUninstall = () => {
-    setInstall("not_installed");
-    setInstallState(game.id, "not_installed");
+    setInstall('not_installed');
+    setInstallState(game.id, 'not_installed');
     setMenuOpen(false);
     setProgress(0);
   };
 
   return (
     <article className="lib-card">
-      <Link
-        to={`/game/${encodeURIComponent(game.nome)}`}
-        className="lib-card-media"
-      >
-        <span className="lib-card-icon material-symbols-outlined">
-          sports_esports
-        </span>
-        <span className="lib-card-category">{game.categoria || "—"}</span>
+      <Link to={`/game/${encodeURIComponent(game.nome)}`} className="lib-card-media">
+        <span className="lib-card-icon">🎮</span>
+        <span className="lib-card-category">{game.categoria || '—'}</span>
       </Link>
 
       <div className="lib-card-body">
-        <Link
-          to={`/game/${encodeURIComponent(game.nome)}`}
-          className="item-name-link"
-        >
-          <h3 className="lib-card-title">{game.nome}</h3>
+        <Link to={`/game/${encodeURIComponent(game.nome)}`} className="item-name-link">
+         <h3 className="lib-card-title">{game.nome}</h3>
         </Link>
-        <p className="lib-card-meta">{game.empresa_nome || "—"}</p>
+        
+        <p className="lib-card-meta">{game.empresa_nome || '—'}</p>
+
         <div className="lib-card-progress-wrap">
           <div
-            className={`lib-card-progress-bar${installState === "installing" ? " installing" : ""}`}
+            className={`lib-card-progress-bar${installState === 'installing' ? ' installing' : ''}`}
             style={{
-              width:
-                installState === "installed"
-                  ? "100%"
-                  : installState === "installing"
-                    ? `${progress}%`
-                    : "0%",
+              width: installState === 'installed'
+                ? '100%'
+                : installState === 'installing'
+                ? `${progress}%`
+                : '0%',
             }}
           />
         </div>
       </div>
 
       <div className="lib-card-actions">
-        {installState === "not_installed" && (
+        {installState === 'not_installed' && (
           <button className="lib-btn lib-btn-install" onClick={handleInstall}>
-            <span className="material-symbols-outlined">download</span>
-            Instalar
+            ⬇ Instalar
           </button>
         )}
 
-        {installState === "installing" && (
+        {installState === 'installing' && (
           <button className="lib-btn lib-btn-installing" disabled>
             <span className="lib-spinner" />
             Instalando… {Math.floor(progress)}%
           </button>
         )}
 
-        {installState === "installed" && (
+        {installState === 'installed' && (
           <>
-            <button className="lib-btn lib-btn-play">
-              <span className="material-symbols-outlined">play_arrow</span>
-              Jogar
-            </button>
+            <button className="lib-btn lib-btn-play">▶ Jogar</button>
 
             <div className="lib-gear-wrap">
               <button
                 className="lib-btn-gear"
-                onClick={() => setMenuOpen((o) => !o)}
+                onClick={() => setMenuOpen(o => !o)}
                 title="Opções"
               >
-                <span className="material-symbols-outlined">settings</span>
+                ⚙
               </button>
 
               {menuOpen && (
@@ -119,8 +111,7 @@ function LibraryCard({ game }) {
                     className="lib-gear-item lib-gear-item--danger"
                     onClick={handleUninstall}
                   >
-                    <span className="material-symbols-outlined">delete</span>
-                    Desinstalar
+                    🗑 Desinstalar
                   </button>
                 </div>
               )}
@@ -134,50 +125,55 @@ function LibraryCard({ game }) {
 
 function Library() {
   const navigate = useNavigate();
-  const [games, setGames] = useState([]);
+  const [games, setGames]     = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch]   = useState('');
 
   const fetchLibrary = useCallback(async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      navigate("/signin");
+      navigate('/signin');
       return;
     }
+
     try {
+      
       const [myGamesRes, publicRes] = await Promise.all([
-        api.get("/usuarios/my/games"),
-        api.get("/public/jogos"),
+        api.get('/usuarios/my/games'),
+        api.get('/public/jogos'),
       ]);
-      const myGames = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
-      const publicGames = Array.isArray(publicRes.data) ? publicRes.data : [];
-      const jogosComprados = myGames.filter(
-        (item) => item.chaveAtivacao && item.chaveAtivacao.trim() !== "",
-      );
+
+      const myGames    = Array.isArray(myGamesRes.data) ? myGamesRes.data : [];
+      const publicGames = Array.isArray(publicRes.data)  ? publicRes.data  : [];
+      const jogosComprados = myGames.filter(item => item.chaveAtivacao && item.chaveAtivacao.trim() !== '');
+
       const libraryGames = jogosComprados.map(({ jogo }) => {
-        const publicGame = publicGames.find((g) => g.nome === jogo.nome);
+        const publicGame = publicGames.find(g => g.nome === jogo.nome);
         return {
           ...jogo,
-          categoria: publicGame?.categoria || "—",
-          empresa_nome: publicGame?.empresa_nome || "—",
+          categoria:    publicGame?.categoria    || '—',
+          empresa_nome: publicGame?.empresa_nome || '—',
         };
       });
+
       setGames(libraryGames);
     } catch (err) {
-      console.error("Erro ao carregar biblioteca:", err);
+      console.error('Erro ao carregar biblioteca:', err);
     } finally {
       setLoading(false);
     }
   }, [navigate]);
 
   useEffect(() => {
-    setTimeout(() => {
+    setTimeout(() => { 
       fetchLibrary();
     }, 0);
   }, [fetchLibrary]);
 
-  const filtered = games.filter((g) =>
-    g.nome.toLowerCase().includes(search.toLowerCase()),
+  
+
+  const filtered = games.filter(g =>
+    g.nome.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) {
@@ -195,20 +191,16 @@ function Library() {
         <div className="lib-header-top">
           <div>
             <h1 className="lib-title">Minha Biblioteca</h1>
-            <p className="lib-desc">
-              Gerencie sua coleção e inicie sua próxima aventura.
-            </p>
+            <p className="lib-desc">Gerencie sua coleção e inicie sua próxima aventura.</p>
           </div>
           <div className="lib-search-wrap">
-            <span className="lib-search-icon material-symbols-outlined">
-              search
-            </span>
+            <span className="lib-search-icon">🔎</span>
             <input
               className="lib-search"
               type="text"
               placeholder="Buscar na biblioteca…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
             />
           </div>
         </div>
@@ -223,26 +215,20 @@ function Library() {
 
       {filtered.length === 0 ? (
         <div className="lib-empty">
-          <span className="lib-empty-icon material-symbols-outlined">
-            sports_esports
-          </span>
-          <h3>
-            {search ? "Nenhum jogo encontrado" : "Sua biblioteca está vazia"}
-          </h3>
+          <span className="lib-empty-icon">🎮</span>
+          <h3>{search ? 'Nenhum jogo encontrado' : 'Sua biblioteca está vazia'}</h3>
           <p>
             {search
-              ? "Tente outros termos de busca."
-              : "Explore a loja e compre seus primeiros jogos!"}
+              ? 'Tente outros termos de busca.'
+              : 'Explore a loja e compre seus primeiros jogos!'}
           </p>
           {!search && (
-            <Link to="/" className="lib-empty-btn">
-              Explorar a Loja
-            </Link>
+            <Link to="/" className="lib-empty-btn">Explorar a Loja</Link>
           )}
         </div>
       ) : (
         <div className="lib-grid">
-          {filtered.map((game) => (
+          {filtered.map(game => (
             <LibraryCard key={game.id} game={game} />
           ))}
         </div>
