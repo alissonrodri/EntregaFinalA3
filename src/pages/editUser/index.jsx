@@ -239,6 +239,8 @@ function EditUser() {
     if (!novaSenha) novosErros.novaSenha = "Digite a nova senha.";
     else if (novaSenha.length < 8)
       novosErros.novaSenha = "Mínimo de 8 caracteres.";
+    else if (novaSenha.length > 15)
+      novosErros.novaSenha = "Máximo de 15 caracteres.";
     if (!confirmarSenha) novosErros.confirmarSenha = "Confirme a nova senha.";
     else if (novaSenha !== confirmarSenha)
       novosErros.confirmarSenha = "As senhas não coincidem.";
