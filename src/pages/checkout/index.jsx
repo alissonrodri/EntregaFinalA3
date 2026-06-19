@@ -93,9 +93,12 @@ function CardForm({ onSubmit, loading }) {
           ))}
         </select>
       </div>
+      <div className='footer-pay-form'>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? <><span className="pay-spinner" /> Processando…</> : 'Pagar agora'}
       </button>
+      </div>
+      
     </div>
   );
 }
@@ -126,9 +129,12 @@ function BoletoForm({ onSubmit, loading }) {
           onChange={e => setCpf(maskCPF(e.target.value))}
         />
       </div>
+      <div className='footer-pay-form'>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? <><span className="pay-spinner" /> Gerando boleto…</> : 'Gerar boleto'}
       </button>
+      </div>
+      
     </div>
   );
 }
@@ -163,9 +169,12 @@ function PixForm({ onSubmit, loading }) {
           </button>
         </div>
       </div>
+      <div className='footer-pay-form'>
       <button className="pay-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? <><span className="pay-spinner" /> Confirmando…</> : 'Confirmar pagamento Pix'}
       </button>
+      </div>
+      
     </div>
   );
 }

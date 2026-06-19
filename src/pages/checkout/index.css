@@ -40,6 +40,7 @@
 
 .pay-method-tabs {
   display: flex;
+  align-items: center;
   gap: 8px;
   margin-bottom: 32px;
   border-bottom: 1px solid var(--border);
@@ -221,6 +222,11 @@
 
 .pay-pix-copy-btn:hover {
   filter: brightness(1.12);
+}
+
+.footer-pay-form{
+  display: flex;
+  justify-content: center;
 }
 
 .pay-btn {
