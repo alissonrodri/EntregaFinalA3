@@ -428,8 +428,8 @@ function AdminPanel() {
                     {topGames.length === 0 ? (
                       <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
-                      <ResponsiveContainer width="100%" height={280}>
-                        <BarChart data={topGames} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
+                      <ResponsiveContainer width="100%" height={340}>
+                        <BarChart data={topGames} margin={{ top: 5, right: 10, left: 0, bottom: 120 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                           <XAxis dataKey="jogo" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                           <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 12 }} allowDecimals={false} />
@@ -446,8 +446,8 @@ function AdminPanel() {
                     {topCompaniesDash.length === 0 ? (
                       <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
-                      <ResponsiveContainer width="100%" height={280}>
-                        <BarChart data={topCompaniesDash} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
+                      <ResponsiveContainer width="100%" height={340}>
+                        <BarChart data={topCompaniesDash} margin={{ top: 5, right: 10, left: 0, bottom: 120 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                           <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                           <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 12 }} allowDecimals={false} />
@@ -463,8 +463,8 @@ function AdminPanel() {
                     {topCategoriesDash.length === 0 ? (
                       <p className="admin-empty-state" style={{ padding: 20 }}>Sem dados.</p>
                     ) : (
-                      <ResponsiveContainer width="100%" height={280}>
-                        <BarChart data={topCategoriesDash} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
+                      <ResponsiveContainer width="100%" height={340}>
+                        <BarChart data={topCategoriesDash} margin={{ top: 5, right: 10, left: 0, bottom: 120 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                           <XAxis dataKey="name" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                           <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 12 }} allowDecimals={false} />
