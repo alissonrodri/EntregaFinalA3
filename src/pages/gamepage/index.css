@@ -181,7 +181,7 @@
 
 .btn-primary {
   background-color: var(--contrast);
-  color: var(--bg-dark);
+  color: var(--text-main);
 }
 
 .btn-secondary {
@@ -467,7 +467,7 @@
 
 .btn-owned-play {
   background: var(--contrast);
-  color: var(--bg-dark); /* Garante visibilidade no hover e idle */
+  color: var(--text-main); 
   position: relative;
   overflow: hidden;
 }
