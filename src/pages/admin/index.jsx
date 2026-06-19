@@ -40,21 +40,18 @@ function AdminPanel() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
 
-
   const [games, setGames] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [profiles, setProfiles] = useState([]);
 
- 
   const [dashLoading, setDashLoading] = useState(false);
   const [topGames, setTopGames] = useState([]);
   const [topCompaniesDash, setTopCompaniesDash] = useState([]);
   const [topCategoriesDash, setTopCategoriesDash] = useState([]);
   const [topRatedDash, setTopRatedDash] = useState([]);
 
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [modalEntity, setModalEntity] = useState('jogo');
@@ -98,7 +95,6 @@ function AdminPanel() {
     setDashLoading(true);
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     try {
-      
       const [topRes, publicGamesRes, authGamesRes] = await Promise.all([
          api.get('/relatorios/jogos-mais-vendidos?top=200', { headers }).catch(() => ({ data: [] })),
          api.get('/public/jogos').catch(() => ({ data: [] })),
@@ -114,7 +110,6 @@ function AdminPanel() {
         return match ? { ...gPublic, id: match.id } : gPublic;
       });
 
-      
       const formattedSales = data.map(item => ({
         jogo: item.nome || item.jogo || 'Desconhecido',
         empresa: item.empresa_nome || item.empresa || '—',
@@ -123,7 +118,6 @@ function AdminPanel() {
       formattedSales.sort((a, b) => b.totalVendas - a.totalVendas);
       setTopGames(formattedSales.slice(0, 10));
 
-    
       const compMap = {};
       formattedSales.forEach(s => {
         if (!compMap[s.empresa]) compMap[s.empresa] = 0;
@@ -134,7 +128,6 @@ function AdminPanel() {
         .sort((a, b) => b.vendas - a.vendas).slice(0, 10);
       setTopCompaniesDash(compRanking);
 
-   
       const catMap = {};
       formattedSales.forEach(s => {
          const gObj = gamesWithId.find(g => g.nome === s.jogo);
@@ -147,7 +140,6 @@ function AdminPanel() {
         .sort((a, b) => b.vendas - a.vendas);
       setTopCategoriesDash(catRanking);
 
-    
       const ratingsPromises = gamesWithId.map(async (g) => {
          if(!g.id) return { ...g, media: 0, total: 0 };
          try {
@@ -317,7 +309,6 @@ function AdminPanel() {
             { key: 'dashboard', icon: 'dashboard',   label: 'Dashboard' },
             { key: 'jogos',     icon: 'sports_esports', label: 'Gerenciar Jogos' },
             { key: 'empresas',  icon: 'business',    label: 'Gerenciar Empresas' },
-            { key: 'categorias',icon: 'label',       label: 'Categorias' },
             { key: 'usuarios',  icon: 'group',       label: 'Gerenciar Usuários' },
           ].map(({ key, icon, label }) => (
             <button
@@ -331,10 +322,8 @@ function AdminPanel() {
         </nav>
       </aside>
 
-      
       <main className="admin-main">
 
-        
         {activeTab === 'dashboard' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -361,16 +350,11 @@ function AdminPanel() {
                     <div><p className="dash-kpi-value">{companies.length}</p><p className="dash-kpi-label">Empresas</p></div>
                   </div>
                   <div className="dash-kpi-card">
-                    <span className="dash-kpi-icon"><span className="material-symbols-outlined">label</span></span>
-                    <div><p className="dash-kpi-value">{categories.length}</p><p className="dash-kpi-label">Categorias</p></div>
-                  </div>
-                  <div className="dash-kpi-card">
                     <span className="dash-kpi-icon"><span className="material-symbols-outlined">group</span></span>
                     <div><p className="dash-kpi-value">{users.length}</p><p className="dash-kpi-label">Usuários</p></div>
                   </div>
                 </div>
 
-                {/* 1. Secão de Melhores Avaliados */}
                 <div className="top-rated-section">
                   <h3 className="dash-card-title"><span className="material-symbols-outlined">star</span> Top 3 Jogos Mais Bem Avaliados</h3>
                   {topRatedDash.length === 0 ? (
@@ -394,7 +378,6 @@ function AdminPanel() {
                   )}
                 </div>
 
-                
                 <div className="top-rated-section">
                   <h3 className="dash-card-title"><span className="material-symbols-outlined">emoji_events</span> Top 3 Jogos Mais Vendidos</h3>
                   {topGames.length === 0 ? (
@@ -419,9 +402,7 @@ function AdminPanel() {
                   )}
                 </div>
 
-                
                 <div className="dash-grid-3">
-                  
                   
                   <div className="dash-card">
                     <h3 className="dash-card-title"><span className="material-symbols-outlined">sports_esports</span> Jogos Mais Vendidos</h3>
@@ -440,7 +421,6 @@ function AdminPanel() {
                     )}
                   </div>
 
-                 
                   <div className="dash-card">
                     <h3 className="dash-card-title"><span className="material-symbols-outlined">business</span> Empresas com Mais Vendas</h3>
                     {topCompaniesDash.length === 0 ? (
@@ -481,7 +461,6 @@ function AdminPanel() {
           </section>
         )}
 
-        
         {activeTab === 'jogos' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -524,7 +503,6 @@ function AdminPanel() {
           </section>
         )}
 
-        
         {activeTab === 'empresas' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -560,36 +538,6 @@ function AdminPanel() {
           </section>
         )}
 
-       
-        {activeTab === 'categorias' && (
-          <section className="admin-section">
-            <div className="admin-header">
-              <div>
-                <h1 className="admin-title">Listagem de Categorias</h1>
-                <p className="admin-subtitle">Visualize os gêneros de jogos disponíveis no sistema.</p>
-              </div>
-            </div>
-            <div className="admin-table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr><th>ID</th><th>Nome da Categoria</th></tr>
-                </thead>
-                <tbody>
-                  {categories.length === 0 ? (
-                    <tr><td colSpan="2" className="admin-empty-state">Nenhuma categoria cadastrada.</td></tr>
-                  ) : categories.map(cat => (
-                    <tr key={cat.id}>
-                      <td>#{cat.id}</td>
-                      <td className="admin-td-bold">{cat.nome}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
-
-        
         {activeTab === 'usuarios' && (
           <section className="admin-section">
             <div className="admin-header">
@@ -641,7 +589,6 @@ function AdminPanel() {
         )}
       </main>
 
-     
       {isModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true">
           <div className="admin-modal-box">
@@ -700,7 +647,6 @@ function AdminPanel() {
         </div>
       )}
 
-      
       {isUserModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true" aria-label="Editar usuário">
           <div className="admin-modal-box">
@@ -737,7 +683,6 @@ function AdminPanel() {
         </div>
       )}
 
-     
       {isDeleteModalOpen && (
         <div className="admin-modal-overlay" role="dialog" aria-modal="true">
           <div className="admin-modal-box admin-modal-alert">
