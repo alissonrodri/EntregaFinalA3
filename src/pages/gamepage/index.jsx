@@ -415,7 +415,7 @@ function GamePage() {
 
               {isOwned ? (
                 <>
-                  <button className="btn btn-primary btn-buy btn-owned-play" onClick={() => navigate('/library')}><span className="material-symbols-outlined">play_arrow</span> Jogar</button>
+                  <button className="btn btn-primary btn-buy btn-owned-play" onClick={() => navigate('/library')}>Ver na biblioteca</button>
                   <button className="btn btn-secondary btn-cart" onClick={() => document.getElementById('avaliacoes')?.scrollIntoView({ behavior: 'smooth' })}><span className="material-symbols-outlined">star</span> Avaliar</button>
                   <div className="btn-owned-badge"><span className="material-symbols-outlined">check_circle</span> Na sua biblioteca</div>
                 </>
