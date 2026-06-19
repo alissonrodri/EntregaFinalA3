@@ -45,15 +45,12 @@ function EditUser() {
       zIndex: 9999,
     },
     container: {
-      background: "#1c1f26",
-      border: "1px solid #2a2d3a",
       borderRadius: "16px",
       width: "90%",
       maxWidth: "560px",
       maxHeight: "88vh",
       display: "flex",
       flexDirection: "column",
-      color: "#e8eaf0",
       overflow: "hidden",
     },
   };
@@ -286,7 +283,7 @@ function EditUser() {
 
   return (
     <div style={inlineStyles.overlay}>
-      <div style={inlineStyles.container}>
+      <div className="eu-container" style={inlineStyles.container}>
         <div className="eu-header">
           <h2 className="eu-title">Editar Perfil</h2>
         </div>
