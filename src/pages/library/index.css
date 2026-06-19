@@ -218,23 +218,25 @@
   color: var(--text-muted);
 }
 
-.lib-card-progress-wrap {
-  height: 4px;
-  border-radius: 2px;
+.lib-activation-key {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
   background: var(--bg-dark);
-  margin-top: 12px;
-  overflow: hidden;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
-.lib-card-progress-bar {
-  height: 100%;
-  border-radius: 2px;
-  background: var(--contrast);
-  transition: width 0.08s linear;
-}
-
-.lib-card-progress-bar.installing {
-  background: linear-gradient(90deg, var(--contrast), #4fc3f7);
+.lib-activation-key-value {
+  font-family: monospace;
+  user-select: all;
 }
 
 .lib-card-actions {

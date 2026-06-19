@@ -3,53 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./index.css";
 
-function getInstallState(jogoId) {
-  try {
-    return localStorage.getItem(`install_${jogoId}`) || "not_installed";
-  } catch {
-    return "not_installed";
-  }
-}
-
-function setInstallState(jogoId, state) {
-  try {
-    localStorage.setItem(`install_${jogoId}`, state);
-  } catch {
-    // silencioso
-  }
-}
-
 function LibraryCard({ game }) {
-  const [installState, setInstall] = useState(() => getInstallState(game.id));
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  const handleInstall = () => {
-    if (installState !== "not_installed") return;
-    setInstall("installing");
-    setInstallState(game.id, "installing");
-    setProgress(0);
-
-    const start = Date.now();
-    const duration = 7000;
-    const tick = setInterval(() => {
-      const pct = Math.min(((Date.now() - start) / duration) * 100, 100);
-      setProgress(pct);
-      if (pct >= 100) {
-        clearInterval(tick);
-        setInstall("installed");
-        setInstallState(game.id, "installed");
-      }
-    }, 80);
-  };
-
-  const handleUninstall = () => {
-    setInstall("not_installed");
-    setInstallState(game.id, "not_installed");
-    setMenuOpen(false);
-    setProgress(0);
-  };
-
   return (
     <article className="lib-card">
       <Link
@@ -71,66 +25,15 @@ function LibraryCard({ game }) {
         </Link>
 
         <p className="lib-card-meta">{game.empresa_nome || "—"}</p>
-
-        <div className="lib-card-progress-wrap">
-          <div
-            className={`lib-card-progress-bar${installState === "installing" ? " installing" : ""}`}
-            style={{
-              width:
-                installState === "installed"
-                  ? "100%"
-                  : installState === "installing"
-                    ? `${progress}%`
-                    : "0%",
-            }}
-          />
-        </div>
       </div>
 
       <div className="lib-card-actions">
-        {installState === "not_installed" && (
-          <button className="lib-btn lib-btn-install" onClick={handleInstall}>
-            <span className="material-symbols-outlined">download</span> Instalar
-          </button>
-        )}
-
-        {installState === "installing" && (
-          <button className="lib-btn lib-btn-installing" disabled>
-            <span className="lib-spinner" />
-            Instalando… {Math.floor(progress)}%
-          </button>
-        )}
-
-        {installState === "installed" && (
-          <>
-            <button className="lib-btn lib-btn-play">
-              <span className="material-symbols-outlined">play_arrow</span>{" "}
-              Jogar
-            </button>
-
-            <div className="lib-gear-wrap">
-              <button
-                className="lib-btn-gear"
-                onClick={() => setMenuOpen((o) => !o)}
-                title="Opções"
-              >
-                <span className="material-symbols-outlined">settings</span>
-              </button>
-
-              {menuOpen && (
-                <div className="lib-gear-menu">
-                  <button
-                    className="lib-gear-item lib-gear-item--danger"
-                    onClick={handleUninstall}
-                  >
-                    <span className="material-symbols-outlined">delete</span>{" "}
-                    Desinstalar
-                  </button>
-                </div>
-              )}
-            </div>
-          </>
-        )}
+        <div className="lib-activation-key">
+          <span className="material-symbols-outlined">key</span>
+          <span className="lib-activation-key-value">
+            {game.chaveAtivacao || "—"}
+          </span>
+        </div>
       </div>
     </article>
   );
@@ -161,10 +64,11 @@ function Library() {
         (item) => item.chaveAtivacao && item.chaveAtivacao.trim() !== "",
       );
 
-      const libraryGames = jogosComprados.map(({ jogo }) => {
+      const libraryGames = jogosComprados.map(({ jogo, chaveAtivacao }) => {
         const publicGame = publicGames.find((g) => g.nome === jogo.nome);
         return {
           ...jogo,
+          chaveAtivacao,
           categoria: publicGame?.categoria || "—",
           empresa_nome: publicGame?.empresa_nome || "—",
         };
