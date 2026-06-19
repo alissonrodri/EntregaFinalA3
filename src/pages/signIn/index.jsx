@@ -72,7 +72,6 @@ function SignIn() {
           <div className="password-input-wrapper">
             <input
               id="senha"
-              // Altera dinamicamente entre 'password' e 'text'
               type={passwordVisible ? "text" : "password"}
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
@@ -80,7 +79,6 @@ function SignIn() {
               required
               autoComplete="current-password"
             />
-            {/* Botão do ícone ajustado para usar as imagens */}
             <button
               type="button"
               className="password-toggle-btn"
@@ -88,7 +86,6 @@ function SignIn() {
               title={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
               aria-label={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
             >
-              {/* --- ALTERAÇÃO AQUI: Renderização condicional das imagens --- */}
               {passwordVisible ? (
                 <img
                   src={iconHidden}
@@ -114,14 +111,13 @@ function SignIn() {
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
+        <Link to="/" className="continue-without-login">
+          Continuar sem login
+        </Link>
+
         <div className="signin-footer">
           Não tem uma conta? <Link to="/signup">Cadastre-se</Link>
         </div>
-
-        <button type="button" className="btn-back" onClick={() => navigate(-1)}>
-          <span className="material-symbols-outlined">arrow_back</span>
-          Voltar
-        </button>
       </form>
     </div>
   );

@@ -90,6 +90,21 @@
   transform: scale(0.98);
 }
 
+.continue-without-login {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-top: 12px;
+  transition: color 0.3s ease;
+}
+
+.continue-without-login:hover {
+  color: var(--contrast);
+  text-decoration: underline;
+}
+
 .signin-footer {
   margin-top: 25px;
   text-align: center;
@@ -163,28 +178,4 @@
 
 .password-toggle-btn:active {
   transform: translateY(-50%) scale(0.9);
-}
-/* Botão voltar */
-.btn-back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: all 0.2s;
-}
-.btn-back:hover {
-  border-color: var(--contrast);
-  color: var(--text-main);
-}
-.btn-back .material-symbols-outlined {
-  font-size: 1rem;
 }
