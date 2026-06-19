@@ -183,6 +183,7 @@
   padding: 6px 10px;
   cursor: pointer;
   transition: all 0.2s;
+  color: var(--text-main); 
 }
 
 .admin-btn-icon:hover { background-color: var(--bg-dark); }
