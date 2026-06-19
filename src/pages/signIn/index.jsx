@@ -83,7 +83,7 @@ function SignIn() {
               title={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
               aria-label={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
             >
-              {/* Substituição da imagem pelo ícone de fonte */}
+            
               <span className="material-symbols-outlined password-icon">
                 {passwordVisible ? "visibility_off" : "visibility"}
               </span>
