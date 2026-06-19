@@ -205,10 +205,10 @@
 
 .dot {
   width: 35px;
-  height: 5px;
+  height: 10px;
   background: var(--border);
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 30px;
   transition: 0.3s;
 }
 
