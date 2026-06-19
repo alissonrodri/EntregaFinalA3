@@ -3,9 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "../../services/api";
 import "./index.css";
 
-import iconHidden from "../../assets/img/senha_oculta.png";
-import iconShow from "../../assets/img/senha_visivel.png";
-
 function SignIn() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -86,19 +83,10 @@ function SignIn() {
               title={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
               aria-label={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
             >
-              {passwordVisible ? (
-                <img
-                  src={iconHidden}
-                  alt="Ícone Ocultar senha"
-                  className="password-icon"
-                />
-              ) : (
-                <img
-                  src={iconShow}
-                  alt="Ícone Mostrar senha"
-                  className="password-icon"
-                />
-              )}
+              {/* Substituição da imagem pelo ícone de fonte */}
+              <span className="material-symbols-outlined password-icon">
+                {passwordVisible ? "visibility_off" : "visibility"}
+              </span>
             </button>
           </div>
 
