@@ -135,7 +135,7 @@ function SignUp() {
         senha: formData.senha,
       });
 
-      navigate("/");
+      navigate("/signin");
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
