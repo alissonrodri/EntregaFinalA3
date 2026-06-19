@@ -18,19 +18,27 @@
 }
 
 .view-all {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   color: var(--contrast);
+  background: rgba(56, 109, 189, 0.12);
+  border: 1px solid rgba(56, 109, 189, 0.35);
   text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
 }
 
 .view-all:hover {
-  filter: brightness(1.2);
-  text-decoration: underline;
+  background: rgba(56, 109, 189, 0.22);
+  border-color: var(--contrast);
+  text-decoration: none;
+  transform: translateX(2px);
+  filter: none;
 }
 
 .category-grid {

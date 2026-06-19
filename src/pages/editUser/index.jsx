@@ -81,10 +81,20 @@ function EditUser() {
         setUsernameOriginal(nomeCarregado);
         setEmail(res.data.email || "");
         if (res.data.dataNascimento) {
-          const d = new Date(res.data.dataNascimento);
-          const dd = String(d.getUTCDate()).padStart(2, "0");
-          const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-          const yyyy = d.getUTCFullYear();
+          const raw = res.data.dataNascimento;
+          let dd, mm, yyyy;
+
+          if (raw.includes("/")) {
+            // Servidor retornou DD/MM/YYYY
+            [dd, mm, yyyy] = raw.split("/");
+          } else {
+            // Servidor retornou ISO (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ssZ)
+            const d = new Date(raw);
+            dd = String(d.getUTCDate()).padStart(2, "0");
+            mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+            yyyy = String(d.getUTCFullYear());
+          }
+
           const dataFormatada = `${dd}/${mm}/${yyyy}`;
           setDataNascimento(dataFormatada);
           setDataNascimentoOriginal(dataFormatada);
@@ -221,7 +231,11 @@ function EditUser() {
     setErros({});
     setSalvando(true);
     try {
-      await api.put(`/usuarios/${userId}`, { nome: username, dataNascimento });
+      // Envia DD/MM/YYYY — mesmo formato usado em signUp, evita ambiguidade de timezone
+      await api.put(`/usuarios/${userId}`, {
+        nome: username,
+        dataNascimento: dataNascimento,
+      });
       setUsernameOriginal(username);
       setDataNascimentoOriginal(dataNascimento);
       mostrarFeedback("sucesso", "Alterações salvas!");

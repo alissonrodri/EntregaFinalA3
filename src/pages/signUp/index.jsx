@@ -51,31 +51,39 @@ function SignUp() {
   // ─── Validação de data de nascimento ───────────────────────────
   let dataNascimentoOk = false;
   if (formData.dataNascimento.length > 0) {
-    const dataSelecionada = new Date(formData.dataNascimento + "T00:00:00");
+    // Usa UTC para evitar problemas de fuso horário
+    const dataSelecionada = new Date(formData.dataNascimento + "T00:00:00Z");
     const agora = new Date();
-    agora.setHours(0, 0, 0, 0);
 
-    // Verifica se a data é válida (ex: 31/02 vira uma data diferente ao ser parseada)
+    // Verifica se a data é válida (ex: 31/02 viraria uma data diferente)
     const [ano, mes, dia] = formData.dataNascimento.split("-").map(Number);
     const dataValida =
-      dataSelecionada.getFullYear() === ano &&
-      dataSelecionada.getMonth() + 1 === mes &&
-      dataSelecionada.getDate() === dia;
+      dataSelecionada.getUTCFullYear() === ano &&
+      dataSelecionada.getUTCMonth() + 1 === mes &&
+      dataSelecionada.getUTCDate() === dia;
 
     // Verifica se não é data futura
-    const naoEFutura = dataSelecionada <= agora;
+    const anoHoje = agora.getFullYear();
+    const mesHoje = agora.getMonth() + 1;
+    const diaHoje = agora.getDate();
+    const naoEFutura =
+      ano < anoHoje ||
+      (ano === anoHoje && mes < mesHoje) ||
+      (ano === anoHoje && mes === mesHoje && dia <= diaHoje);
 
-    // Verifica idade mínima de 13 anos
-    const idadeMinima = new Date(agora);
-    idadeMinima.setFullYear(idadeMinima.getFullYear() - 13);
-    const temIdadeMinima = dataSelecionada <= idadeMinima;
+    // Verifica idade mínima de 16 anos
+    const idadeAnos =
+      anoHoje -
+      ano -
+      (mesHoje < mes || (mesHoje === mes && diaHoje < dia) ? 1 : 0);
+    const temIdadeMinima = idadeAnos >= 16;
 
     if (!dataValida) {
       errors.dataNascimento = "Data inválida.";
     } else if (!naoEFutura) {
       errors.dataNascimento = "A data não pode ser no futuro.";
     } else if (!temIdadeMinima) {
-      errors.dataNascimento = "Você deve ter pelo menos 13 anos.";
+      errors.dataNascimento = "Você deve ter pelo menos 16 anos.";
     } else {
       dataNascimentoOk = true;
     }
@@ -115,10 +123,15 @@ function SignUp() {
     setApiError(null);
 
     try {
+      // Converte YYYY-MM-DD (do input[type=date]) para DD/MM/YYYY (formato do servidor)
+      // Isso evita ambiguidade de timezone na hora de armazenar
+      const [yyyy, mm, dd] = formData.dataNascimento.split("-");
+      const dataParaServidor = `${dd}/${mm}/${yyyy}`;
+
       await api.post("/auth/register", {
         nome: formData.nickname,
         email: formData.email,
-        dataNascimento: formData.dataNascimento,
+        dataNascimento: dataParaServidor,
         senha: formData.senha,
       });
 
@@ -270,15 +283,6 @@ function SignUp() {
           <p className="signup-login-link">
             Já tem uma conta? <Link to="/signin">Entrar</Link>
           </p>
-
-          <button
-            type="button"
-            className="btn-back"
-            onClick={() => navigate(-1)}
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-            Voltar
-          </button>
         </form>
       </div>
     </div>
