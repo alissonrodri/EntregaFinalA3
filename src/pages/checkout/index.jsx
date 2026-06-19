@@ -19,7 +19,8 @@ const maskExpiry = (v) =>
    .slice(0, 4)
    .replace(/^(\d{2})(\d)/, '$1/$2');
 
-const maskCVV  = (v) => v.replace(/\D/g, '').slice(0, 3);
+const maskCVV  = (v) => v.replace(/\D/g, '').slice(0, 4); 
+
 const maskCPF  = (v) =>
   v.replace(/\D/g, '')
    .slice(0, 11)
@@ -27,6 +28,25 @@ const maskCPF  = (v) =>
      d ? `${a}.${b}.${c}-${d}` : c ? `${a}.${b}.${c}` : b ? `${a}.${b}` : a
    );
 
+// Validação de validade do cartão
+const isExpiryValid = (expiry) => {
+  if (expiry.length !== 5) return false;
+
+  const [monthStr, yearStr] = expiry.split('/');
+  const month = parseInt(monthStr, 10);
+  const year = parseInt(`20${yearStr}`, 10); 
+
+  if (month < 1 || month > 12) return false;
+
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  if (year < currentYear) return false;
+  if (year === currentYear && month < currentMonth) return false;
+
+  return true;
+};
 
 function CardForm({ onSubmit, loading }) {
   const [numero, setNumero]   = useState('');
@@ -35,11 +55,37 @@ function CardForm({ onSubmit, loading }) {
   const [cvv, setCvv]         = useState('');
   const [parcelas, setParcelas] = useState('1');
 
+  
+  const [touched, setTouched] = useState({
+    numero: false,
+    nome: false,
+    validade: false,
+    cvv: false
+  });
+
+  
+  const isNumeroValid = numero.replace(/\s/g, '').length === 16;
+  const isNomeValid = nome.trim().length > 0;
+  const isValidadeValid = isExpiryValid(validade);
+  const isCvvValid = cvv.length >= 3 && cvv.length <= 4;
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  const getInputClass = (field, isValid) => {
+    if (!touched[field]) return ''; 
+    return isValid ? 'input-valid' : 'input-invalid';
+  };
+
   const handleSubmit = () => {
-    if (!numero || !nome || !validade || !cvv) {
-      alert('Preencha todos os campos do cartão.');
+    setTouched({ numero: true, nome: true, validade: true, cvv: true });
+
+    if (!isNumeroValid || !isNomeValid || !isValidadeValid || !isCvvValid) {
+      alert('Verifique os campos destacados em vermelho.');
       return;
     }
+
     onSubmit({
       metodo: 'cartao',
       dados: { numero: numero.replace(/\s/g, ''), nome, validade, cvv, parcelas },
@@ -54,6 +100,8 @@ function CardForm({ onSubmit, loading }) {
           placeholder="0000 0000 0000 0000"
           value={numero}
           onChange={e => setNumero(maskCard(e.target.value))}
+          onBlur={() => handleBlur('numero')}
+          className={getInputClass('numero', isNumeroValid)}
         />
       </div>
       <div className="pay-field">
@@ -61,7 +109,10 @@ function CardForm({ onSubmit, loading }) {
         <input
           placeholder="Como aparece no cartão"
           value={nome}
-          onChange={e => setNome(e.target.value.toUpperCase())}
+          // Remove números antes de atualizar o estado e converter para maiúsculas
+          onChange={e => setNome(e.target.value.replace(/\d/g, '').toUpperCase())}
+          onBlur={() => handleBlur('nome')}
+          className={getInputClass('nome', isNomeValid)}
         />
       </div>
       <div className="pay-row">
@@ -71,6 +122,9 @@ function CardForm({ onSubmit, loading }) {
             placeholder="MM/AA"
             value={validade}
             onChange={e => setValidade(maskExpiry(e.target.value))}
+            onBlur={() => handleBlur('validade')}
+            maxLength={5}
+            className={getInputClass('validade', isValidadeValid)}
           />
         </div>
         <div className="pay-field">
@@ -79,7 +133,10 @@ function CardForm({ onSubmit, loading }) {
             placeholder="123"
             value={cvv}
             onChange={e => setCvv(maskCVV(e.target.value))}
+            onBlur={() => handleBlur('cvv')}
             type="password"
+            maxLength={4}
+            className={getInputClass('cvv', isCvvValid)}
           />
         </div>
       </div>
@@ -98,7 +155,6 @@ function CardForm({ onSubmit, loading }) {
         {loading ? <><span className="pay-spinner" /> Processando…</> : 'Pagar agora'}
       </button>
       </div>
-      
     </div>
   );
 }
@@ -106,9 +162,13 @@ function CardForm({ onSubmit, loading }) {
 
 function BoletoForm({ onSubmit, loading }) {
   const [cpf, setCpf] = useState('');
+  const [touched, setTouched] = useState(false);
+
+  const isCpfValid = cpf.replace(/\D/g, '').length === 11;
 
   const handleSubmit = () => {
-    if (cpf.replace(/\D/g, '').length < 11) {
+    setTouched(true);
+    if (!isCpfValid) {
       alert('Informe um CPF válido.');
       return;
     }
@@ -127,6 +187,8 @@ function BoletoForm({ onSubmit, loading }) {
           placeholder="000.000.000-00"
           value={cpf}
           onChange={e => setCpf(maskCPF(e.target.value))}
+          onBlur={() => setTouched(true)}
+          className={touched ? (isCpfValid ? 'input-valid' : 'input-invalid') : ''}
         />
       </div>
       <div className='footer-pay-form'>
@@ -134,7 +196,6 @@ function BoletoForm({ onSubmit, loading }) {
         {loading ? <><span className="pay-spinner" /> Gerando boleto…</> : 'Gerar boleto'}
       </button>
       </div>
-      
     </div>
   );
 }
@@ -174,7 +235,6 @@ function PixForm({ onSubmit, loading }) {
         {loading ? <><span className="pay-spinner" /> Confirmando…</> : 'Confirmar pagamento Pix'}
       </button>
       </div>
-      
     </div>
   );
 }
@@ -266,17 +326,13 @@ function Checkout() {
   const handlePay = async ({ metodo, dados }) => {
     setLoading(true);
     try {
-      
       await api.post('/vendas/pay', { metodo, dados });
-
-      
       await api.post('/vendas/checkout');
 
       window.dispatchEvent(new CustomEvent('notify', { 
         detail: { text: 'Compra aprovada! Verifique na sua biblioteca. 🎮', link: '/library' } 
       }));
 
-      
       localStorage.setItem('cartCount', '0');
       window.dispatchEvent(new Event('cartUpdated'));
 

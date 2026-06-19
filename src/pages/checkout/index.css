@@ -429,6 +429,26 @@
   max-width: 340px;
 }
 
+.pay-field input.input-valid {
+  border-color: #22c55e;
+}
+
+.pay-field input.input-invalid {
+  border-color: #ef4444;
+}
+
+.pay-field input.input-valid:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px #22c55e;
+  outline: none;
+}
+
+.pay-field input.input-invalid:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px #ef4444;
+  outline: none;
+}
+
 @media (max-width: 780px) {
   .pay-page {
     padding: 28px 16px;
