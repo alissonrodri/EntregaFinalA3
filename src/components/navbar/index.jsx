@@ -53,6 +53,15 @@ function Navbar() {
   };
 
   function handleLogout() {
+    
+    const keys = Object.keys(localStorage);
+    keys.forEach((key) => {
+      if (key.startsWith("install_")) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+
     localStorage.removeItem('token');
     localStorage.removeItem('cartCount');
     localStorage.removeItem('clt_notifications');
@@ -155,7 +164,7 @@ function Navbar() {
       const welcomeShown = sessionStorage.getItem('welcomeShown');
       if (!welcomeShown) {
         window.dispatchEvent(new CustomEvent('notify', {
-          detail: { text: `Bem-vindo (a) de volta, ${user.nome}! 🎮`, link: '/' }
+          detail: { text: `Bem-vindo(a) de volta, ${user.nome}! 🎮`, link: '/' }
         }));
         sessionStorage.setItem('welcomeShown', 'true');
       }
